@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  chromadb:
+    container_name: lama_db
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/data
+    environment:
+      - IS_PERSISTENT=TRUE
+    command: "--workers 1 --host 0.0.0.0 --port 8000"
+
+  lama_backend:
+    container_name: lama_be
+    build: ./backend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - chromadb
+    env_file:
+      - backend/.env
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  lama_frontend:
+    container_name: lama_fe
+    build: ./frontend
+    ports:
+      - '5173:5173'
+    depends_on:
+      - lama_backend
+    env_file:
+      - frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+volumes:
+  chroma_data:
+    name: lama_chroma_volume
+  backend:
+    name: lama_backend_volume
+  frontend:
+    name: lama_frontend_volume
