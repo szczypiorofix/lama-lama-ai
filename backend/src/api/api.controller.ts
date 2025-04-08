@@ -11,6 +11,8 @@ import { HttpService } from '@nestjs/axios';
 import { AskDto } from '../dto/ask.dto';
 import { LlamaResponseChunk, RagAskResponse } from '../shared/models';
 import { ConfigService } from '@nestjs/config';
+import { RagService } from '../rag/rag.service';
+import { LlmService } from '../llm/llm.service';
 
 @Controller('api')
 export class ApiController {
@@ -18,6 +20,8 @@ export class ApiController {
         private readonly apiService: ApiService,
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
+        private readonly ragService: RagService,
+        private readonly llmService: LlmService,
     ) {}
 
     @Get()
@@ -80,5 +84,15 @@ export class ApiController {
             answer: responsesStringArray,
         };
         return askResponse;
+    }
+
+    @Post('ask-enhanced')
+    async askEnhancedQuestion(@Body() askDto: AskDto) {
+        const llamaModel: string =
+            (this.configService.get('OLLAMA_MODEL') as string) || '';
+        const llamaApiUrl: string =
+            (this.configService.get('OLLAMA_API_URL') as string) || '';
+        const context = await this.ragService.query(askDto.question);
+        return this.llmService.generateResponse(askDto.question, context);
     }
 }
