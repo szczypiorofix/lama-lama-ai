@@ -6,11 +6,12 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from '../middleware/logger.middleware';
 import { HeaderMiddleware } from '../middleware/header.middleware';
 import { LlamaService } from '../llama/llama.service';
+import { RagService } from '../rag/rag.service';
 
 @Module({
     imports: [ConfigModule.forRoot({ isGlobal: true }), HttpModule],
     controllers: [ApiController],
-    providers: [ApiService, LlamaService],
+    providers: [ApiService, LlamaService, RagService],
 })
 export class ApiModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

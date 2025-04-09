@@ -11,7 +11,7 @@ export class LlamaService {
         private readonly httpService: HttpService,
     ) {}
 
-    async generateResponse(askDto: AskDto, context: string[] = []) {
+    async generateResponse(askDto: AskDto, context: (string | null)[][] = []) {
         const { question } = askDto;
         console.log('Question: ', question);
 
@@ -21,7 +21,9 @@ export class LlamaService {
 
         // const final_query = `Give your answers formatted in HTML tags only. Do not add any non html content, start and end with <div> </div> only. Format using bullet points, bold, italic, etc. You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. Use the relevant part of the context provided. If you don't know the answer, just say that you don't know. Question: ${question} Context: ${firstOfContext}. Properly format your answer with html tags Answer:`;
         const useContextString: string =
-            context.length > 0 ? `Use context: ${context.join(' ')} . ` : '';
+            context.length > 0
+                ? `Use context: ${JSON.stringify(context)} . `
+                : '';
         const final_query = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
         console.log(final_query);
 
