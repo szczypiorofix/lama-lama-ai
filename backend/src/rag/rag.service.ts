@@ -21,7 +21,7 @@ export class RagService {
         this.vectorStore = await Chroma.fromDocuments(
             docs,
             new OllamaEmbeddings({
-                model: 'mistral',
+                model: 'tinyllama',
                 baseUrl: 'http://localhost:11434',
             }),
             { collectionName: 'my-docs' },

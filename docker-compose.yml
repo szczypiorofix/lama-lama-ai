@@ -7,9 +7,6 @@ services:
       - "8000:8000"
     volumes:
       - chroma_data:/data
-    environment:
-      - IS_PERSISTENT=TRUE
-    command: "--workers 1 --host 0.0.0.0 --port 8000"
 
   lama_backend:
     container_name: lama_be
@@ -23,6 +20,17 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+
+  ollama:
+    container_name: lama_ol
+    image: ollama/ollama
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./start-ollama.sh:/start-ollama.sh
+    ports:
+      - "11434:11434"
+    entrypoint: ["/bin/bash", "/start-ollama.sh"]
+
 
   lama_frontend:
     container_name: lama_fe
@@ -38,7 +46,10 @@ services:
       - /app/node_modules
     stdin_open: true
     tty: true
+
 volumes:
+  ollama-data:
+    name: lama_ollama_volume
   chroma_data:
     name: lama_chroma_volume
   backend:
