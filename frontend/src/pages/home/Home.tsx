@@ -111,12 +111,14 @@ export function Home(): JSX.Element {
                             <Box mt={4}>
                                 <Box mt={1} mb={2}>
                                     <Typography variant={'body1'} component={"div"}>
-                                        <b>Question</b>: {lastQuestion}
+                                        <b>Question</b>:
+                                        <div>{lastQuestion}</div>
                                     </Typography>
                                 </Box>
                                 <Box>
                                     <Typography variant={'body1'} component={"div"}>
-                                        <b>Answer</b>: {response}
+                                        <b>Answer</b>:
+                                        <div>{response}</div>
                                     </Typography>
                                 </Box>
                             </Box>
