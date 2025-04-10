@@ -18,8 +18,7 @@ services:
     env_file:
       - backend/.env
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - backend-data:/app
 
   ollama:
     container_name: lama_ol
@@ -42,8 +41,7 @@ services:
     env_file:
       - frontend/.env
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - frontend-data:/app
     stdin_open: true
     tty: true
 
@@ -52,7 +50,7 @@ volumes:
     name: lama_ollama_volume
   chroma_data:
     name: lama_chroma_volume
-  backend:
+  backend-data:
     name: lama_backend_volume
-  frontend:
+  frontend-data:
     name: lama_frontend_volume
