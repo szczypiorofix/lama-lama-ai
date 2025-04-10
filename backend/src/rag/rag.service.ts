@@ -1,17 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ChromaClient, Collection } from 'chromadb';
-import { AddDocumentDto, AddDocumentListDto } from '../dto/add-document.dto';
+import { AddDocumentListDto } from '../dto/add-document.dto';
 import { LlamaService } from '../llama/llama.service';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
 @Injectable()
 export class RagService {
     private client: ChromaClient;
     private collection: Collection;
+    private textSplitter: RecursiveCharacterTextSplitter;
 
     constructor(private llamaService: LlamaService) {
         this.client = new ChromaClient({
             path: 'http://chromadb:8000',
         });
+
+        this.textSplitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            chunkOverlap: 200,
+        });
+
         this.initiateCollection()
             .then(() => console.log('Collection initialized'))
             .catch((err) =>
@@ -29,13 +37,24 @@ export class RagService {
     }
 
     async addToCollection(addDocumentList: AddDocumentListDto) {
-        const documents: string[] = addDocumentList.list.map(
-            (doc: AddDocumentDto) => doc.text,
-        );
-        const ids: string[] = addDocumentList.list.map((doc: AddDocumentDto) => doc.id);
+        const allDocuments: string[] = [];
+        const allIds: string[] = [];
+
+        for (const doc of addDocumentList.list) {
+            const chunks = await this.textSplitter.splitText(doc.text);
+
+            chunks.forEach((chunk, index) => {
+                allDocuments.push(chunk);
+                allIds.push(`${doc.id}_chunk${index}`);
+            });
+        }
+
+        console.log('Put data to ChromaDB collection. Is: ', allIds);
+        console.log('Documents: ', allDocuments);
+
         await this.collection.add({
-            documents,
-            ids,
+            documents: allDocuments,
+            ids: allIds,
         });
     }
 
@@ -44,6 +63,7 @@ export class RagService {
             queryTexts: query,
             nResults: 2,
         });
+        console.log('Collection response: ', queryContext);
         return this.llamaService.generateResponse(
             {
                 question: query,
