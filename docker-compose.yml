@@ -28,6 +28,8 @@ services:
       - ./start-ollama.sh:/start-ollama.sh
     ports:
       - "11434:11434"
+    env_file:
+      - backend/.env
     entrypoint: ["/bin/bash", "/start-ollama.sh"]
 
 

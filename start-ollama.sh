@@ -6,7 +6,7 @@ ollama serve &
 # Sleep for a while
 sleep 5
 
-echo "Downloading tinyllama model ..."
-ollama pull tinyllama
+echo "Downloading model: $OLLAMA_MODEL"
+ollama pull "$OLLAMA_MODEL"
 
 wait
