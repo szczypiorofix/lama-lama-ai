@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import type { QueryResponse } from 'chromadb';
 import { AddRecordsParams, ChromaClient, Collection } from 'chromadb';
 import { LlamaService } from '../llama/llama.service';
@@ -18,7 +18,7 @@ function filterDocumentsWithMaxDistance(
 }
 
 @Injectable()
-export class RagService {
+export class RagService implements OnModuleInit {
     private client: ChromaClient;
     private collection: Collection;
     private textSplitter: RecursiveCharacterTextSplitter;
@@ -36,21 +36,17 @@ export class RagService {
             chunkSize: 1000,
             chunkOverlap: 200,
         });
-
-        this.initiateCollection()
-            .then(() => console.log('Collection initialized'))
-            .catch((err) =>
-                console.error(
-                    'An error occurred while initializing collection',
-                    err,
-                ),
-            );
     }
 
-    async initiateCollection() {
-        this.collection = await this.client.getOrCreateCollection({
-            name: 'my_collection',
-        });
+    async onModuleInit(): Promise<void> {
+        try {
+            this.collection = await this.client.getOrCreateCollection({
+                name: 'my_collection',
+            });
+            console.log('ChromaDB collection initialized');
+        } catch (err) {
+            console.error('Error initializing ChromaDB collection', err);
+        }
     }
 
     async addToCollection(content: string): Promise<boolean> {
