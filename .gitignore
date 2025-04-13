@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 chroma
+example-data
 
 
 # Editor directories and files
