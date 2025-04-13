@@ -7,11 +7,12 @@ import { LoggerMiddleware } from '../middleware/logger.middleware';
 import { HeaderMiddleware } from '../middleware/header.middleware';
 import { LlamaService } from '../llama/llama.service';
 import { RagService } from '../rag/rag.service';
+import { UuidService } from '../uuid/uuid.service';
 
 @Module({
     imports: [ConfigModule.forRoot({ isGlobal: true }), HttpModule],
     controllers: [ApiController],
-    providers: [ApiService, LlamaService, RagService],
+    providers: [ApiService, LlamaService, RagService, UuidService],
 })
 export class ApiModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

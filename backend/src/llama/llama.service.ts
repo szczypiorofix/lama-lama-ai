@@ -13,16 +13,21 @@ export class LlamaService {
 
     async generateResponse(askDto: AskDto, context: (string | null)[][] = []) {
         const { question } = askDto;
-        console.log('Question: ', question);
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
 
+        const contextForQuery: (string | null)[] =
+            context && Array.isArray(context) ? context.flat() : [];
+
+        console.log('Question: ', question);
+        console.log('Context: ', contextForQuery);
+
         // const final_query = `Give your answers formatted in HTML tags only. Do not add any non html content, start and end with <div> </div> only. Format using bullet points, bold, italic, etc. You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. Use the relevant part of the context provided. If you don't know the answer, just say that you don't know. Question: ${question} Context: ${firstOfContext}. Properly format your answer with html tags Answer:`;
         const useContextString: string =
-            context.length > 0
-                ? `Use context: ${JSON.stringify(context)} . `
+            contextForQuery.length > 0
+                ? `Try to use context: ${JSON.stringify(contextForQuery)} . `
                 : '';
         const final_query = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
         console.log(final_query);

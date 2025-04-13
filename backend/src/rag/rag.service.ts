@@ -1,8 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { ChromaClient, Collection } from 'chromadb';
-import { AddDocumentListDto } from '../dto/add-document.dto';
+import type { QueryResponse } from 'chromadb';
+import { AddRecordsParams, ChromaClient, Collection } from 'chromadb';
 import { LlamaService } from '../llama/llama.service';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { UuidService } from '../uuid/uuid.service';
+import { ConfigService } from '@nestjs/config';
+
+function filterDocumentsWithMaxDistance(
+    query: QueryResponse,
+    maxDistance: number,
+): (string | null)[] {
+    const flatDocs: (string | null)[] = query.documents.flat();
+    const flatDistances: number[] = query.distances
+        ? query.distances.flat()
+        : [];
+    return flatDocs.filter((doc, i) => flatDistances[i] < maxDistance);
+}
 
 @Injectable()
 export class RagService {
@@ -10,9 +23,13 @@ export class RagService {
     private collection: Collection;
     private textSplitter: RecursiveCharacterTextSplitter;
 
-    constructor(private llamaService: LlamaService) {
+    constructor(
+        private llamaService: LlamaService,
+        private uuidService: UuidService,
+        private configService: ConfigService,
+    ) {
         this.client = new ChromaClient({
-            path: 'http://chromadb:8000',
+            path: (this.configService.get('CHROMADB_URL') as string) || '',
         });
 
         this.textSplitter = new RecursiveCharacterTextSplitter({
@@ -36,39 +53,44 @@ export class RagService {
         });
     }
 
-    async addToCollection(addDocumentList: AddDocumentListDto) {
+    async addToCollection(content: string): Promise<boolean> {
         const allDocuments: string[] = [];
         const allIds: string[] = [];
 
-        for (const doc of addDocumentList.list) {
-            const chunks = await this.textSplitter.splitText(doc.text);
+        const chunks = await this.textSplitter.splitText(content);
+        const generatedId: string = this.uuidService.generate();
 
-            chunks.forEach((chunk, index) => {
-                allDocuments.push(chunk);
-                allIds.push(`${doc.id}_chunk${index}`);
-            });
-        }
+        chunks.forEach((chunk, index) => {
+            allDocuments.push(chunk);
+            allIds.push(`${generatedId}_chunk${index}`);
+        });
 
-        console.log('Put data to ChromaDB collection. Is: ', allIds);
-        console.log('Documents: ', allDocuments);
-
-        await this.collection.add({
+        const params: AddRecordsParams = {
             documents: allDocuments,
             ids: allIds,
-        });
+        };
+
+        await this.collection.add(params);
+        return true;
     }
 
     async query(query: string) {
         const queryContext = await this.collection.query({
-            queryTexts: query,
-            nResults: 2,
+            queryTexts: [query],
+            nResults: 5,
         });
-        console.log('Collection response: ', queryContext);
-        return this.llamaService.generateResponse(
-            {
-                question: query,
-            },
-            queryContext.documents,
-        );
+
+        console.log('queryContext: ', queryContext);
+
+        const maxDistance: number = 1.0;
+
+        const filteredDocuments: (string | null)[] =
+            filterDocumentsWithMaxDistance(queryContext, maxDistance);
+
+        console.log(filteredDocuments);
+
+        return this.llamaService.generateResponse({ question: query }, [
+            filteredDocuments,
+        ]);
     }
 }

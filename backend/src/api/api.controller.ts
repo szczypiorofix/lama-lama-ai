@@ -1,7 +1,15 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Post,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ApiService } from './api.service';
 import { AskDto } from '../dto/ask.dto';
-import { AddDocumentListDto } from '../dto/add-document.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @Controller('api')
 export class ApiController {
@@ -13,17 +21,23 @@ export class ApiController {
     }
 
     @Post('ask')
-    async askQuestion(@Body() askDto: AskDto) {
-        return await this.apiService.postLlamaQuestion(askDto);
-    }
-
-    @Post('ask-context')
     async askEnhancedQuestion(@Body() askDto: AskDto) {
         return await this.apiService.postLlamaQuestionWithContext(askDto);
     }
 
-    @Post('putdata')
-    async putData(@Body() addDocumentList: AddDocumentListDto) {
-        return await this.apiService.putDataIntoDatabase(addDocumentList);
+    @Post('sendfile')
+    @UseInterceptors(FileInterceptor('file'))
+    async sendFile(@UploadedFile() file: Express.Multer.File) {
+        console.log('Received file:', file.originalname);
+        console.log('Content:', file.buffer.toString());
+        const result: boolean =
+            await this.apiService.putDataFileIntoDatabase(file);
+        return {
+            message: result
+                ? 'File uploaded successfully.'
+                : 'Error uploading file',
+            fileName: file.originalname,
+            code: result ? 200 : 500,
+        };
     }
 }

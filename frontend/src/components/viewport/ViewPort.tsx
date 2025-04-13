@@ -1,8 +1,8 @@
 import { JSX } from 'react';
 
-import {Box, Container, Divider} from '@mui/material';
+import { Box, Container, Divider } from '@mui/material';
 
-import { Home } from "../../pages";
+import { Home } from '../../pages';
 import { Footer } from '../footer/Footer.tsx';
 import { ToolBar } from '../toolbar/ToolBar.tsx';
 
@@ -14,10 +14,8 @@ export function ViewPort(): JSX.Element {
                 <Home />
             </Container>
             <Box mt={3}></Box>
-            <Divider/>
-            <Footer>
-                Lama Lama AI
-            </Footer>
+            <Divider />
+            <Footer>Lama Lama AI</Footer>
         </Box>
     );
 }

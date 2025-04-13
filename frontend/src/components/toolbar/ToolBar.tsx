@@ -7,7 +7,6 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
-
 export function ToolBar(): JSX.Element {
     return (
         <Box sx={{ flexGrow: 1 }}>

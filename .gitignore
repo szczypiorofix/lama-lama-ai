@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+chroma
+
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

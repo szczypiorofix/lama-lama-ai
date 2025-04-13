@@ -1,14 +1,6 @@
-import { IsArray, IsString } from 'class-validator';
-
-export class AddDocumentListDto {
-    @IsArray()
-    list: AddDocumentDto[];
-}
+import { IsString } from 'class-validator';
 
 export class AddDocumentDto {
     @IsString()
-    id: string;
-
-    @IsString()
-    text: string;
+    text: string[];
 }
