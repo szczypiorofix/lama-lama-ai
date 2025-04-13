@@ -4,11 +4,12 @@ import {
     Get,
     Post,
     UploadedFile,
+    UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
 import { ApiService } from './api.service';
 import { AskDto } from '../dto/ask.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 
 @Controller('api')
@@ -25,7 +26,7 @@ export class ApiController {
         return await this.apiService.postLlamaQuestionWithContext(askDto);
     }
 
-    @Post('sendfile')
+    @Post('uploadfile')
     @UseInterceptors(FileInterceptor('file'))
     async sendFile(@UploadedFile() file: Express.Multer.File) {
         console.log('Received file:', file.originalname);
@@ -34,6 +35,21 @@ export class ApiController {
         return {
             message: 'File uploaded successfully.',
             fileName: file.originalname,
+            code: 200,
+        };
+    }
+
+    @Post('uploadfiles')
+    @UseInterceptors(FilesInterceptor('files'))
+    async sendFileMultiple(@UploadedFiles() files: Express.Multer.File[]) {
+        console.log(`'Received ${files.length} files(s)`);
+        for (const file of files) {
+            console.log('Received file:', file.originalname);
+            await this.apiService.putDataFileIntoDatabase(file);
+        }
+        return {
+            message: `Files (${files.length} total) uploaded successfully.`,
+            fileName: '',
             code: 200,
         };
     }

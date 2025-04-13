@@ -6,7 +6,7 @@ import { Box, Button, styled, Typography } from '@mui/material';
 
 interface UploadState {
     uploading: boolean;
-    file: File | null;
+    files: File[] | null;
     response: string;
     responseCode: number;
 }
@@ -32,23 +32,22 @@ const VisuallyHiddenInput = styled('input')({
 export function Upload(): JSX.Element {
     const [state, setState] = useState<UploadState>({
         uploading: false,
-        file: null,
+        files: null,
         response: '',
         responseCode: 0,
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setState({
-                uploading: false,
-                file: file,
-                response: '',
-                responseCode: 100,
-            });
-        }
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(e.target.files ?? [])
+            .filter(file => file.type === 'text/plain');
+        setState({
+            uploading: false,
+            files: selectedFiles,
+            response: '',
+            responseCode: 100,
+        });
     };
 
     const handleFileInputClick = (
@@ -63,9 +62,11 @@ export function Upload(): JSX.Element {
     };
 
     const sendFileToServer = async () => {
-        if (state.file) {
+        if (state.files) {
             const formData = new FormData();
-            formData.append('file', state.file);
+            for(const file of state.files) {
+                formData.append('files', file);
+            }
 
             let responseString: string = '';
             let responseCode: number = state.responseCode;
@@ -74,7 +75,7 @@ export function Upload(): JSX.Element {
 
             try {
                 const resp = await fetch(
-                    'http://localhost:3000/v1/api/sendfile',
+                    'http://localhost:3000/v1/api/uploadfiles',
                     {
                         method: 'POST',
                         body: formData,
@@ -93,7 +94,7 @@ export function Upload(): JSX.Element {
                 console.log('Clear all');
                 setState({
                     uploading: false,
-                    file: null,
+                    files: null,
                     response: responseString,
                     responseCode: responseCode,
                 });
@@ -132,16 +133,19 @@ export function Upload(): JSX.Element {
                     onChange={handleFileChange}
                     ref={fileInputRef}
                     accept={'.txt'}
+                    multiple={true}
                 />
             </Button>
             {state.responseCode > 0 && (
                 <Typography variant={'body1'}>{state.response}</Typography>
             )}
-            {state.file !== null && (
+            {state.files !== null && (
                 <Box mt={1} mb={1}>
-                    <Typography variant={'body1'} sx={{ color: 'darkcyan' }}>
-                        Uploaded file: {state.file.name}
-                    </Typography>
+                    {state.files.map((file: File, index: number) => (
+                        <Typography key={"file_"+index} variant={'body1'} sx={{ color: 'darkcyan' }}>
+                            Uploaded file: {file.name}
+                        </Typography>
+                    ))}
                     <Box
                         display={'flex'}
                         flex={1}
