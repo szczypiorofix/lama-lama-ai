@@ -4,55 +4,29 @@ Local AI chatbox using Ollama.
 
 ## Example of use
 
+### Requirements for local development
+
+* [Ollama](https://ollama.com/library/gemma3) download, install and pull a model you like (e.g. ```ollama pull gemma3:1b```)
+* Python (e.g. v3.10.10 installed locally)
+* [ChromaDB](https://docs.trychroma.com/docs/overview/getting-started?lang=typescript) run ```pip install chromadb``` to install ChromaDB package by Python package manager
+
 Put Ollama settings (url and model) in ./backend/.env file
 
 for example:
 ```
-OLLAMA_API_URL=http://ollama:11434/api/chat
-OLLAMA_MODEL=tinyllama
-```
+OLLAMA_MODEL=gemma3:1b  # chosen LLM Olama model
 
-Endpoints for testing:
+#OLLAMA_API_URL=http://ollama:11434/api/chat  # for Docker build
+OLLAMA_API_URL=http://localhost:11434/api/chat  # url for Ollama installed locally
 
-Just ask Ollama
-```http://localhost:3000/v1/api/ask```
-POST: body
+#CHROMADB_URL=http://chromadb:8000 # for Docker build
+CHROMADB_URL=http://localhost:8000 # url for ChromaDB installed locally
 ```
-{
-    ""question": "What kind of horse is this named 'Lightning'?"
-}
-```
-
-Ask Ollama using previously put context data (RAG)
-```http://localhost:3000/v1/api/ask-context```
-POST: body
-```
-{
-    "question": "Give me some information about a pony named 'Lightning'"
-}
-```
-
-Put data to ChromaDB
-```http://localhost:3000/v1/api/putdata```
-POST: body
-```
-{
-    "list": [
-        {
-            "id": "1",
-            "text": "There is a little horse. He's name is 'Lightning'. He is a pony."
-        },
-        {
-            "id": "2",
-            "text": "There is a little white pony. His name is 'Lightning'. He is a very clever and smart pony."
-        },
-        {
-            "id": "3",
-            "text": "A little pony named 'Lightning' like to eat apples and run through the pastures. He is quite small. He is about 100 cm tall."
-        }
-    ]
-}
-```
+You can run backend, frontend, chroma and Ollama in a separate terminal, or you can use Docker (docker-compose) tool.
+* frontend: from ./frontend: ```npm run dev```
+* backend: from ./backend: ```npm run start:debug```
+* ChromaDB: in root (or any) folder: ```chroma run```
+* Ollama: in root (or any) folder: just make sure ```ollama ps``` returns a name of a model you want to use
 
 ## License
 
