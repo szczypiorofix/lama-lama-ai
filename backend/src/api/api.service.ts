@@ -3,12 +3,14 @@ import { apiServiceDetails } from '../shared/constants';
 import { LlamaService } from '../llama/llama.service';
 import { AskDto } from '../dto/ask.dto';
 import { RagService } from '../rag/rag.service';
+import { UuidService } from '../uuid/uuid.service';
 
 @Injectable()
 export class ApiService {
     constructor(
         private readonly llamaService: LlamaService,
         private readonly ragService: RagService,
+        private uuidService: UuidService,
     ) {}
 
     getHello(): string {
@@ -21,6 +23,7 @@ export class ApiService {
 
     async putDataFileIntoDatabase(file: Express.Multer.File) {
         const content: string = file.buffer.toString();
-        return await this.ragService.addToCollection(content);
+        const docId = this.uuidService.generate();
+        return await this.ragService.addDocument(content, docId);
     }
 }

@@ -30,14 +30,11 @@ export class ApiController {
     async sendFile(@UploadedFile() file: Express.Multer.File) {
         console.log('Received file:', file.originalname);
         console.log('Content:', file.buffer.toString());
-        const result: boolean =
-            await this.apiService.putDataFileIntoDatabase(file);
+        await this.apiService.putDataFileIntoDatabase(file);
         return {
-            message: result
-                ? 'File uploaded successfully.'
-                : 'Error uploading file',
+            message: 'File uploaded successfully.',
             fileName: file.originalname,
-            code: result ? 200 : 500,
+            code: 200,
         };
     }
 }

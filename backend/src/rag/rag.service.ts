@@ -1,9 +1,8 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import type { QueryResponse } from 'chromadb';
-import { AddRecordsParams, ChromaClient, Collection } from 'chromadb';
+import { ChromaClient, Collection } from 'chromadb';
 import { LlamaService } from '../llama/llama.service';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { UuidService } from '../uuid/uuid.service';
 import { ConfigService } from '@nestjs/config';
 
 function filterDocumentsWithMaxDistance(
@@ -23,51 +22,47 @@ export class RagService implements OnModuleInit {
     private collection: Collection;
     private textSplitter: RecursiveCharacterTextSplitter;
 
+    private readonly logger = new Logger(RagService.name);
+    private readonly COLLECTION_NAME = 'my_collection';
+    private readonly DISTANCE_THRESHOLD = 1.0;
+    private readonly CHUNK_SIZE = 1000;
+    private readonly CHUNK_OVERLAP = 200;
+
     constructor(
         private llamaService: LlamaService,
-        private uuidService: UuidService,
         private configService: ConfigService,
     ) {
         this.client = new ChromaClient({
-            path: (this.configService.get('CHROMADB_URL') as string) || '',
+            path: this.configService.get<string>('CHROMADB_URL') || '',
         });
 
         this.textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
-            chunkOverlap: 200,
+            chunkSize: this.CHUNK_SIZE,
+            chunkOverlap: this.CHUNK_OVERLAP,
         });
     }
 
     async onModuleInit(): Promise<void> {
         try {
             this.collection = await this.client.getOrCreateCollection({
-                name: 'my_collection',
+                name: this.COLLECTION_NAME,
             });
-            console.log('ChromaDB collection initialized');
+            this.logger.log('ChromaDB collection initialized');
         } catch (err) {
-            console.error('Error initializing ChromaDB collection', err);
+            this.logger.error('Error initializing ChromaDB collection', err);
         }
     }
 
-    async addToCollection(content: string): Promise<boolean> {
-        const allDocuments: string[] = [];
-        const allIds: string[] = [];
-
+    async addDocument(content: string, docIdPrefix: string): Promise<void> {
         const chunks = await this.textSplitter.splitText(content);
-        const generatedId: string = this.uuidService.generate();
+        const ids = chunks.map((_, i) => `${docIdPrefix}_chunk${i}`);
 
-        chunks.forEach((chunk, index) => {
-            allDocuments.push(chunk);
-            allIds.push(`${generatedId}_chunk${index}`);
+        await this.collection.add({
+            documents: chunks,
+            ids,
         });
 
-        const params: AddRecordsParams = {
-            documents: allDocuments,
-            ids: allIds,
-        };
-
-        await this.collection.add(params);
-        return true;
+        this.logger.log(`Added ${chunks.length} chunks to collection.`);
     }
 
     async query(query: string) {
@@ -76,14 +71,15 @@ export class RagService implements OnModuleInit {
             nResults: 5,
         });
 
-        console.log('queryContext: ', queryContext);
-
-        const maxDistance: number = 1.0;
+        this.logger.log('Query context: ', queryContext);
 
         const filteredDocuments: (string | null)[] =
-            filterDocumentsWithMaxDistance(queryContext, maxDistance);
+            filterDocumentsWithMaxDistance(
+                queryContext,
+                this.DISTANCE_THRESHOLD,
+            );
 
-        console.log(filteredDocuments);
+        this.logger.log('Filtered documents: ', filteredDocuments);
 
         return this.llamaService.generateResponse({ question: query }, [
             filteredDocuments,
