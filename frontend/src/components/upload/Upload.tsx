@@ -1,4 +1,4 @@
-import { ChangeEvent, JSX, useRef, useState } from 'react';
+import { ChangeEvent, JSX, MouseEvent,useRef, useState } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
@@ -39,9 +39,10 @@ export function Upload(): JSX.Element {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const selectedFiles = Array.from(e.target.files ?? [])
-            .filter(file => file.type === 'text/plain');
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(event.target.files ?? []).filter(
+            (file) => file.type === 'text/plain'
+        );
         setState({
             uploading: false,
             files: selectedFiles,
@@ -50,9 +51,7 @@ export function Upload(): JSX.Element {
         });
     };
 
-    const handleFileInputClick = (
-        event: React.MouseEvent<HTMLInputElement>
-    ) => {
+    const handleFileInputClick = (event: MouseEvent<HTMLInputElement>) => {
         event.currentTarget.value = '';
         setState({
             ...state,
@@ -64,7 +63,7 @@ export function Upload(): JSX.Element {
     const sendFileToServer = async () => {
         if (state.files) {
             const formData = new FormData();
-            for(const file of state.files) {
+            for (const file of state.files) {
                 formData.append('files', file);
             }
 
@@ -142,7 +141,11 @@ export function Upload(): JSX.Element {
             {state.files !== null && (
                 <Box mt={1} mb={1}>
                     {state.files.map((file: File, index: number) => (
-                        <Typography key={"file_"+index} variant={'body1'} sx={{ color: 'darkcyan' }}>
+                        <Typography
+                            key={'file_' + index}
+                            variant={'body1'}
+                            sx={{ color: 'darkcyan' }}
+                        >
                             Uploaded file: {file.name}
                         </Typography>
                     ))}
