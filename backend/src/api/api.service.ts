@@ -18,7 +18,7 @@ export class ApiService {
     }
 
     async postLlamaQuestionWithContext(askDto: AskDto) {
-        return this.ragService.query(askDto.question);
+        return this.ragService.query(askDto);
     }
 
     async putDataFileIntoDatabase(file: Express.Multer.File) {

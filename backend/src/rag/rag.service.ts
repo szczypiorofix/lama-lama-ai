@@ -10,6 +10,7 @@ import { ChromaClient, Collection } from 'chromadb';
 import { LlamaService } from '../llama/llama.service';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { ConfigService } from '@nestjs/config';
+import { AskDto } from '../dto/ask.dto';
 
 function filterDocumentsWithMaxDistance(
     query: QueryResponse,
@@ -31,6 +32,7 @@ export class RagService implements OnModuleInit {
     private readonly logger = new Logger(RagService.name);
     private readonly COLLECTION_NAME = 'my_collection';
     private readonly DISTANCE_THRESHOLD = 1.0;
+    private readonly DISTANCE_THRESHOLD_STRICT = 0.6;
     private readonly CHUNK_SIZE = 1000;
     private readonly CHUNK_OVERLAP = 200;
 
@@ -76,9 +78,9 @@ export class RagService implements OnModuleInit {
         this.logger.log(`Added ${chunks.length} chunks to collection.`);
     }
 
-    async query(query: string) {
+    async query(askDto: AskDto) {
         const queryContext = await this.collection.query({
-            queryTexts: [query],
+            queryTexts: [askDto.question],
             nResults: 5,
         });
 
@@ -87,13 +89,13 @@ export class RagService implements OnModuleInit {
         const filteredDocuments: (string | null)[] =
             filterDocumentsWithMaxDistance(
                 queryContext,
-                this.DISTANCE_THRESHOLD,
+                askDto.strictanswer
+                    ? this.DISTANCE_THRESHOLD_STRICT
+                    : this.DISTANCE_THRESHOLD,
             );
 
         this.logger.log('Filtered documents: ', filteredDocuments);
 
-        return this.llamaService.generateResponse({ question: query }, [
-            filteredDocuments,
-        ]);
+        return this.llamaService.generateResponse(askDto, [filteredDocuments]);
     }
 }

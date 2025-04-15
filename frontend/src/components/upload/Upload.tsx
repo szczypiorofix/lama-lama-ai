@@ -90,7 +90,6 @@ export function Upload(): JSX.Element {
                 responseCode = 500;
                 responseString = JSON.stringify(err);
             } finally {
-                console.log('Clear all');
                 setState({
                     uploading: false,
                     files: null,
@@ -116,7 +115,8 @@ export function Upload(): JSX.Element {
     };
 
     return (
-        <Box m={1}>
+        <Box mt={1} ml={1} mr={1} mb={4}>
+            <Typography mb={1} variant={'body1'}>Upload .txt file(s) with text data for AI training</Typography>
             <Button
                 component='label'
                 role={undefined}

@@ -4,9 +4,9 @@ import {
     Box,
     Button,
     ButtonGroup,
-    Card,
+    Card, Checkbox,
     CircularProgress,
-    Divider,
+    Divider, FormControlLabel,
     Paper,
     TextField,
     Typography,
@@ -19,6 +19,8 @@ import { RagAskResponse } from '../../shared/models';
 
 export function Home(): JSX.Element {
     const [inputValue, setInputValue] = useState('');
+    const [strictAnswer, setStrictAnswer] = useState<boolean>(false);
+    const [useContextOnly, setUseContextOnly] = useState<boolean>(false);
     const [lastQuestion, setLastQuestion] = useState('');
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState('');
@@ -34,6 +36,8 @@ export function Home(): JSX.Element {
                 },
                 body: JSON.stringify({
                     question: inputValue,
+                    strictanswer: strictAnswer,
+                    usecontextonly: useContextOnly,
                 }),
             });
 
@@ -65,9 +69,9 @@ export function Home(): JSX.Element {
                             component={'form'}
                             sx={{
                                 display: 'flex',
-                                flexOrientation: 'row',
+                                flexDirection: 'column',
                                 justifyContent: 'flex-start',
-                                alignItems: 'center',
+                                alignItems: 'flex-start',
                                 width: '100%',
                             }}
                             onSubmit={(e) => {
@@ -78,10 +82,19 @@ export function Home(): JSX.Element {
                                 })();
                             }}
                         >
+                            <FormControlLabel
+                                control={<Checkbox value={strictAnswer} onChange={(e) => setStrictAnswer(e.currentTarget.checked)} />}
+                                label="Strict answer (distance threshold < 0.6, default: 1.0)"
+                            />
+                            <FormControlLabel
+                                sx={{ mb: 1 }}
+                                control={<Checkbox value={useContextOnly} onChange={(e) => setUseContextOnly(e.currentTarget.checked)} />}
+                                label="Use trained context only"
+                            />
                             <ButtonGroup
                                 variant='contained'
                                 aria-label='Basic button group'
-                                sx={{ width: '100%' }}
+                                sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
                             >
                                 <TextField
                                     id='outlined-basic'

@@ -13,7 +13,11 @@ export class LlamaService {
         private readonly httpService: HttpService,
     ) {}
 
-    async generateResponse(askDto: AskDto, context: (string | null)[][] = []) {
+    async generateResponse(
+        askDto: AskDto,
+        context: (string | null)[][] = [],
+        useContextOnly: boolean = false,
+    ) {
         const { question } = askDto;
 
         if (!question) {
@@ -26,11 +30,12 @@ export class LlamaService {
         this.logger.log('Question: ', question);
         this.logger.log('Context: ', contextForQuery);
 
-        // const final_query = `Give your answers formatted in HTML tags only. Do not add any non html content, start and end with <div> </div> only. Format using bullet points, bold, italic, etc. You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. Use the relevant part of the context provided. If you don't know the answer, just say that you don't know. Question: ${question} Context: ${firstOfContext}. Properly format your answer with html tags Answer:`;
+        const useContextOnlyString: string = useContextOnly
+            ? `Use only the context: ${JSON.stringify(contextForQuery)} . `
+            : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
+
         const useContextString: string =
-            contextForQuery.length > 0
-                ? `Try to use context: ${JSON.stringify(contextForQuery)} . `
-                : '';
+            contextForQuery.length > 0 ? useContextOnlyString : '';
         const final_query = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
         this.logger.log(final_query);
 
