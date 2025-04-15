@@ -1,4 +1,10 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    Logger,
+    OnModuleInit,
+} from '@nestjs/common';
 import type { QueryResponse } from 'chromadb';
 import { ChromaClient, Collection } from 'chromadb';
 import { LlamaService } from '../llama/llama.service';
@@ -49,7 +55,12 @@ export class RagService implements OnModuleInit {
             });
             this.logger.log('ChromaDB collection initialized');
         } catch (err) {
-            this.logger.error('Error initializing ChromaDB collection', err);
+            this.logger.error('Error initializing ChromaDB collection: ', err);
+            throw new HttpException(
+                'Error initializing ChromaDB collection: ' +
+                    JSON.stringify(err),
+                HttpStatus.NOT_FOUND,
+            );
         }
     }
 

@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Get,
+    Logger,
     Post,
     UploadedFile,
     UploadedFiles,
@@ -14,6 +15,8 @@ import { Express } from 'express';
 
 @Controller('api')
 export class ApiController {
+    private readonly logger = new Logger(ApiController.name);
+
     constructor(private readonly apiService: ApiService) {}
 
     @Get()
@@ -29,11 +32,13 @@ export class ApiController {
     @Post('uploadfile')
     @UseInterceptors(FileInterceptor('file'))
     async sendFile(@UploadedFile() file: Express.Multer.File) {
-        console.log('Received file:', file.originalname);
-        console.log('Content:', file.buffer.toString());
+        this.logger.log(`Received file: ${file.originalname}`);
+        this.logger.log(
+            `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString(16)} kb).`,
+        );
         await this.apiService.putDataFileIntoDatabase(file);
         return {
-            message: 'File uploaded successfully.',
+            message: `File ${file.originalname} uploaded successfully.`,
             fileName: file.originalname,
             code: 200,
         };
@@ -42,9 +47,11 @@ export class ApiController {
     @Post('uploadfiles')
     @UseInterceptors(FilesInterceptor('files'))
     async sendFileMultiple(@UploadedFiles() files: Express.Multer.File[]) {
-        console.log(`'Received ${files.length} files(s)`);
+        this.logger.log(`Received ${files.length} files(s).`);
         for (const file of files) {
-            console.log('Received file:', file.originalname);
+            this.logger.log(
+                `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString(16)} kb).`,
+            );
             await this.apiService.putDataFileIntoDatabase(file);
         }
         return {

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LlamaResponseChunk, RagAskResponse } from '../shared/models';
 import { AskDto } from '../dto/ask.dto';
@@ -6,6 +6,8 @@ import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class LlamaService {
+    private readonly logger = new Logger(LlamaService.name);
+
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
@@ -21,8 +23,8 @@ export class LlamaService {
         const contextForQuery: (string | null)[] =
             context && Array.isArray(context) ? context.flat() : [];
 
-        console.log('Question: ', question);
-        console.log('Context: ', contextForQuery);
+        this.logger.log('Question: ', question);
+        this.logger.log('Context: ', contextForQuery);
 
         // const final_query = `Give your answers formatted in HTML tags only. Do not add any non html content, start and end with <div> </div> only. Format using bullet points, bold, italic, etc. You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. Use the relevant part of the context provided. If you don't know the answer, just say that you don't know. Question: ${question} Context: ${firstOfContext}. Properly format your answer with html tags Answer:`;
         const useContextString: string =
@@ -30,7 +32,7 @@ export class LlamaService {
                 ? `Try to use context: ${JSON.stringify(contextForQuery)} . `
                 : '';
         const final_query = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
-        console.log(final_query);
+        this.logger.log(final_query);
 
         const responses: LlamaResponseChunk[] = [];
         try {
@@ -67,7 +69,15 @@ export class LlamaService {
                 }
             }
         } catch (err) {
-            console.error('Error', err);
+            this.logger.error(
+                'Error occurred while sending request to Ollama: ',
+                err,
+            );
+            throw new HttpException(
+                'Error occurred while sending request to Ollama: ' +
+                    JSON.stringify(err),
+                HttpStatus.NOT_FOUND,
+            );
         }
 
         const responsesStringArray: string = responses
