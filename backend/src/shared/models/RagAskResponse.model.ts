@@ -11,3 +11,15 @@ export interface LlamaResponseChunk {
     };
     done: boolean;
 }
+
+export interface OllamaMessage {
+    role: string;
+    content: string;
+}
+
+export interface OllamaStreamChunk {
+    model?: string;
+    created_at?: string;
+    done?: boolean;
+    message: OllamaMessage;
+}
