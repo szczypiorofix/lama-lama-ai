@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ApiModule } from './api/api.module';
 import { API_VERSION } from './shared/constants';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 const PORT: string | number = process.env.PORT ?? 3000;
+
+const logger = new Logger('MainApplication');
 
 async function bootstrap() {
     const app = await NestFactory.create(ApiModule);
@@ -13,5 +15,5 @@ async function bootstrap() {
     await app.listen(PORT);
 }
 bootstrap()
-    .then(() => console.log('Nest application started at port ' + PORT))
-    .catch((err) => console.log(err));
+    .then(() => logger.log('Nest application started at port ' + PORT))
+    .catch((err) => logger.log(err));

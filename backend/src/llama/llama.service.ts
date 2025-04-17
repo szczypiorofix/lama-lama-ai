@@ -75,7 +75,7 @@ export class LlamaService {
                                 });
                             }
                         } catch (err) {
-                            console.warn(
+                            this.logger.error(
                                 'Error occurred while parsing JSON:',
                                 err,
                             );
