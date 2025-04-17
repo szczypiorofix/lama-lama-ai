@@ -178,10 +178,12 @@ export class LlamaService {
             ? `Use only the context: ${JSON.stringify(contextForQuery)} . If you don't find the answer in context, reply "I didn't find the answer in the given context"`
             : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
 
-        this.logger.log(useContextOnlyString);
-
         const useContextString: string =
             contextForQuery.length > 0 ? useContextOnlyString : '';
-        return `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
+        const finalQuery: string = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Try to answer the question in the language in which it was asked. Question: ${question}`;
+
+        this.logger.log('Final query: ', finalQuery);
+
+        return finalQuery;
     }
 }
