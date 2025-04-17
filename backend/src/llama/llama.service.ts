@@ -1,8 +1,22 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    Logger,
+    MessageEvent,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LlamaResponseChunk, RagAskResponse } from '../shared/models';
+import {
+    LlamaResponseChunk,
+    OllamaStreamChunk,
+    RagAskResponse,
+} from '../shared/models';
 import { AskDto } from '../dto/ask.dto';
 import { HttpService } from '@nestjs/axios';
+import axios, { AxiosResponse } from 'axios';
+import { Readable } from 'stream';
+import { ChromaCollectionDocuments } from '../rag/rag.service';
+import { Subscriber } from 'rxjs';
 
 @Injectable()
 export class LlamaService {
@@ -13,47 +27,101 @@ export class LlamaService {
         private readonly httpService: HttpService,
     ) {}
 
-    async generateResponse(
+    public generateStreamingResponse(
         askDto: AskDto,
-        context: (string | null)[][] = [],
-        useContextOnly: boolean = false,
+        observer: Subscriber<MessageEvent>,
+        context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question } = askDto;
+        const { question, usecontextonly } = askDto;
+
+        if (!question) {
+            throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
+        }
+        const finalQuery: string = this.prepareQueryBasedOnContext(
+            question,
+            context,
+            usecontextonly,
+        );
+
+        axios
+            .post(
+                this.configService.get<string>('OLLAMA_API_URL') || '',
+                {
+                    model: this.configService.get<string>('OLLAMA_MODEL') || '',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: finalQuery,
+                        },
+                    ],
+                    stream: true,
+                },
+                { responseType: 'stream' },
+            )
+            .then((res: AxiosResponse<Readable>) => {
+                res.data.on('data', (chunk: Buffer) => {
+                    const lines: string[] = chunk
+                        .toString()
+                        .split('\n')
+                        .filter(Boolean);
+                    for (const line of lines) {
+                        try {
+                            const parsed: OllamaStreamChunk = JSON.parse(
+                                line,
+                            ) as OllamaStreamChunk;
+                            if (parsed?.message?.content) {
+                                observer.next({
+                                    data: parsed.message.content,
+                                });
+                            }
+                        } catch (err) {
+                            console.warn(
+                                'Error occurred while parsing JSON:',
+                                err,
+                            );
+                        }
+                    }
+                });
+
+                res.data.on('end', () => observer.complete());
+                res.data.on('error', (err: Error) => observer.error(err));
+            })
+            .catch((err) => observer.error(err));
+    }
+
+    public async generateResponse(
+        askDto: AskDto,
+        context: ChromaCollectionDocuments[] = [],
+    ) {
+        const { question, usecontextonly } = askDto;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
 
-        const contextForQuery: (string | null)[] =
-            context && Array.isArray(context) ? context.flat() : [];
+        const finalQuery: string = this.prepareQueryBasedOnContext(
+            question,
+            context,
+            usecontextonly,
+        );
 
-        this.logger.log('Question: ', question);
-        this.logger.log('Context: ', contextForQuery);
-
-        const useContextOnlyString: string = useContextOnly
-            ? `Use only the context: ${JSON.stringify(contextForQuery)} . `
-            : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
-
-        const useContextString: string =
-            contextForQuery.length > 0 ? useContextOnlyString : '';
-        const final_query = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
-        this.logger.log(final_query);
+        this.logger.log(finalQuery);
 
         const responses: LlamaResponseChunk[] = [];
         try {
             const payload = {
-                model: (this.configService.get('OLLAMA_MODEL') as string) || '',
+                model: this.configService.get<string>('OLLAMA_MODEL') || '',
                 messages: [
                     {
                         role: 'user',
-                        content: final_query,
+                        content: finalQuery,
                     },
                 ],
             };
 
             const response = await this.httpService
                 .post(
-                    (this.configService.get('OLLAMA_API_URL') as string) || '',
+                    this.configService.get<string>('OLLAMA_API_URL') || '',
                     payload,
                     {
                         headers: { 'Content-Type': 'application/json' },
@@ -93,5 +161,27 @@ export class LlamaService {
             answer: responsesStringArray,
         };
         return askResponse;
+    }
+
+    private prepareQueryBasedOnContext(
+        question: string,
+        context: ChromaCollectionDocuments[] = [],
+        useContextOnly: boolean = false,
+    ): string {
+        const contextForQuery: ChromaCollectionDocuments =
+            context && Array.isArray(context) ? context.flat() : [];
+
+        this.logger.log('Question: ', question);
+        this.logger.log('Context: ', contextForQuery);
+
+        const useContextOnlyString: string = useContextOnly
+            ? `Use only the context: ${JSON.stringify(contextForQuery)} . If you don't find the answer in context, reply "I didn't find the answer in the given context"`
+            : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
+
+        this.logger.log(useContextOnlyString);
+
+        const useContextString: string =
+            contextForQuery.length > 0 ? useContextOnlyString : '';
+        return `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Question: ${question}`;
     }
 }

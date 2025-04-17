@@ -3,7 +3,10 @@ import {
     Controller,
     Get,
     Logger,
+    MessageEvent,
     Post,
+    Query,
+    Sse,
     UploadedFile,
     UploadedFiles,
     UseInterceptors,
@@ -12,6 +15,7 @@ import { ApiService } from './api.service';
 import { AskDto } from '../dto/ask.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { Observable } from 'rxjs';
 
 @Controller('api')
 export class ApiController {
@@ -27,6 +31,19 @@ export class ApiController {
     @Post('ask')
     async askEnhancedQuestion(@Body() askDto: AskDto) {
         return await this.apiService.postLlamaQuestionWithContext(askDto);
+    }
+
+    @Sse('chat')
+    stream(
+        @Query('question') question: string,
+        @Query('strictanswer') strictanswer: boolean = false,
+        @Query('usecontextonly') usecontextonly: boolean = true,
+    ): Observable<MessageEvent> {
+        return this.apiService.sendChat({
+            question: question,
+            strictanswer: strictanswer,
+            usecontextonly: usecontextonly,
+        });
     }
 
     @Post('uploadfile')

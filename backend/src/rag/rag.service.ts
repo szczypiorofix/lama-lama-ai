@@ -7,16 +7,17 @@ import {
 } from '@nestjs/common';
 import type { QueryResponse } from 'chromadb';
 import { ChromaClient, Collection } from 'chromadb';
-import { LlamaService } from '../llama/llama.service';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { ConfigService } from '@nestjs/config';
 import { AskDto } from '../dto/ask.dto';
 
+export type ChromaCollectionDocuments = (string | null)[];
+
 function filterDocumentsWithMaxDistance(
     query: QueryResponse,
     maxDistance: number,
-): (string | null)[] {
-    const flatDocs: (string | null)[] = query.documents.flat();
+): ChromaCollectionDocuments {
+    const flatDocs: ChromaCollectionDocuments = query.documents.flat();
     const flatDistances: number[] = query.distances
         ? query.distances.flat()
         : [];
@@ -36,10 +37,7 @@ export class RagService implements OnModuleInit {
     private readonly CHUNK_SIZE = 1000;
     private readonly CHUNK_OVERLAP = 200;
 
-    constructor(
-        private llamaService: LlamaService,
-        private configService: ConfigService,
-    ) {
+    constructor(private configService: ConfigService) {
         this.client = new ChromaClient({
             path: this.configService.get<string>('CHROMADB_URL') || '',
         });
@@ -66,7 +64,10 @@ export class RagService implements OnModuleInit {
         }
     }
 
-    async addDocument(content: string, docIdPrefix: string): Promise<void> {
+    public async addDocument(
+        content: string,
+        docIdPrefix: string,
+    ): Promise<void> {
         const chunks = await this.textSplitter.splitText(content);
         const ids = chunks.map((_, i) => `${docIdPrefix}_chunk${i}`);
 
@@ -78,7 +79,9 @@ export class RagService implements OnModuleInit {
         this.logger.log(`Added ${chunks.length} chunks to collection.`);
     }
 
-    async query(askDto: AskDto) {
+    public async retrieveContextFromDatabase(
+        askDto: AskDto,
+    ): Promise<ChromaCollectionDocuments> {
         const queryContext = await this.collection.query({
             queryTexts: [askDto.question],
             nResults: 5,
@@ -86,7 +89,7 @@ export class RagService implements OnModuleInit {
 
         this.logger.log('Query context: ', queryContext);
 
-        const filteredDocuments: (string | null)[] =
+        const filteredDocuments: ChromaCollectionDocuments =
             filterDocumentsWithMaxDistance(
                 queryContext,
                 askDto.strictanswer
@@ -96,6 +99,6 @@ export class RagService implements OnModuleInit {
 
         this.logger.log('Filtered documents: ', filteredDocuments);
 
-        return this.llamaService.generateResponse(askDto, [filteredDocuments]);
+        return filteredDocuments;
     }
 }

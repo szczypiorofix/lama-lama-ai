@@ -25,9 +25,40 @@ export function Home(): JSX.Element {
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState('');
 
-    const sendQuestion = async () => {
-        setLastQuestion(inputValue);
-        setLoading(true);
+    const [streamOutput, setStreamOutput] = useState<boolean>(false);
+    const [streaming, setStreaming] = useState(false);
+
+    const sendStreamRequest = async () => {
+        setResponse('');
+        setStreaming(true);
+        setLoading(false);
+
+        const encodedPrompt: string = encodeURIComponent(inputValue);
+        const eventSource = new EventSource(`http://localhost:3000/v1/api/chat?question=${encodedPrompt}&strictanswer=${strictAnswer}&usecontextonly=${useContextOnly}`);
+
+        eventSource.onmessage = (event) => {
+            setResponse((prev) => prev + event.data);
+        };
+
+        eventSource.onerror = (err) => {
+            console.error('Connection error!', err);
+            setStreaming(false);
+            setInputValue('');
+            eventSource.close();
+        };
+
+        eventSource.onopen = () => {
+            console.log('SSE connection opened');
+        };
+
+        eventSource.addEventListener('end', () => {
+            console.log('SSE connection closed');
+            setInputValue('');
+            setStreaming(false);
+        });
+    }
+
+    const sendStandardRequest = async () => {
         try {
             const resp = await fetch('http://localhost:3000/v1/api/ask', {
                 method: 'POST',
@@ -53,6 +84,17 @@ export function Home(): JSX.Element {
             setInputValue('');
         } finally {
             setLoading(false);
+        }
+    }
+
+    const sendQuestion = async () => {
+        setLastQuestion(inputValue);
+        setLoading(true);
+
+        if (streamOutput) {
+            await sendStreamRequest();
+        } else {
+            await sendStandardRequest();
         }
     };
 
@@ -85,11 +127,18 @@ export function Home(): JSX.Element {
                             <FormControlLabel
                                 control={<Checkbox value={strictAnswer} onChange={(e) => setStrictAnswer(e.currentTarget.checked)} />}
                                 label="Strict answer (distance threshold < 0.6, default: 1.0)"
+                                disabled={loading || streaming}
+                            />
+                            <FormControlLabel
+                                control={<Checkbox value={useContextOnly} onChange={(e) => setUseContextOnly(e.currentTarget.checked)} />}
+                                label="Use trained context only"
+                                disabled={loading || streaming}
                             />
                             <FormControlLabel
                                 sx={{ mb: 1 }}
-                                control={<Checkbox value={useContextOnly} onChange={(e) => setUseContextOnly(e.currentTarget.checked)} />}
-                                label="Use trained context only"
+                                control={<Checkbox value={streamOutput} onChange={(e) => setStreamOutput(e.currentTarget.checked)} />}
+                                label="Stream output"
+                                disabled={loading || streaming}
                             />
                             <ButtonGroup
                                 variant='contained'
@@ -105,19 +154,19 @@ export function Home(): JSX.Element {
                                         setInputValue(e.target.value)
                                     }
                                     fullWidth={true}
-                                    disabled={loading}
+                                    disabled={loading || streaming}
                                     required={true}
                                 />
                                 <Button
                                     variant='contained'
                                     type='submit'
-                                    disabled={loading}
+                                    disabled={loading || streaming}
                                 >
                                     Send
                                 </Button>
                             </ButtonGroup>
                         </Box>
-                        {loading && (
+                        {(loading || (response.length === 0 && streaming)) && (
                             <Box
                                 mt={8}
                                 mb={4}
