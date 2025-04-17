@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
 function requestDetailsFormat(req: Request): string {
@@ -8,8 +8,9 @@ function requestDetailsFormat(req: Request): string {
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
+    private readonly logger = new Logger(LoggerMiddleware.name);
     use(req: Request, _: Response, next: NextFunction) {
-        console.info(requestDetailsFormat(req));
+        this.logger.log(requestDetailsFormat(req));
         next();
     }
 }
