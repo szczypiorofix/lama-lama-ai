@@ -175,8 +175,10 @@ export class LlamaService {
         this.logger.log('Context: ', contextForQuery);
 
         const useContextOnlyString: string = useContextOnly
-            ? `Use only the context: ${JSON.stringify(contextForQuery)} . `
+            ? `Use only the context: ${JSON.stringify(contextForQuery)} . If you don't find the answer in context, reply "I didn't find the answer in the given context"`
             : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
+
+        this.logger.log(useContextOnlyString);
 
         const useContextString: string =
             contextForQuery.length > 0 ? useContextOnlyString : '';

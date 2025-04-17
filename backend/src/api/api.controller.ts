@@ -36,8 +36,8 @@ export class ApiController {
     @Sse('chat')
     stream(
         @Query('question') question: string,
-        @Query('strictanswer') strictanswer: boolean,
-        @Query('usecontextonly') usecontextonly: boolean,
+        @Query('strictanswer') strictanswer: boolean = false,
+        @Query('usecontextonly') usecontextonly: boolean = true,
     ): Observable<MessageEvent> {
         return this.apiService.sendChat({
             question: question,

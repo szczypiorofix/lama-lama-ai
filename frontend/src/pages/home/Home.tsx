@@ -34,7 +34,7 @@ export function Home(): JSX.Element {
         setLoading(false);
 
         const encodedPrompt: string = encodeURIComponent(inputValue);
-        const eventSource = new EventSource(`http://localhost:3000/v1/api/chat?question=${encodedPrompt}`);
+        const eventSource = new EventSource(`http://localhost:3000/v1/api/chat?question=${encodedPrompt}&strictanswer=${strictAnswer}&usecontextonly=${useContextOnly}`);
 
         eventSource.onmessage = (event) => {
             setResponse((prev) => prev + event.data);
