@@ -6,10 +6,13 @@ import AppBar from '@mui/material/AppBar';
 import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
+import { getRoute } from '../../shared/helpers';
 
 export function ToolBar(): JSX.Element {
     const { contextState, setContextState } = useGlobalAppContext();
+    const currentPageTitle = getRoute(contextState.view).name;
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position='static'>
@@ -34,7 +37,7 @@ export function ToolBar(): JSX.Element {
                         component='div'
                         sx={{ flexGrow: 1 }}
                     >
-                        Lama Lama AI
+                        {currentPageTitle}
                     </Typography>
                 </Toolbar>
             </AppBar>

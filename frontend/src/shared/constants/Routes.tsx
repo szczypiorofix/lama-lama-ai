@@ -22,13 +22,13 @@ export const routes: Record<APP_VIEW, Route> = {
         icon: <ChatIcon />,
     },
     [APP_VIEW.UPLOAD_DATA]: {
-        name: 'Upload data',
+        name: 'Upload Data',
         view: APP_VIEW.UPLOAD_DATA,
         page: <UploadData />,
         icon: <DriveFolderUploadIcon />,
     },
     [APP_VIEW.IMAGE_ANALYSIS]: {
-        name: 'Image analysis',
+        name: 'Image Analysis',
         view: APP_VIEW.IMAGE_ANALYSIS,
         page: <ImageAnalysis />,
         icon: <InsertPhotoIcon />,
