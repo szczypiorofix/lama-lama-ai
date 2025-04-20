@@ -3,4 +3,5 @@ export enum APP_VIEW {
     CHAT,
     UPLOAD_DATA,
     IMAGE_ANALYSIS,
+    SETTINGS
 }
