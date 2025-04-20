@@ -6,7 +6,6 @@ import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { APP_VIEW } from '../../shared/enums';
 import { getRoute } from '../../shared/helpers';
 import { Footer } from '../footer/Footer.tsx';
-import { Logo } from '../logo/Logo.tsx';
 import { SideNav } from '../sidenav/SideNav.tsx';
 import { ToolBar } from '../toolbar/ToolBar.tsx';
 
@@ -21,7 +20,6 @@ export function ViewPort(): JSX.Element {
         <Box>
             <ToolBar />
             <SideNav />
-            <Logo />
             <Container maxWidth='lg'>
                 {resolveView(contextState.view)}
             </Container>

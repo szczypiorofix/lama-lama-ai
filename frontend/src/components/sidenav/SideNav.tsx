@@ -9,9 +9,13 @@ import {
     ListItemIcon,
     ListItemText,
 } from '@mui/material';
+
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
-import { Route } from '../../shared/models';
 import { getAllRoutesAsList } from '../../shared/helpers';
+import { Route } from '../../shared/models';
+
+import localLlamaImage from '../../assets/images/local_llama.jpg';
+import Typography from '@mui/material/Typography';
 
 export function SideNav(): JSX.Element {
     const { contextState, setContextState } = useGlobalAppContext();
@@ -30,7 +34,10 @@ export function SideNav(): JSX.Element {
 
     const DrawerList = (
         <Box sx={{ width: 260 }} role='presentation'>
-            <Box sx={{ width: 260 }}></Box>
+            <Box sx={{ p: 2, textAlign: 'center', borderBottom: '1px solid #ccc' }}>
+                <img src={localLlamaImage} alt="Logo Lama Lama AI" style={{ width: '100px' }} />
+                <Typography variant="h6">Lama Lama AI</Typography>
+            </Box>
             {getAllRoutesAsList().map((route, index) => (
                 <ListItem key={index} disablePadding>
                     <ListItemButton
