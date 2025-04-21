@@ -1,19 +1,30 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
-import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from '../middleware/logger.middleware';
 import { HeaderMiddleware } from '../middleware/header.middleware';
-import { LlamaService } from '../llama/llama.service';
-import { RagService } from '../rag/rag.service';
-import { UuidService } from '../uuid/uuid.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatModule } from './chat/chat.module';
+import { LlamaModule } from '../llama/llama.module';
+import { RagModule } from '../rag/rag.module';
+import { DataModule } from './data/data.module';
+import { ImageModule } from './image/image.module';
+import { ModelsModule } from './models/models.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
-    imports: [ConfigModule.forRoot({ isGlobal: true }), HttpModule],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        ChatModule,
+        DataModule,
+        ImageModule,
+        ModelsModule,
+        UtilsModule,
+        LlamaModule,
+        RagModule,
+    ],
     controllers: [ApiController],
-    providers: [ApiService, LlamaService, ChatService, RagService, UuidService],
+    providers: [ApiService],
 })
 export class ApiModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

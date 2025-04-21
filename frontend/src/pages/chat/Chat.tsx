@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 
+import { API_BASE_URL } from '../../shared/constants';
 import { RagAskResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
@@ -32,7 +33,9 @@ export function Chat(): JSX.Element {
         setLoading(false);
 
         const encodedPrompt: string = encodeURIComponent(inputValue);
-        const eventSource = new EventSource(`http://localhost:3000/v1/api/chat?question=${encodedPrompt}&strictanswer=${strictAnswer}&usecontextonly=${useContextOnly}`);
+        const eventUrl: string =
+            `${API_BASE_URL}/chat/message?question=${encodedPrompt}&strictAnswer=${strictAnswer}&useContextOnly=${useContextOnly}`
+        const eventSource = new EventSource(eventUrl);
 
         eventSource.onmessage = (event) => {
             setResponse((prev) => prev + event.data);
@@ -57,16 +60,17 @@ export function Chat(): JSX.Element {
     }
 
     const sendStandardRequest = async () => {
+        const requestUrl: string = API_BASE_URL + '/chat/message';
         try {
-            const resp = await fetch('http://localhost:3000/v1/api/ask', {
+            const resp = await fetch(requestUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     question: inputValue,
-                    strictanswer: strictAnswer,
-                    usecontextonly: useContextOnly,
+                    strictAnswer: strictAnswer,
+                    useContextOnly: useContextOnly,
                 }),
             });
 

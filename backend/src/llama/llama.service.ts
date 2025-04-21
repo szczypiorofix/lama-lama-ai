@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
     LlamaResponseChunk,
+    LlmImageList,
     OllamaStreamChunk,
     RagAskResponse,
 } from '../shared/models';
@@ -21,18 +22,25 @@ import { Subscriber } from 'rxjs';
 @Injectable()
 export class LlamaService {
     private readonly logger = new Logger(LlamaService.name);
+    private readonly OLLAMA_URL: string;
+    private readonly OLLAMA_MODEL: string;
 
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-    ) {}
+    ) {
+        this.OLLAMA_URL =
+            this.configService.get<string>('OLLAMA_API_URL') || '';
+        this.OLLAMA_MODEL =
+            this.configService.get<string>('OLLAMA_MODEL') || '';
+    }
 
     public generateStreamingResponse(
         askDto: AskDto,
         observer: Subscriber<MessageEvent>,
         context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question, usecontextonly } = askDto;
+        const { question, useContextOnly } = askDto;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
@@ -40,14 +48,15 @@ export class LlamaService {
         const finalQuery: string = this.prepareQueryBasedOnContext(
             question,
             context,
-            usecontextonly,
+            useContextOnly,
         );
 
+        const requestUrl: string = this.OLLAMA_URL + '/api/chat';
         axios
             .post(
-                this.configService.get<string>('OLLAMA_API_URL') || '',
+                requestUrl,
                 {
-                    model: this.configService.get<string>('OLLAMA_MODEL') || '',
+                    model: this.OLLAMA_MODEL,
                     messages: [
                         {
                             role: 'user',
@@ -89,11 +98,25 @@ export class LlamaService {
             .catch((err) => observer.error(err));
     }
 
+    public async getAvailableModels(): Promise<LlmImageList> {
+        const requestUrl: string = this.OLLAMA_URL + '/api/tags';
+        const response = await this.httpService.get(requestUrl).toPromise();
+        if (response) {
+            const availableModels: LlmImageList = response.data as LlmImageList;
+            console.log(availableModels);
+            return availableModels;
+        }
+        throw new HttpException(
+            'Error occurred while fetching models',
+            HttpStatus.NOT_FOUND,
+        );
+    }
+
     public async generateResponse(
         askDto: AskDto,
         context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question, usecontextonly } = askDto;
+        const { question, useContextOnly } = askDto;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
@@ -102,15 +125,13 @@ export class LlamaService {
         const finalQuery: string = this.prepareQueryBasedOnContext(
             question,
             context,
-            usecontextonly,
+            useContextOnly,
         );
-
-        this.logger.log(finalQuery);
 
         const responses: LlamaResponseChunk[] = [];
         try {
             const payload = {
-                model: this.configService.get<string>('OLLAMA_MODEL') || '',
+                model: this.OLLAMA_MODEL,
                 messages: [
                     {
                         role: 'user',
@@ -119,14 +140,11 @@ export class LlamaService {
                 ],
             };
 
+            const requestUrl: string = this.OLLAMA_URL + '/api/chat';
             const response = await this.httpService
-                .post(
-                    this.configService.get<string>('OLLAMA_API_URL') || '',
-                    payload,
-                    {
-                        headers: { 'Content-Type': 'application/json' },
-                    },
-                )
+                .post(requestUrl, payload, {
+                    headers: { 'Content-Type': 'application/json' },
+                })
                 .toPromise();
             const raw: string = response ? (response.data as string) : '{}';
             const lines: string[] = raw
@@ -170,9 +188,6 @@ export class LlamaService {
     ): string {
         const contextForQuery: ChromaCollectionDocuments =
             context && Array.isArray(context) ? context.flat() : [];
-
-        this.logger.log('Question: ', question);
-        this.logger.log('Context: ', contextForQuery);
 
         const useContextOnlyString: string = useContextOnly
             ? `Use only the context: ${JSON.stringify(contextForQuery)} . If you don't find the answer in context, reply "I didn't find the answer in the given context"`

@@ -5,8 +5,8 @@ export class AskDto {
     question: string;
 
     @IsBoolean()
-    strictanswer: boolean;
+    strictAnswer: boolean;
 
     @IsBoolean()
-    usecontextonly: boolean;
+    useContextOnly: boolean;
 }

@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
+import { API_BASE_URL } from '../../shared/constants';
 import { LlmImage, LlmImageList } from '../../shared/models';
 
 interface SettingsState {
@@ -29,7 +30,7 @@ export function Settings(): JSX.Element {
 
     useEffect(() => {
         if (!state.updated) {
-            fetch('http://localhost:3000/v1/api/available-models')
+            fetch(API_BASE_URL+ '/models')
                 .then((response) => response.json())
                 .then((response: LlmImageList) => {
                     console.log(response);

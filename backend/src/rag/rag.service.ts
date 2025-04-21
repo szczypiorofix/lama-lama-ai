@@ -1,15 +1,14 @@
 import {
+    Injectable,
+    OnModuleInit,
+    Logger,
     HttpException,
     HttpStatus,
-    Injectable,
-    Logger,
-    OnModuleInit,
 } from '@nestjs/common';
-import type { QueryResponse } from 'chromadb';
-import { ChromaClient, Collection } from 'chromadb';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { ConfigService } from '@nestjs/config';
 import { AskDto } from '../dto/ask.dto';
+import { ChromaClient, Collection, QueryResponse } from 'chromadb';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
@@ -36,11 +35,12 @@ export class RagService implements OnModuleInit {
     private readonly DISTANCE_THRESHOLD_STRICT = 0.6;
     private readonly CHUNK_SIZE = 1000;
     private readonly CHUNK_OVERLAP = 200;
+    private readonly CHROMA_DB_URL: string;
 
     constructor(private configService: ConfigService) {
-        this.client = new ChromaClient({
-            path: this.configService.get<string>('CHROMADB_URL') || '',
-        });
+        this.CHROMA_DB_URL =
+            this.configService.get<string>('CHROMADB_URL') || '';
+        this.client = new ChromaClient({ path: this.CHROMA_DB_URL });
 
         this.textSplitter = new RecursiveCharacterTextSplitter({
             chunkSize: this.CHUNK_SIZE,
@@ -92,7 +92,7 @@ export class RagService implements OnModuleInit {
         const filteredDocuments: ChromaCollectionDocuments =
             filterDocumentsWithMaxDistance(
                 queryContext,
-                askDto.strictanswer
+                askDto.strictAnswer
                     ? this.DISTANCE_THRESHOLD_STRICT
                     : this.DISTANCE_THRESHOLD,
             );

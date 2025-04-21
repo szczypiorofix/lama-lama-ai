@@ -4,6 +4,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, styled, Typography } from '@mui/material';
 
+import { API_BASE_URL } from '../../shared/constants';
+
 interface UploadState {
     uploading: boolean;
     files: File[] | null;
@@ -72,9 +74,10 @@ export function Upload(): JSX.Element {
 
             console.log(formData);
 
+            const requestUrl: string = API_BASE_URL+ '/data/upload';
             try {
                 const resp = await fetch(
-                    'http://localhost:3000/v1/api/uploadfiles',
+                    requestUrl,
                     {
                         method: 'POST',
                         body: formData,

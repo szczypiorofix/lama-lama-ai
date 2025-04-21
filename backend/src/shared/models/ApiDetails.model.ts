@@ -1,4 +1,4 @@
-export interface ServiceDetails {
+export interface ApiDetails {
     name: string;
     path: string;
     version: string;
