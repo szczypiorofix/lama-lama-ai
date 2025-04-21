@@ -103,7 +103,7 @@ export function Upload(): JSX.Element {
         }
     };
 
-    const uploadFile = () => {
+    const uploadFile = async () => {
         if (fileInputRef.current) {
             setState({
                 ...state,
@@ -111,9 +111,7 @@ export function Upload(): JSX.Element {
             });
 
             fileInputRef.current.value = '';
-            (async () => {
-                await sendFileToServer();
-            })();
+            await sendFileToServer();
         }
     };
 
@@ -128,7 +126,7 @@ export function Upload(): JSX.Element {
                 disabled={state.uploading}
                 startIcon={<CloudUploadIcon />}
             >
-                Upload file
+                Upload file(s)
                 <VisuallyHiddenInput
                     type='file'
                     onClick={handleFileInputClick}
