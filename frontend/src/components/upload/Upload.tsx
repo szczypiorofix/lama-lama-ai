@@ -13,6 +13,14 @@ interface UploadState {
     responseCode: number;
 }
 
+export interface UploadProps {
+    title: string;
+    buttonText: string;
+    acceptType: string;
+    urlPath: string;
+    multiple: boolean;
+}
+
 interface UploadResponse {
     message: string;
     fileName: string;
@@ -31,7 +39,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export function Upload(): JSX.Element {
+export function Upload(props: UploadProps): JSX.Element {
     const [state, setState] = useState<UploadState>({
         uploading: false,
         files: null,
@@ -43,7 +51,7 @@ export function Upload(): JSX.Element {
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(event.target.files ?? []).filter(
-            (file) => file.type === 'text/plain'
+            (file) => file //file.type === 'text/plain'
         );
         setState({
             uploading: false,
@@ -65,16 +73,21 @@ export function Upload(): JSX.Element {
     const sendFileToServer = async () => {
         if (state.files) {
             const formData = new FormData();
-            for (const file of state.files) {
-                formData.append('files', file);
+            if (props.multiple) {
+                for (const file of state.files) {
+                    formData.append('files', file);
+                }
+            } else {
+                formData.append('files', state.files[0]);
             }
+
 
             let responseString: string = '';
             let responseCode: number = state.responseCode;
 
             console.log(formData);
 
-            const requestUrl: string = API_BASE_URL+ '/data/upload';
+            const requestUrl: string = API_BASE_URL+ props.urlPath;
             try {
                 const resp = await fetch(
                     requestUrl,
@@ -117,7 +130,7 @@ export function Upload(): JSX.Element {
 
     return (
         <Box mt={1} ml={1} mr={1} mb={4}>
-            <Typography mb={1} variant={'body1'}>Upload .txt file(s) with text data for AI training</Typography>
+            <Typography mb={1} variant={'body1'}>{props.title}</Typography>
             <Button
                 component='label'
                 role={undefined}
@@ -126,14 +139,14 @@ export function Upload(): JSX.Element {
                 disabled={state.uploading}
                 startIcon={<CloudUploadIcon />}
             >
-                Upload file(s)
+                {props.buttonText}
                 <VisuallyHiddenInput
                     type='file'
                     onClick={handleFileInputClick}
                     onChange={handleFileChange}
                     ref={fileInputRef}
-                    accept={'.txt'}
-                    multiple={true}
+                    accept={props.acceptType}
+                    multiple={props.multiple}
                 />
             </Button>
             {state.responseCode > 0 && (

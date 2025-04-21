@@ -20,7 +20,7 @@ export class DataController {
         this.logger.log(`Received ${files.length} files(s).`);
         for (const file of files) {
             this.logger.log(
-                `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString(16)} kb).`,
+                `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString()} kb).`,
             );
             await this.dataService.putDataFileIntoDatabase(file);
         }
