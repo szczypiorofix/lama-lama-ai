@@ -75,7 +75,7 @@ export function Settings(): JSX.Element {
                             })}
                         </List>
                         {state.error && (
-                            <Box m={2}>
+                            <Box mb={2} mt={2}>
                                 <Typography variant={'body1'}>An error occurred: {state.error}</Typography>
                             </Box>
                         )}

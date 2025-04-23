@@ -150,7 +150,7 @@ export function ImageAnalysis(): JSX.Element {
                                 >
                                     {state.file.name}
                                 </Typography>
-                                <Box m={2}>
+                                <Box mt={2} mb={2}>
                                     <Typography align={'center'}>Describe what is in this image?</Typography>
                                 </Box>
                                 <Box
@@ -173,7 +173,7 @@ export function ImageAnalysis(): JSX.Element {
                             </Box>
                         )}
                         {state.responseCode > 0 && (
-                            <Box m={2}>
+                            <Box mt={2} mb={2}>
                                 <Typography variant={'body1'}>{state.response}</Typography>
                             </Box>
                         )}
