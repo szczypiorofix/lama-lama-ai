@@ -101,10 +101,10 @@ export function Upload(props: UploadProps): JSX.Element {
                 console.log('Response: ', responseJson);
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
-            } catch (err) {
+            } catch (err: any) {
                 console.error(err);
                 responseCode = 500;
-                responseString = JSON.stringify(err);
+                responseString = "An error occurred: " + err.toString();
             } finally {
                 setState({
                     uploading: false,
@@ -150,7 +150,9 @@ export function Upload(props: UploadProps): JSX.Element {
                 />
             </Button>
             {state.responseCode > 0 && (
-                <Typography variant={'body1'}>{state.response}</Typography>
+                <Box mt={2} mb={2}>
+                    <Typography variant={'body1'}>{state.response}</Typography>
+                </Box>
             )}
             {state.files !== null && (
                 <Box mt={1} mb={1}>
