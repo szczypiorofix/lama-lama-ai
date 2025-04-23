@@ -88,15 +88,14 @@ export function ImageAnalysis(): JSX.Element {
                 console.log('Response: ', responseJson);
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
-            } catch (err) {
+            } catch (err: any) {
                 console.error(err);
                 responseCode = 500;
-                responseString = JSON.stringify(err);
+                responseString = "An error occurred: " + err.toString();
             } finally {
                 setState({
                     ...state,
                     uploading: false,
-                    file: null,
                     response: responseString,
                     responseCode: responseCode,
                 });
