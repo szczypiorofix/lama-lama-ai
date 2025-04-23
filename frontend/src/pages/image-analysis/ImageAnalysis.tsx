@@ -140,27 +140,20 @@ export function ImageAnalysis(): JSX.Element {
                                 multiple={false}
                             />
                         </Button>
-                        {state.previewUrl !== '' && (
-                            <Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 1, mb: 1 }}>
-                                    <img src={state.previewUrl} alt="preview" style={{ maxWidth: '200px' }} />
-                                </Box>
-                                <Typography>Describe what is in this image?</Typography>
-                            </Box>
-                        )}
-                        {state.responseCode > 0 && (
-                            <Box>
-                                <Typography variant={'body1'}>{state.response}</Typography>
-                            </Box>
-                        )}
-                        {state.file !== null && (
+                        {state.file && state.previewUrl && (
                             <Box mt={1} mb={1}>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 1, mb: 1 }}>
+                                    <img src={state.previewUrl} alt="preview" style={{ maxWidth: '240px', width: '100%', height: 'auto' }} />
+                                </Box>
                                 <Typography
                                     variant={'body1'}
-                                    sx={{ color: 'darkcyan' }}
+                                    sx={{ color: 'darkcyan', mb: 2, textAlign: 'center' }}
                                 >
-                                    Uploaded file: {state.file.name}
+                                    {state.file.name}
                                 </Typography>
+                                <Box m={2}>
+                                    <Typography align={'center'}>Describe what is in this image?</Typography>
+                                </Box>
                                 <Box
                                     display={'flex'}
                                     flex={1}
@@ -175,9 +168,14 @@ export function ImageAnalysis(): JSX.Element {
                                         onClick={uploadFile}
                                         loadingPosition='end'
                                     >
-                                        Send
+                                        Analyse
                                     </Button>
                                 </Box>
+                            </Box>
+                        )}
+                        {state.responseCode > 0 && (
+                            <Box m={2}>
+                                <Typography variant={'body1'}>{state.response}</Typography>
                             </Box>
                         )}
                     </Box>
