@@ -17,12 +17,14 @@ import { LlmImage, LlmImageList } from '../../shared/models';
 
 interface SettingsState {
     modelList: LlmImageList;
+    error: string;
     updated: boolean;
 }
 
 export function Settings(): JSX.Element {
     const [state, setState] = useState<SettingsState>({
         updated: false,
+        error: '',
         modelList: {
             models: []
         }
@@ -44,6 +46,7 @@ export function Settings(): JSX.Element {
                     console.error(error);
                     setState({
                         ...state,
+                        error: error.toString(),
                         updated: true,
                     });
                 });
@@ -71,6 +74,11 @@ export function Settings(): JSX.Element {
                                 return modelListItem(modelItem, index);
                             })}
                         </List>
+                        {state.error && (
+                            <Box m={2}>
+                                <Typography variant={'body1'}>An error occurred: {state.error}</Typography>
+                            </Box>
+                        )}
                     </Box>
                 </Card>
             </Paper>
