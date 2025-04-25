@@ -19,6 +19,11 @@ import { Readable } from 'stream';
 import { ChromaCollectionDocuments } from '../rag/rag.service';
 import { Subscriber } from 'rxjs';
 
+interface OllamaMessages {
+    role: 'system' | 'user';
+    content: string;
+}
+
 @Injectable()
 export class LlamaService {
     private readonly logger = new Logger(LlamaService.name);
@@ -45,7 +50,7 @@ export class LlamaService {
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
-        const finalQuery: string = this.prepareQueryBasedOnContext(
+        const messages: OllamaMessages[] = this.getQueryMessages(
             question,
             context,
             useContextOnly,
@@ -57,12 +62,7 @@ export class LlamaService {
                 requestUrl,
                 {
                     model: this.OLLAMA_MODEL,
-                    messages: [
-                        {
-                            role: 'user',
-                            content: finalQuery,
-                        },
-                    ],
+                    messages: messages,
                     stream: true,
                 },
                 { responseType: 'stream' },
@@ -122,7 +122,7 @@ export class LlamaService {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
 
-        const finalQuery: string = this.prepareQueryBasedOnContext(
+        const messages: OllamaMessages[] = this.getQueryMessages(
             question,
             context,
             useContextOnly,
@@ -132,12 +132,7 @@ export class LlamaService {
         try {
             const payload = {
                 model: this.OLLAMA_MODEL,
-                messages: [
-                    {
-                        role: 'user',
-                        content: finalQuery,
-                    },
-                ],
+                messages: messages,
             };
 
             const requestUrl: string = this.OLLAMA_URL + '/api/chat';
@@ -181,24 +176,32 @@ export class LlamaService {
         return askResponse;
     }
 
-    private prepareQueryBasedOnContext(
+    private getQueryMessages(
         question: string,
         context: ChromaCollectionDocuments[] = [],
         useContextOnly: boolean = false,
-    ): string {
+    ): OllamaMessages[] {
         const contextForQuery: ChromaCollectionDocuments =
             context && Array.isArray(context) ? context.flat() : [];
 
-        const useContextOnlyString: string = useContextOnly
-            ? `Use only the context: ${JSON.stringify(contextForQuery)} . If you don't find the answer in context, reply "I didn't find the answer in the given context"`
-            : `Try to use context: ${JSON.stringify(contextForQuery)} . `;
+        const contextAsString: string = contextForQuery.join('. \n');
+        const systemQuery: string = useContextOnly
+            ? "Answer strictly based on the provided context. If the answer is not found in the context, reply with 'I don't know'. Do not use any external knowledge."
+            : 'Answer as accurately as possible, using the provided context if available. You may also use your own knowledge if needed.';
+        const userQuery: string = `Context:\n${contextAsString}\n\nQuestion:\n${question}`;
 
-        const useContextString: string =
-            contextForQuery.length > 0 ? useContextOnlyString : '';
-        const finalQuery: string = `You are an assistant for question-answering tasks. If you don't know the answer, just say that you don't know. ${useContextString} Try to answer the question in the language in which it was asked. Question: ${question}`;
+        const messages: OllamaMessages[] = [
+            {
+                role: 'system',
+                content: systemQuery,
+            },
+            {
+                role: 'user',
+                content: userQuery,
+            },
+        ];
+        this.logger.log('Messages: ', messages);
 
-        this.logger.log('Final query: ', finalQuery);
-
-        return finalQuery;
+        return messages;
     }
 }
