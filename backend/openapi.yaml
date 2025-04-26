@@ -1,0 +1,175 @@
+openapi: 3.0.0
+info:
+  title: Local API
+  version: 1.0.0
+  description: API providing chat capabilities and model management.
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/szczypiorofix/LamaLamaAIAPI/1.0.0
+  - url: http://localhost:3000
+paths:
+  /v1/api:
+    get:
+      summary: Get API Details
+      responses:
+        '200':
+          description: API Details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiDetails'
+  /v1/api/chat/message:
+    get:
+      summary: Stream Chat Response
+      parameters:
+        - name: question
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: selectedModel
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: strictAnswer
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: useContextOnly
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Streamed chat response
+          content:
+            text/event-stream:
+              schema:
+                type: string
+    post:
+      summary: Send Chat Message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatQuestionDto'
+      responses:
+        '200':
+          description: Chat response
+          headers:
+            Connection:
+              description: Connection should be kept alive
+              schema:
+                type: string
+                example: keep-alive
+            Content-Type:
+              description: Content type for SSE
+              schema:
+                type: string
+                example: text/event-stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+  /v1/api/models:
+    get:
+      summary: Get List of LLM Models
+      responses:
+        '200':
+          description: List of locally available LLM models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LlmImageList'
+components:
+  schemas:
+    ApiDetails:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        version:
+          type: string
+      required:
+        - name
+        - path
+        - version
+    ChatQuestionDto:
+      type: object
+      properties:
+        question:
+          type: string
+        selectedModel:
+          type: string
+        strictAnswer:
+          type: boolean
+        useContextOnly:
+          type: boolean
+      required:
+        - question
+        - selectedModel
+        - strictAnswer
+        - useContextOnly
+    LlmImageList:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/LlmImage'
+      required:
+        - models
+    LlmImage:
+      type: object
+      properties:
+        name:
+          type: string
+        model:
+          type: string
+        modified_at:
+          type: string
+          format: date-time
+        size:
+          type: integer
+        digest:
+          type: string
+        details:
+          $ref: '#/components/schemas/LlmImageDetails'
+      required:
+        - name
+        - model
+        - modified_at
+        - size
+        - digest
+        - details
+    LlmImageDetails:
+      type: object
+      properties:
+        parent_model:
+          type: string
+        format:
+          type: string
+        family:
+          type: string
+        families:
+          type: array
+          items:
+            type: string
+        parameter_size:
+          type: string
+        quantization_level:
+          type: string
+      required:
+        - parent_model
+        - format
+        - family
+        - families
+        - parameter_size
+        - quantization_level
