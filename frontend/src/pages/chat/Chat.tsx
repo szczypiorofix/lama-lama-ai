@@ -41,9 +41,10 @@ export function Chat(): JSX.Element {
         const eventUrl: string =
             `${API_BASE_URL}/chat/message?`
             +`question=${encodedPrompt}`
+            +`&selectedModel=${selectedModel}`
             +`&strictAnswer=${strictAnswer}`
             +`&useContextOnly=${useContextOnly}`
-            +`&selectedModel=${selectedModel}`
+
         const eventSource = new EventSource(eventUrl);
 
         eventSource.onmessage = (event) => {

@@ -4,6 +4,9 @@ export class AskDto {
     @IsString()
     question: string;
 
+    @IsString()
+    selectedModel: string;
+
     @IsBoolean()
     strictAnswer: boolean;
 

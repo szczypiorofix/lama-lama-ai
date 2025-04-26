@@ -61,7 +61,10 @@ export class LlamaService {
             .post(
                 requestUrl,
                 {
-                    model: this.OLLAMA_MODEL,
+                    model:
+                        askDto.selectedModel ||
+                        this.OLLAMA_MODEL ||
+                        'tinyllama',
                     messages: messages,
                     stream: true,
                 },

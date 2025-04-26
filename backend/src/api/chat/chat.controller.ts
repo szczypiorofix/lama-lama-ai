@@ -21,6 +21,7 @@ export class ChatController {
      * Send a message to the chatbox and stream the answer to the client.
      *
      * @param question - question to ask the chatbot
+     * @param selectedModel - selected LLM
      * @param strictAnswer - is answer strict or not (distance threshold)
      * @param useContextOnly - use context only or not
      * @returns Observable<MessageEvent> - stream of messages from the server
@@ -28,12 +29,14 @@ export class ChatController {
     @Sse('message')
     public stream(
         @Query('question') question: string,
-        @Query('strict-answer') strictAnswer: boolean = false,
-        @Query('use-context-only') useContextOnly: boolean = true,
+        @Query('selectedModel') selectedModel: string,
+        @Query('strictAnswer') strictAnswer: boolean = false,
+        @Query('useContextOnly') useContextOnly: boolean = true,
     ): Observable<MessageEvent> {
         return this.chatService.sendChat({
             question,
             strictAnswer,
+            selectedModel,
             useContextOnly,
         });
     }
