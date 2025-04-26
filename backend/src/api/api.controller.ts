@@ -7,7 +7,7 @@ export class ApiController {
     constructor(private readonly apiService: ApiService) {}
 
     @Get()
-    getBasicDetails(): ApiDetails {
-        return this.apiService.getBasicDetails();
+    getApiDetails(): ApiDetails {
+        return this.apiService.getApiDetails();
     }
 }

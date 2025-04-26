@@ -11,7 +11,9 @@ export class ChatService {
         private ragService: RagService,
     ) {}
 
-    public sendChat(chatQuestion: ChatQuestionDto): Observable<MessageEvent> {
+    public sendChatRequestToOllamaAndStreamAnswer(
+        chatQuestion: ChatQuestionDto,
+    ): Observable<MessageEvent> {
         return from(
             this.ragService.retrieveContextFromDatabase(chatQuestion),
         ).pipe(
@@ -28,7 +30,9 @@ export class ChatService {
         );
     }
 
-    public async postLlamaQuestionWithContext(chatQuestion: ChatQuestionDto) {
+    public async sendChatRequestToOllamaAndReturnAnswer(
+        chatQuestion: ChatQuestionDto,
+    ) {
         const filteredDocuments: ChromaCollectionDocuments =
             await this.ragService.retrieveContextFromDatabase(chatQuestion);
         return this.llamaService.generateResponse(chatQuestion, [

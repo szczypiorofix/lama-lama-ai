@@ -24,18 +24,21 @@ export class ChatController {
      * @returns Observable<MessageEvent> - stream of messages from the server
      */
     @Sse('message')
-    public stream(
+    public fetchOllamaChatResponseAsStream(
         @Query('question') question: string,
         @Query('selectedModel') selectedModel: string,
         @Query('strictAnswer') strictAnswer: boolean = false,
         @Query('useContextOnly') useContextOnly: boolean = true,
     ): Observable<MessageEvent> {
-        return this.chatService.sendChat({
+        const chatQuestion: ChatQuestionDto = {
             question,
             strictAnswer,
             selectedModel,
             useContextOnly,
-        });
+        };
+        return this.chatService.sendChatRequestToOllamaAndStreamAnswer(
+            chatQuestion,
+        );
     }
 
     /**
@@ -45,8 +48,10 @@ export class ChatController {
      * @param chatQuestion
      */
     @Post('message')
-    public async sendMessageToChatBot(@Body() chatQuestion: ChatQuestionDto) {
-        return await this.chatService.postLlamaQuestionWithContext(
+    public async fetchOllamaChatResponse(
+        @Body() chatQuestion: ChatQuestionDto,
+    ) {
+        return await this.chatService.sendChatRequestToOllamaAndReturnAnswer(
             chatQuestion,
         );
     }

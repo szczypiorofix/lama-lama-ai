@@ -16,7 +16,9 @@ export class DataController {
 
     @Post('upload')
     @UseInterceptors(FilesInterceptor('files'))
-    async sendFileMultiple(@UploadedFiles() files: Express.Multer.File[]) {
+    public async sendFileMultiple(
+        @UploadedFiles() files: Express.Multer.File[],
+    ) {
         this.logger.log(`Received ${files.length} files(s).`);
         for (const file of files) {
             this.logger.log(
