@@ -16,7 +16,7 @@ describe('AppController', () => {
 
     describe('root', () => {
         it('should return "Local Lama API Service"', () => {
-            expect(appController.getBasicDetails().name).toBe(
+            expect(appController.getApiDetails().name).toBe(
                 'Local Lama API Service',
             );
         });
