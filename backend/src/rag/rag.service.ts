@@ -6,7 +6,7 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AskDto } from '../dto/ask.dto';
+import { ChatQuestionDto } from '../dto/chatQuestionDto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
@@ -80,10 +80,10 @@ export class RagService implements OnModuleInit {
     }
 
     public async retrieveContextFromDatabase(
-        askDto: AskDto,
+        chatQuestion: ChatQuestionDto,
     ): Promise<ChromaCollectionDocuments> {
         const queryContext = await this.collection.query({
-            queryTexts: [askDto.question],
+            queryTexts: [chatQuestion.question],
             nResults: 5,
         });
 
@@ -92,7 +92,7 @@ export class RagService implements OnModuleInit {
         const filteredDocuments: ChromaCollectionDocuments =
             filterDocumentsWithMaxDistance(
                 queryContext,
-                askDto.strictAnswer
+                chatQuestion.strictAnswer
                     ? this.DISTANCE_THRESHOLD_STRICT
                     : this.DISTANCE_THRESHOLD,
             );

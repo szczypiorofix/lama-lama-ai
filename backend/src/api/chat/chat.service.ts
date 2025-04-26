@@ -1,5 +1,5 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
-import { AskDto } from '../../dto/ask.dto';
+import { ChatQuestionDto } from '../../dto/chatQuestionDto';
 import { from, mergeMap, Observable } from 'rxjs';
 import { LlamaService } from '../../llama/llama.service';
 import { ChromaCollectionDocuments, RagService } from '../../rag/rag.service';
@@ -11,13 +11,15 @@ export class ChatService {
         private ragService: RagService,
     ) {}
 
-    public sendChat(askDto: AskDto): Observable<MessageEvent> {
-        return from(this.ragService.retrieveContextFromDatabase(askDto)).pipe(
+    public sendChat(chatQuestion: ChatQuestionDto): Observable<MessageEvent> {
+        return from(
+            this.ragService.retrieveContextFromDatabase(chatQuestion),
+        ).pipe(
             mergeMap(
                 (chromaCollectionDocuments) =>
                     new Observable<MessageEvent>((observer) => {
                         this.llamaService.generateStreamingResponse(
-                            askDto,
+                            chatQuestion,
                             observer,
                             [chromaCollectionDocuments],
                         );
@@ -26,9 +28,11 @@ export class ChatService {
         );
     }
 
-    public async postLlamaQuestionWithContext(askDto: AskDto) {
+    public async postLlamaQuestionWithContext(chatQuestion: ChatQuestionDto) {
         const filteredDocuments: ChromaCollectionDocuments =
-            await this.ragService.retrieveContextFromDatabase(askDto);
-        return this.llamaService.generateResponse(askDto, [filteredDocuments]);
+            await this.ragService.retrieveContextFromDatabase(chatQuestion);
+        return this.llamaService.generateResponse(chatQuestion, [
+            filteredDocuments,
+        ]);
     }
 }

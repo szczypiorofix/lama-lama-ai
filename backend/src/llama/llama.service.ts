@@ -12,7 +12,7 @@ import {
     OllamaStreamChunk,
     RagAskResponse,
 } from '../shared/models';
-import { AskDto } from '../dto/ask.dto';
+import { ChatQuestionDto } from '../dto/chatQuestionDto';
 import { HttpService } from '@nestjs/axios';
 import axios, { AxiosResponse } from 'axios';
 import { Readable } from 'stream';
@@ -41,11 +41,11 @@ export class LlamaService {
     }
 
     public generateStreamingResponse(
-        askDto: AskDto,
+        chatQuestion: ChatQuestionDto,
         observer: Subscriber<MessageEvent>,
         context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question, useContextOnly } = askDto;
+        const { question, useContextOnly } = chatQuestion;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
@@ -62,7 +62,7 @@ export class LlamaService {
                 requestUrl,
                 {
                     model:
-                        askDto.selectedModel ||
+                        chatQuestion.selectedModel ||
                         this.OLLAMA_MODEL ||
                         'tinyllama',
                     messages: messages,
@@ -116,10 +116,10 @@ export class LlamaService {
     }
 
     public async generateResponse(
-        askDto: AskDto,
+        chatQuestion: ChatQuestionDto,
         context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question, useContextOnly } = askDto;
+        const { question, useContextOnly } = chatQuestion;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);

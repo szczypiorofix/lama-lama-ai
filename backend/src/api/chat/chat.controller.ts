@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Observable } from 'rxjs';
-import { AskDto } from '../../dto/ask.dto';
+import { ChatQuestionDto } from '../../dto/chatQuestionDto';
 
 @Controller('api/chat')
 export class ChatController {
@@ -44,11 +44,15 @@ export class ChatController {
     /**
      * Send a message to the chatbot.
      *
-     * @param askDto - message to ask the chatbot
      * @returns Promise<RagAskResponse> - chatbot response
+     * @param chatQuestion
      */
     @Post('message')
-    public async sendMessageToChatBot(@Body() askDto: AskDto) {
-        return await this.chatService.postLlamaQuestionWithContext(askDto);
+    public async sendMessageToChatBot(
+        @Body() chatQuestion: ChatQuestionDto,
+    ) {
+        return await this.chatService.postLlamaQuestionWithContext(
+            chatQuestion,
+        );
     }
 }
