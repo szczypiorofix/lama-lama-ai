@@ -1,7 +1,6 @@
 import {
     Body,
     Controller,
-    Logger,
     MessageEvent,
     Post,
     Query,
@@ -13,8 +12,6 @@ import { ChatQuestionDto } from '../../dto/chatQuestionDto';
 
 @Controller('api/chat')
 export class ChatController {
-    private readonly logger = new Logger(ChatController.name);
-
     constructor(private readonly chatService: ChatService) {}
 
     /**
@@ -48,9 +45,7 @@ export class ChatController {
      * @param chatQuestion
      */
     @Post('message')
-    public async sendMessageToChatBot(
-        @Body() chatQuestion: ChatQuestionDto,
-    ) {
+    public async sendMessageToChatBot(@Body() chatQuestion: ChatQuestionDto) {
         return await this.chatService.postLlamaQuestionWithContext(
             chatQuestion,
         );
