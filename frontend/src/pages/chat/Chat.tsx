@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 
+import { DropdownList } from '../../components/dropdown-list/DropdownList.tsx';
+import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { API_BASE_URL } from '../../shared/constants';
 import { RagAskResponse } from '../../shared/models';
 
@@ -23,9 +25,12 @@ export function Chat(): JSX.Element {
     const [lastQuestion, setLastQuestion] = useState('');
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState('');
+    const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
     const [streamOutput, setStreamOutput] = useState<boolean>(false);
     const [streaming, setStreaming] = useState(false);
+
+    const { contextState } = useGlobalAppContext();
 
     const sendStreamRequest = async () => {
         setResponse('');
@@ -34,7 +39,11 @@ export function Chat(): JSX.Element {
 
         const encodedPrompt: string = encodeURIComponent(inputValue);
         const eventUrl: string =
-            `${API_BASE_URL}/chat/message?question=${encodedPrompt}&strictAnswer=${strictAnswer}&useContextOnly=${useContextOnly}`
+            `${API_BASE_URL}/chat/message?`
+            +`question=${encodedPrompt}`
+            +`&strictAnswer=${strictAnswer}`
+            +`&useContextOnly=${useContextOnly}`
+            +`&selectedModel=${selectedModel}`
         const eventSource = new EventSource(eventUrl);
 
         eventSource.onmessage = (event) => {
@@ -69,6 +78,7 @@ export function Chat(): JSX.Element {
                 },
                 body: JSON.stringify({
                     question: inputValue,
+                    selectedModel: selectedModel,
                     strictAnswer: strictAnswer,
                     useContextOnly: useContextOnly,
                 }),
@@ -105,6 +115,15 @@ export function Chat(): JSX.Element {
             <Paper elevation={1}>
                 <Card sx={{ padding: 1 }}>
                     <CardContent>
+                        <DropdownList
+                            values={ contextState.llms.models}
+                            getLabel={(item) => item?.name ?? '' }
+                            onSelect={(item) => {
+                                console.log('on select: ', item);
+                                setSelectedModel(item?.name ?? null);
+                            }}
+                            label={'Select model'}
+                        />
                         <Box
                             component={'form'}
                             sx={{
