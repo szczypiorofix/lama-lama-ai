@@ -1,4 +1,4 @@
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
 import {
     Box,
@@ -90,13 +90,12 @@ export function Chat(): JSX.Element {
             if (response.answer) {
                 setResponse(response.answer);
             }
-            setInputValue('');
         } catch (err) {
             console.error(err);
             setResponse('Connection error: ' + JSON.stringify(err));
-            setInputValue('');
         } finally {
             setLoading(false);
+            setInputValue('');
         }
     }
 
@@ -110,6 +109,12 @@ export function Chat(): JSX.Element {
             await sendStandardRequest();
         }
     };
+
+    useEffect(() => {
+        if (contextState.llms.models.length > 0) {
+            setSelectedModel(contextState.llms.models[0].name)
+        }
+    }, [contextState.llms.models]);
 
     return (
         <Box pt={2}>
