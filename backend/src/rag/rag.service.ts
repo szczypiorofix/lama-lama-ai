@@ -6,7 +6,7 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ChatQuestionDto } from '../dto/chatQuestionDto';
+import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 

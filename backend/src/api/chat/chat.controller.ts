@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Observable } from 'rxjs';
-import { ChatQuestionDto } from '../../dto/chatQuestionDto';
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 
 @Controller('api/chat')
 export class ChatController {

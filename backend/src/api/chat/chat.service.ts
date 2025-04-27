@@ -1,5 +1,5 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
-import { ChatQuestionDto } from '../../dto/chatQuestionDto';
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 import { from, mergeMap, Observable } from 'rxjs';
 import { LlamaService } from '../../llama/llama.service';
 import { ChromaCollectionDocuments, RagService } from '../../rag/rag.service';

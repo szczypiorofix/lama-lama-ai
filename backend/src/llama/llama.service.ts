@@ -12,12 +12,13 @@ import {
     OllamaStreamChunk,
     RagAskResponse,
 } from '../shared/models';
-import { ChatQuestionDto } from '../dto/chatQuestionDto';
+import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { HttpService } from '@nestjs/axios';
 import axios, { AxiosResponse } from 'axios';
 import { Readable } from 'stream';
 import { ChromaCollectionDocuments } from '../rag/rag.service';
 import { Subscriber } from 'rxjs';
+import { HistoryService } from '../api/history/history.service';
 
 interface OllamaMessages {
     role: 'system' | 'user';
@@ -33,6 +34,7 @@ export class LlamaService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
+        private readonly historyService: HistoryService,
     ) {
         this.OLLAMA_URL =
             this.configService.get<string>('OLLAMA_API_URL') || '';
@@ -172,6 +174,11 @@ export class LlamaService {
         const responsesStringArray: string = responses
             .map((responseChunk) => responseChunk.message.content)
             .join('');
+
+        await this.historyService.saveChatMessage(
+            question,
+            responsesStringArray,
+        );
 
         const askResponse: RagAskResponse = {
             answer: responsesStringArray,
