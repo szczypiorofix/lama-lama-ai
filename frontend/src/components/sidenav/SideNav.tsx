@@ -9,13 +9,12 @@ import {
     ListItemIcon,
     ListItemText,
 } from '@mui/material';
+import Typography from '@mui/material/Typography';
 
+import localLlamaImage from '../../assets/images/local_llama.jpg';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { getAllRoutesAsList } from '../../shared/helpers';
 import { Route } from '../../shared/models';
-
-import localLlamaImage from '../../assets/images/local_llama.jpg';
-import Typography from '@mui/material/Typography';
 
 export function SideNav(): JSX.Element {
     const { contextState, setContextState } = useGlobalAppContext();
