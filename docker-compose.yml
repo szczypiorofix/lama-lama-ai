@@ -59,8 +59,6 @@ services:
       - '5173:5173'
     depends_on:
       - lama_backend
-    env_file:
-      - frontend/.env
     volumes:
       - frontend-data:/app
     stdin_open: true
