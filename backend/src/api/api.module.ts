@@ -20,49 +20,30 @@ import databaseConfig, {
     defaultDatabaseConfig,
 } from '../config/database.config';
 
-// type: 'mysql',
-// host: process.env.MYSQL_HOST || 'lama_mysql',
-// port: parseInt(process.env.MYSQL_PORT || '3306', 10),
-// username: process.env.MYSQL_USERNAME || 'root',
-// password: process.env.MYSQL_PASSWORD || '',
-// database: process.env.MYSQL_DATABASE || 'lamalamadb',
-
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig] }),
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: 'lama_mysql',
-            port: 3306,
-            username: 'root',
-            password: '',
-            database: 'lamalamadb',
-            entities: [ChatHistoryEntity],
-            synchronize: true,
-            logging: true,
-            logger: 'advanced-console',
+        TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => {
+                const dbConfig: DatabaseConfig =
+                    configService.get<DatabaseConfig>('database') ??
+                    defaultDatabaseConfig;
+                return {
+                    type: dbConfig.type,
+                    host: dbConfig.host,
+                    port: dbConfig.port,
+                    username: dbConfig.username,
+                    password: dbConfig.password,
+                    database: dbConfig.database,
+                    entities: [ChatHistoryEntity],
+                    synchronize: true,
+                    logging: true,
+                    logger: 'advanced-console',
+                };
+            },
         }),
-        // TypeOrmModule.forRootAsync({
-        //     imports: [ConfigModule],
-        //     inject: [ConfigService],
-        //     useFactory: (configService: ConfigService) => {
-        //         const dbConfig: DatabaseConfig =
-        //             configService.get<DatabaseConfig>('database') ??
-        //             defaultDatabaseConfig;
-        //         return {
-        //             type: 'mysql',
-        //             host: 'lama_mysql',
-        //             port: 3306,
-        //             username: 'root',
-        //             password: '',
-        //             database: 'lamalamadb',
-        //             entities: [ChatHistoryEntity],
-        //             synchronize: true,
-        //             logging: true,
-        //             logger: 'advanced-console',
-        //         };
-        //     },
-        // }),
         ChatModule,
         DataModule,
         HistoryModule,
