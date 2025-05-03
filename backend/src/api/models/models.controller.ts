@@ -10,6 +10,11 @@ export class ModelsController {
 
     @Get()
     public async getAvailableLLMModels(): Promise<LlmImageList> {
-        return await this.modelsService.getAvailableLLMModels();
+        return await this.modelsService.getDownloadedModels();
+    }
+
+    @Get('available')
+    getAvailableModels(): string[] {
+        return this.modelsService.getAvailableModels();
     }
 }

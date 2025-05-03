@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatHistoryEntity } from '../../orm/chat-history.entity';
+import { ChatHistoryEntity } from '../../orm';
 import { Repository } from 'typeorm';
 
 @Injectable()

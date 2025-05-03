@@ -14,11 +14,11 @@ import { ImageModule } from './image/image.module';
 import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
-import { ChatHistoryEntity } from '../orm/chat-history.entity';
 import databaseConfig, {
     DatabaseConfig,
     defaultDatabaseConfig,
 } from '../config/database.config';
+import { ChatHistoryEntity, LlmModelEntity } from '../orm';
 
 @Module({
     imports: [
@@ -37,7 +37,7 @@ import databaseConfig, {
                     username: dbConfig.username,
                     password: dbConfig.password,
                     database: dbConfig.database,
-                    entities: [ChatHistoryEntity],
+                    entities: [ChatHistoryEntity, LlmModelEntity],
                     synchronize: true,
                     logging: true,
                     logger: 'advanced-console',

@@ -6,7 +6,11 @@ import { LlmImageList } from '../../shared/models';
 export class ModelsService {
     constructor(private readonly llamaService: LlamaService) {}
 
-    public async getAvailableLLMModels(): Promise<LlmImageList> {
-        return await this.llamaService.getAvailableModels();
+    public async getDownloadedModels(): Promise<LlmImageList> {
+        return await this.llamaService.getDownloadedModels();
+    }
+
+    public getAvailableModels(): string[] {
+        return this.llamaService.getAvailableModels();
     }
 }

@@ -19,6 +19,7 @@ import { Readable } from 'stream';
 import { ChromaCollectionDocuments } from '../rag/rag.service';
 import { Subscriber } from 'rxjs';
 import { HistoryService } from '../api/history/history.service';
+import { AVAILABLE_MODELS } from '../shared/constants/LlmModels.data';
 
 interface OllamaMessages {
     role: 'system' | 'user';
@@ -103,20 +104,6 @@ export class LlamaService {
             .catch((err) => observer.error(err));
     }
 
-    public async getAvailableModels(): Promise<LlmImageList> {
-        const requestUrl: string = this.OLLAMA_URL + '/api/tags';
-        const response = await this.httpService.get(requestUrl).toPromise();
-        if (response) {
-            const availableModels: LlmImageList = response.data as LlmImageList;
-            console.log(availableModels);
-            return availableModels;
-        }
-        throw new HttpException(
-            'Error occurred while fetching models',
-            HttpStatus.NOT_FOUND,
-        );
-    }
-
     public async generateResponse(
         chatQuestion: ChatQuestionDto,
         context: ChromaCollectionDocuments[] = [],
@@ -184,6 +171,24 @@ export class LlamaService {
             answer: responsesStringArray,
         };
         return askResponse;
+    }
+
+    public getAvailableModels(): string[] {
+        return AVAILABLE_MODELS;
+    }
+
+    public async getDownloadedModels(): Promise<LlmImageList> {
+        const requestUrl: string = this.OLLAMA_URL + '/api/tags';
+        const response = await this.httpService.get(requestUrl).toPromise();
+        if (response) {
+            const availableModels: LlmImageList = response.data as LlmImageList;
+            // console.log(availableModels);
+            return availableModels;
+        }
+        throw new HttpException(
+            'Error occurred while fetching models',
+            HttpStatus.NOT_FOUND,
+        );
     }
 
     private getQueryMessages(
