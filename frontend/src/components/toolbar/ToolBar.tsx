@@ -9,10 +9,11 @@ import Typography from '@mui/material/Typography';
 
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { getRoute } from '../../shared/helpers';
+import { toggleSideNav } from '../../context/AppActions.ts';
 
 export function ToolBar(): JSX.Element {
-    const { contextState, setContextState } = useGlobalAppContext();
-    const currentPageTitle = getRoute(contextState.view).name;
+    const { state, dispatch } = useGlobalAppContext();
+    const currentPageTitle = getRoute(state.view).name;
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position='static'>
@@ -23,12 +24,7 @@ export function ToolBar(): JSX.Element {
                         color='inherit'
                         aria-label='menu'
                         sx={{ mr: 2 }}
-                        onClick={() => {
-                            setContextState({
-                                ...contextState,
-                                isSideNavOpen: true,
-                            });
-                        }}
+                        onClick={() => toggleSideNav(dispatch, true)}
                     >
                         <MenuIcon />
                     </IconButton>

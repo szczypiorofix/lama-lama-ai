@@ -30,7 +30,7 @@ export function Chat(): JSX.Element {
     const [streamOutput, setStreamOutput] = useState<boolean>(false);
     const [streaming, setStreaming] = useState(false);
 
-    const { contextState } = useGlobalAppContext();
+    const { state } = useGlobalAppContext();
 
     const sendStreamRequest = async () => {
         setResponse('');
@@ -111,10 +111,10 @@ export function Chat(): JSX.Element {
     };
 
     useEffect(() => {
-        if (contextState.llms.models.length > 0) {
-            setSelectedModel(contextState.llms.models[0].name)
+        if (state.llms.models.length > 0) {
+            setSelectedModel(state.llms.models[0].name)
         }
-    }, [contextState.llms.models]);
+    }, [state.llms.models]);
 
     return (
         <Box pt={2}>
@@ -122,7 +122,7 @@ export function Chat(): JSX.Element {
                 <Card sx={{ padding: 1 }}>
                     <CardContent>
                         <DropdownList
-                            values={ contextState.llms.models}
+                            values={ state.llms.models}
                             getLabel={(item) => item?.name ?? '' }
                             onSelect={(item) => {
                                 console.log('on select: ', item);

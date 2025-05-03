@@ -101,10 +101,10 @@ export function Upload(props: UploadProps): JSX.Element {
                 console.log('Response: ', responseJson);
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error(err);
                 responseCode = 500;
-                responseString = "An error occurred: " + err.toString();
+                responseString = "An error occurred: " + String(err);
             } finally {
                 setState({
                     uploading: false,

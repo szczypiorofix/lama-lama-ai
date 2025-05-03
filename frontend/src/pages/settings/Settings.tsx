@@ -12,53 +12,38 @@ import {
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
+import { changeLlmList } from '../../context/AppActions.ts';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { API_BASE_URL } from '../../shared/constants';
 import { LlmImage, LlmImageList } from '../../shared/models';
 
-interface SettingsState {
-    error: string;
-    updated: boolean;
-}
-
 export function Settings(): JSX.Element {
-    const [state, setState] = useState<SettingsState>({
-        updated: false,
-        error: '',
-    });
+    const [updated, setUpdated] = useState(false);
+    const [error, setError] = useState('');
 
-    const { contextState, setContextState } = useGlobalAppContext();
+    const { state, dispatch } = useGlobalAppContext();
 
     useEffect(() => {
         const refreshAvailableModels = () => {
             fetch(API_BASE_URL+ '/models')
                 .then((response) => response.json())
                 .then((response: LlmImageList) => {
-                    setContextState({
-                        ...contextState,
-                        llms: {
-                            models: response.models ?? []
-                        }
-                    })
-                    setState({
-                        ...state,
-                        updated: true
+                    changeLlmList(dispatch, {
+                        models: response.models ?? [],
                     });
+                    setUpdated(true);
                 })
                 .catch(error => {
                     console.error(error);
-                    setState({
-                        ...state,
-                        error: error.toString(),
-                        updated: true,
-                    });
+                    setError(error.toString());
+                    setUpdated(true);
                 });
         }
 
-        if (!state.updated) {
+        if (!updated) {
             refreshAvailableModels();
         }
-    }, [contextState, setContextState, state, state.updated]);
+    }, [dispatch, state, updated]);
 
     const modelListItem = (image: LlmImage, index: number) => {
         return <ListItem key={index}>
@@ -79,29 +64,24 @@ export function Settings(): JSX.Element {
                         <Box mb={1} mt={1}>
                             <Button
                                 variant="contained"
-                                onClick={() => {
-                                    setState({
-                                        ...state,
-                                        updated: false,
-                                    });
-                                }}
+                                onClick={() => setUpdated(false)}
                             >Refresh list</Button>
                         </Box>
-                        {state.updated
+                        {updated
                             ?
                             <List dense={false} sx={{ mb: 1}}>
-                                {contextState.llms.models.map((modelItem, index) => {
+                                {state.llms.models.map((modelItem, index) => {
                                     return modelListItem(modelItem, index);
                                 })}
                             </List>
                             :
-                            <Box mt={6} mb={6} sx={{ minHeight: '120px' }}>
+                            <Box mt={6} mb={6} sx={{ minHeight: '120px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <CircularProgress />
                             </Box>
                         }
-                        {state.error && (
+                        {error.length > 0 && (
                             <Box mb={2} mt={2}>
-                                <Typography variant={'body1'}>An error occurred: {state.error}</Typography>
+                                <Typography variant={'body1'}>An error occurred: {error}</Typography>
                             </Box>
                         )}
                     </Box>

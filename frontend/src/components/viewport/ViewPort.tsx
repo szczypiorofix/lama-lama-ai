@@ -10,7 +10,7 @@ import { SideNav } from '../sidenav/SideNav.tsx';
 import { ToolBar } from '../toolbar/ToolBar.tsx';
 
 export function ViewPort(): JSX.Element {
-    const { contextState } = useGlobalAppContext();
+    const { state } = useGlobalAppContext();
 
     const resolveView = (view: APP_VIEW) => {
         return getRoute(view).page;
@@ -21,7 +21,7 @@ export function ViewPort(): JSX.Element {
             <ToolBar />
             <SideNav />
             <Container maxWidth='lg'>
-                {resolveView(contextState.view)}
+                {resolveView(state.view)}
             </Container>
             <Box mt={3}></Box>
             <Divider />

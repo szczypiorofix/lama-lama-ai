@@ -12,23 +12,17 @@ import {
 import Typography from '@mui/material/Typography';
 
 import localLlamaImage from '../../assets/images/local_llama.jpg';
+import { changeAppView, toggleSideNav } from '../../context/AppActions.ts';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { getAllRoutesAsList } from '../../shared/helpers';
 import { Route } from '../../shared/models';
 
 export function SideNav(): JSX.Element {
-    const { contextState, setContextState } = useGlobalAppContext();
-
-    const toggleDrawer = (isOpen: boolean) => () => {
-        setContextState({ ...contextState, isSideNavOpen: isOpen });
-    };
+    const { state, dispatch } = useGlobalAppContext();
 
     const changeView = (route: Route) => {
-        setContextState({
-            ...contextState,
-            isSideNavOpen: false,
-            view: route.view,
-        });
+        toggleSideNav(dispatch, false);
+        changeAppView(dispatch, route.view);
     };
 
     const DrawerList = (
@@ -40,7 +34,7 @@ export function SideNav(): JSX.Element {
             {getAllRoutesAsList().map((route, index) => (
                 <ListItem key={index} disablePadding>
                     <ListItemButton
-                        selected={route.view === contextState.view}
+                        selected={route.view === state.view}
                         onClick={() => changeView(route)}
                     >
                         <ListItemIcon>{route.icon}</ListItemIcon>
@@ -53,7 +47,7 @@ export function SideNav(): JSX.Element {
     );
 
     return (
-        <Drawer open={contextState.isSideNavOpen} onClose={toggleDrawer(false)}>
+        <Drawer open={state.isSideNavOpen} onClose={() => toggleSideNav(dispatch, false)}>
             {DrawerList}
         </Drawer>
     );

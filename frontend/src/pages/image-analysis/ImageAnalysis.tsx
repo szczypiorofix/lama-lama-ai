@@ -2,11 +2,7 @@ import { ChangeEvent, JSX, MouseEvent, useRef, useState } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
-import {
-    Box, Button,
-    Card,
-    Paper, styled,
-} from '@mui/material';
+import { Box, Button, Card, Paper, styled } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import { API_BASE_URL } from '../../shared/constants';
