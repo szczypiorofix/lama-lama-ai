@@ -24,7 +24,7 @@ export class ImageService {
         const responseData: string = response.data as string;
         const lines: string[] = responseData.split('\n');
         const chunks: OllamaLlavaStreamChunk[] = lines.map((line) => {
-            let l: OllamaLlavaStreamChunk = {
+            let llavaStreamChunk: OllamaLlavaStreamChunk = {
                 model: '',
                 done: false,
                 created_at: '',
@@ -32,7 +32,9 @@ export class ImageService {
             };
             try {
                 if (line.trim() !== '') {
-                    l = JSON.parse(line) as OllamaLlavaStreamChunk;
+                    llavaStreamChunk = JSON.parse(
+                        line,
+                    ) as OllamaLlavaStreamChunk;
                 }
             } catch (err) {
                 console.error('error ar line: ', line);
@@ -40,10 +42,10 @@ export class ImageService {
             }
 
             return {
-                response: l.response,
-                done: l.done,
-                created_at: l.created_at,
-                model: l.model,
+                response: llavaStreamChunk.response,
+                done: llavaStreamChunk.done,
+                created_at: llavaStreamChunk.created_at,
+                model: llavaStreamChunk.model,
             };
         });
 
