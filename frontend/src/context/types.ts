@@ -3,7 +3,6 @@ import { Dispatch } from 'react';
 import { APP_VIEW } from '../shared/enums';
 import { LlmImageList } from '../shared/models';
 
-
 export interface AppStateModel {
     isSideNavOpen: boolean;
     llms: LlmImageList;
