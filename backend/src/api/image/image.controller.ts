@@ -17,7 +17,6 @@ export class ImageController {
     @Post('analyze')
     @UseInterceptors(FileInterceptor('file'))
     async sendFileMultiple(@UploadedFile() file: Express.Multer.File) {
-        this.logger.log(`Received ${file.originalname} file.`);
         this.logger.log(
             `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString()} kb).`,
         );
