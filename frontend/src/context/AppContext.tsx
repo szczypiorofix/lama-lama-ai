@@ -5,9 +5,7 @@ import { APP_VIEW } from '../shared/enums';
 import { AppContextModel, AppStateModel } from "./types.ts";
 
 export const defaultAppStateContext: AppStateModel = {
-    llms: {
-        models: [],
-    },
+    llms: [],
     view: APP_VIEW.HOME,
     isSideNavOpen: false
 }

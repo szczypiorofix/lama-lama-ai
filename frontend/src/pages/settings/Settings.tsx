@@ -1,6 +1,7 @@
 import { JSX, useEffect,useState } from 'react';
 
 import AssistantIcon from '@mui/icons-material/Assistant';
+import DownloadIcon from '@mui/icons-material/Download';
 import {
     Box, Button,
     Card, CircularProgress,
@@ -15,11 +16,12 @@ import Typography from '@mui/material/Typography';
 import { changeLlmList } from '../../context/AppActions.ts';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { API_BASE_URL } from '../../shared/constants';
-import { LlmImage, LlmImageList } from '../../shared/models';
+import { LlmImage, LlmImageDownloadResponse } from '../../shared/models';
 
 export function Settings(): JSX.Element {
     const [updated, setUpdated] = useState(false);
     const [error, setError] = useState('');
+    const [pullImage, setPullImage] = useState<string | null>(null);
 
     const { state, dispatch } = useGlobalAppContext();
 
@@ -27,15 +29,14 @@ export function Settings(): JSX.Element {
         const refreshAvailableModels = () => {
             fetch(API_BASE_URL+ '/models')
                 .then((response) => response.json())
-                .then((response: LlmImageList) => {
-                    changeLlmList(dispatch, {
-                        models: response.models ?? [],
-                    });
-                    setUpdated(true);
+                .then((response: LlmImage[]) => {
+                    changeLlmList(dispatch, response ?? []);
                 })
                 .catch(error => {
                     console.error(error);
                     setError(error.toString());
+                })
+                .finally(() => {
                     setUpdated(true);
                 });
         }
@@ -45,12 +46,54 @@ export function Settings(): JSX.Element {
         }
     }, [dispatch, state, updated]);
 
+    useEffect(() => {
+        if (pullImage) {
+            const pullImageRequest = async () => {
+                try {
+                    await fetch(API_BASE_URL + '/models/pull', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({name: pullImage})
+                        })
+                        .then((response) => response.json())
+                        .then((response: LlmImageDownloadResponse) => {
+                            console.log('Response: ', response);
+                            if (!response.success) {
+                                setError(response.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            setError(error.toString());
+                        })
+                        .finally(() => {
+                            setPullImage(null);
+                            setUpdated(false);
+                        })
+                } catch (err) {
+                    console.error(err);
+                    setError(JSON.stringify(err));
+                }
+            };
+            pullImageRequest().then().catch(err => console.error(err));
+        }
+    }, [dispatch, pullImage]);
+
     const modelListItem = (image: LlmImage, index: number) => {
         return <ListItem key={index}>
             <ListItemIcon>
                 <AssistantIcon />
             </ListItemIcon>
-            <ListItemText primary={image.name} secondary={image.details.parameter_size}/>
+            <ListItemText primary={ image.name + ':' + image.version} secondary={image.downloaded ? 'Downloaded' : 'Not downloaded'}/>
+            {!image.downloaded &&
+                <ListItemIcon>
+                    <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
+                        setPullImage(image.name + ':' + image.version);
+                    }}/>
+                </ListItemIcon>
+            }
         </ListItem>
     }
 
@@ -65,12 +108,16 @@ export function Settings(): JSX.Element {
                             <Button
                                 variant="contained"
                                 onClick={() => setUpdated(false)}
+                                disabled={!updated || pullImage !== null}
                             >Refresh list</Button>
                         </Box>
-                        {updated
+                        {(pullImage && pullImage.length > 0) && <Box>
+                            <Typography variant={'body1'} align={'center'}>Downloading LLM {pullImage}, please wait...</Typography>
+                        </Box>}
+                        {(updated && pullImage === null)
                             ?
                             <List dense={false} sx={{ mb: 1}}>
-                                {state.llms.models.map((modelItem, index) => {
+                                {state.llms.map((modelItem, index) => {
                                     return modelListItem(modelItem, index);
                                 })}
                             </List>

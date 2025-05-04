@@ -1,13 +1,9 @@
-import {
-    HttpException,
-    HttpStatus,
-    Injectable,
-    Logger,
-    MessageEvent,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, MessageEvent, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     LlamaResponseChunk,
+    LlmImage,
+    LlmImageDownloadResponse,
     LlmImageList,
     OllamaStreamChunk,
     RagAskResponse,
@@ -19,7 +15,11 @@ import { Readable } from 'stream';
 import { ChromaCollectionDocuments } from '../rag/rag.service';
 import { Subscriber } from 'rxjs';
 import { HistoryService } from '../api/history/history.service';
-import { AVAILABLE_MODELS } from '../shared/constants/LlmModels.data';
+import { DEFAULT_LLM_MODELS } from '../shared/constants/LlmModels.data';
+import { LlmModelEntity } from '../orm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { OllamaImageDto } from '../dto/ollamaImage';
 
 interface OllamaMessages {
     role: 'system' | 'user';
@@ -27,7 +27,7 @@ interface OllamaMessages {
 }
 
 @Injectable()
-export class LlamaService {
+export class LlamaService implements OnModuleInit {
     private readonly logger = new Logger(LlamaService.name);
     private readonly OLLAMA_URL: string;
     private readonly OLLAMA_MODEL: string;
@@ -36,11 +36,26 @@ export class LlamaService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         private readonly historyService: HistoryService,
+        @InjectRepository(LlmModelEntity)
+        private readonly llmModelRepository: Repository<LlmModelEntity>,
     ) {
-        this.OLLAMA_URL =
-            this.configService.get<string>('OLLAMA_API_URL') || '';
-        this.OLLAMA_MODEL =
-            this.configService.get<string>('OLLAMA_MODEL') || '';
+        this.OLLAMA_URL = this.configService.get<string>('OLLAMA_API_URL') || '';
+        this.OLLAMA_MODEL = this.configService.get<string>('OLLAMA_MODEL') || '';
+    }
+
+    async onModuleInit() {
+        await this.initializeSettings();
+    }
+
+    async initializeSettings() {
+        for (const llmModel of DEFAULT_LLM_MODELS) {
+            const existingLlmModel = await this.llmModelRepository.findOneBy({
+                id: llmModel.id,
+            });
+            if (!existingLlmModel) {
+                await this.llmModelRepository.save(llmModel);
+            }
+        }
     }
 
     public generateStreamingResponse(
@@ -53,21 +68,14 @@ export class LlamaService {
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
-        const messages: OllamaMessages[] = this.getQueryMessages(
-            question,
-            context,
-            useContextOnly,
-        );
+        const messages: OllamaMessages[] = this.getQueryMessages(question, context, useContextOnly);
 
         const requestUrl: string = this.OLLAMA_URL + '/api/chat';
         axios
             .post(
                 requestUrl,
                 {
-                    model:
-                        chatQuestion.selectedModel ||
-                        this.OLLAMA_MODEL ||
-                        'tinyllama',
+                    model: chatQuestion.selectedModel || this.OLLAMA_MODEL || 'tinyllama',
                     messages: messages,
                     stream: true,
                 },
@@ -75,25 +83,17 @@ export class LlamaService {
             )
             .then((res: AxiosResponse<Readable>) => {
                 res.data.on('data', (chunk: Buffer) => {
-                    const lines: string[] = chunk
-                        .toString()
-                        .split('\n')
-                        .filter(Boolean);
+                    const lines: string[] = chunk.toString().split('\n').filter(Boolean);
                     for (const line of lines) {
                         try {
-                            const parsed: OllamaStreamChunk = JSON.parse(
-                                line,
-                            ) as OllamaStreamChunk;
+                            const parsed: OllamaStreamChunk = JSON.parse(line) as OllamaStreamChunk;
                             if (parsed?.message?.content) {
                                 observer.next({
                                     data: parsed.message.content,
                                 });
                             }
                         } catch (err) {
-                            this.logger.error(
-                                'Error occurred while parsing JSON:',
-                                err,
-                            );
+                            this.logger.error('Error occurred while parsing JSON:', err);
                         }
                     }
                 });
@@ -104,21 +104,14 @@ export class LlamaService {
             .catch((err) => observer.error(err));
     }
 
-    public async generateResponse(
-        chatQuestion: ChatQuestionDto,
-        context: ChromaCollectionDocuments[] = [],
-    ) {
+    public async generateResponse(chatQuestion: ChatQuestionDto, context: ChromaCollectionDocuments[] = []) {
         const { question, useContextOnly } = chatQuestion;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
 
-        const messages: OllamaMessages[] = this.getQueryMessages(
-            question,
-            context,
-            useContextOnly,
-        );
+        const messages: OllamaMessages[] = this.getQueryMessages(question, context, useContextOnly);
 
         const responses: LlamaResponseChunk[] = [];
         try {
@@ -147,25 +140,16 @@ export class LlamaService {
                 }
             }
         } catch (err) {
-            this.logger.error(
-                'Error occurred while sending request to Ollama: ',
-                err,
-            );
+            this.logger.error('Error occurred while sending request to Ollama: ', err);
             throw new HttpException(
-                'Error occurred while sending request to Ollama: ' +
-                    JSON.stringify(err),
+                'Error occurred while sending request to Ollama: ' + JSON.stringify(err),
                 HttpStatus.NOT_FOUND,
             );
         }
 
-        const responsesStringArray: string = responses
-            .map((responseChunk) => responseChunk.message.content)
-            .join('');
+        const responsesStringArray: string = responses.map((responseChunk) => responseChunk.message.content).join('');
 
-        await this.historyService.saveChatMessage(
-            question,
-            responsesStringArray,
-        );
+        await this.historyService.saveChatMessage(question, responsesStringArray);
 
         const askResponse: RagAskResponse = {
             answer: responsesStringArray,
@@ -173,22 +157,61 @@ export class LlamaService {
         return askResponse;
     }
 
-    public getAvailableModels(): string[] {
-        return AVAILABLE_MODELS;
+    public async pullImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
+        const requestUrl: string = this.OLLAMA_URL + '/api/pull';
+        const payload = {
+            model: ollamaImage.name,
+        };
+        const response = await this.httpService
+            .post(requestUrl, payload, {
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .toPromise();
+
+        console.log('Pull image response data: ', response?.data);
+
+        return {
+            message: 'Image downloaded successfully.',
+            success: true,
+        };
     }
 
-    public async getDownloadedModels(): Promise<LlmImageList> {
+    public async getAvailableModels(): Promise<LlmModelEntity[]> {
         const requestUrl: string = this.OLLAMA_URL + '/api/tags';
         const response = await this.httpService.get(requestUrl).toPromise();
         if (response) {
-            const availableModels: LlmImageList = response.data as LlmImageList;
-            // console.log(availableModels);
+            const ollamaModels: LlmImageList = response.data as LlmImageList;
+            const availableModels: LlmModelEntity[] = [];
+            for (const llmModel of DEFAULT_LLM_MODELS) {
+                const existingLlmModel: LlmModelEntity | null = await this.llmModelRepository.findOneBy({
+                    id: llmModel.id,
+                });
+                if (existingLlmModel) {
+                    const foundOllamaModel: LlmImage | undefined = this.checkOllamaModels(
+                        ollamaModels,
+                        existingLlmModel,
+                    );
+                    existingLlmModel.downloaded = !!foundOllamaModel;
+                    await this.llmModelRepository.save(existingLlmModel);
+                    availableModels.push(existingLlmModel);
+                }
+            }
             return availableModels;
         }
-        throw new HttpException(
-            'Error occurred while fetching models',
-            HttpStatus.NOT_FOUND,
-        );
+
+        throw new HttpException('Error occurred while fetching models', HttpStatus.NOT_FOUND);
+    }
+
+    private checkOllamaModels(ollamaModels: LlmImageList, llmModel: LlmModelEntity): LlmImage | undefined {
+        return ollamaModels.models.find((ollamaModel) => {
+            const ollamaModelNameParts: string[] = ollamaModel.name.split(':');
+            if (ollamaModelNameParts.length !== 2) {
+                throw new HttpException('Error occurred while parsing Ollama model name', HttpStatus.NOT_FOUND);
+            }
+            const ollamaModelName: string = ollamaModelNameParts[0];
+            const ollamaModelVersion: string = ollamaModelNameParts[1];
+            return llmModel.name == ollamaModelName && llmModel.version == ollamaModelVersion;
+        });
     }
 
     private getQueryMessages(
@@ -196,8 +219,7 @@ export class LlamaService {
         context: ChromaCollectionDocuments[] = [],
         useContextOnly: boolean = false,
     ): OllamaMessages[] {
-        const contextForQuery: ChromaCollectionDocuments =
-            context && Array.isArray(context) ? context.flat() : [];
+        const contextForQuery: ChromaCollectionDocuments = context && Array.isArray(context) ? context.flat() : [];
 
         const contextAsString: string = contextForQuery.join('. \n');
         const systemQuery: string = useContextOnly

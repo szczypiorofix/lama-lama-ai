@@ -19,3 +19,8 @@ export interface LlmImage {
     digest: string;
     details: LlmImageDetails;
 }
+
+export interface LlmImageDownloadResponse {
+    message: string;
+    success: boolean;
+}

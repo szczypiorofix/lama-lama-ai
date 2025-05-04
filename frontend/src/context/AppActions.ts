@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
 
 import { APP_VIEW } from '../shared/enums';
-import { LlmImageList } from '../shared/models';
+import { LlmImage } from '../shared/models';
 
 import { Action } from './types';
 
@@ -13,6 +13,6 @@ export function toggleSideNav(dispatch: Dispatch<Action>, open: boolean) {
     dispatch({ type: 'SIDENAV_TOGGLE', payload: open });
 }
 
-export function changeLlmList(dispatch: Dispatch<Action>, list: LlmImageList) {
+export function changeLlmList(dispatch: Dispatch<Action>, list: LlmImage[]) {
     dispatch({ type: 'CHANGE_LLM_LIST', payload: list });
 }

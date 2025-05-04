@@ -1,6 +1,7 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
 import { ModelsService } from './models.service';
-import { LlmImageList } from '../../shared/models';
+import { LlmModelEntity } from '../../orm';
+import { OllamaImageDto } from '../../dto/ollamaImage';
 
 @Controller('api/models')
 export class ModelsController {
@@ -9,12 +10,12 @@ export class ModelsController {
     constructor(private readonly modelsService: ModelsService) {}
 
     @Get()
-    public async getAvailableLLMModels(): Promise<LlmImageList> {
-        return await this.modelsService.getDownloadedModels();
+    public async getAvailableLLMModels(): Promise<LlmModelEntity[]> {
+        return await this.modelsService.getAvailableModels();
     }
 
-    @Get('available')
-    getAvailableModels(): string[] {
-        return this.modelsService.getAvailableModels();
+    @Post('pull')
+    public async pullOllamaImage(@Body() ollamaImage: OllamaImageDto) {
+        return await this.modelsService.pullOllamaImage(ollamaImage);
     }
 }

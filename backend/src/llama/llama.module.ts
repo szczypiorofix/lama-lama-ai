@@ -6,12 +6,12 @@ import { HttpModule } from '@nestjs/axios';
 import { HistoryModule } from '../api/history/history.module';
 import { HistoryService } from '../api/history/history.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatHistoryEntity } from '../orm/chat-history.entity';
+import { ChatHistoryEntity, LlmModelEntity } from '../orm';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
-        TypeOrmModule.forFeature([ChatHistoryEntity]),
+        TypeOrmModule.forFeature([ChatHistoryEntity, LlmModelEntity]),
         HttpModule,
         HistoryModule,
     ],

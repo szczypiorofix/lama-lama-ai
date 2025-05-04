@@ -1,10 +1,4 @@
-import {
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    Entity,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, UpdateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('llm_model')
 export class LlmModelEntity {
@@ -14,15 +8,18 @@ export class LlmModelEntity {
     @Column('text')
     name: string;
 
-    @Column('text')
+    @Column('text', { default: 'latest' })
     version: string;
 
     @Column('boolean', { default: false })
     downloaded: boolean;
 
-    @CreateDateColumn()
-    createdAt: Date;
+    @Column('integer', { default: 0 })
+    size: number;
 
-    @UpdateDateColumn()
-    updatedAi: Date;
+    @CreateDateColumn({ nullable: true, default: null })
+    createdAt: Date | null;
+
+    @UpdateDateColumn({ nullable: true, default: null })
+    updatedAi: Date | null;
 }

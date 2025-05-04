@@ -16,7 +16,7 @@ import CardContent from '@mui/material/CardContent';
 import { DropdownList } from '../../components/dropdown-list/DropdownList.tsx';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { API_BASE_URL } from '../../shared/constants';
-import { RagAskResponse } from '../../shared/models';
+import { LlmImage, RagAskResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
     const [inputValue, setInputValue] = useState('');
@@ -110,11 +110,15 @@ export function Chat(): JSX.Element {
         }
     };
 
+    const getSelectedModelName = (llmImage: LlmImage) => {
+        return llmImage.name + ":" + llmImage.version;
+    }
+
     useEffect(() => {
-        if (state.llms.models.length > 0) {
-            setSelectedModel(state.llms.models[0].name)
+        if (state.llms.length > 0) {
+            setSelectedModel(getSelectedModelName(state.llms[0]));
         }
-    }, [state.llms.models]);
+    }, [state.llms]);
 
     return (
         <Box pt={2}>
@@ -122,13 +126,10 @@ export function Chat(): JSX.Element {
                 <Card sx={{ padding: 1 }}>
                     <CardContent>
                         <DropdownList
-                            values={ state.llms.models}
-                            getLabel={(item) => item?.name ?? '' }
-                            onSelect={(item) => {
-                                console.log('on select: ', item);
-                                setSelectedModel(item?.name ?? null);
-                            }}
-                            label={'Select model'}
+                            values={ state.llms.filter(model => model.downloaded) }
+                            getLabel={(item) => getSelectedModelName(item) }
+                            onSelect={(item) => setSelectedModel(item?.name ?? null)}
+                            label={'Select LLM'}
                         />
                         <Box
                             component={'form'}
