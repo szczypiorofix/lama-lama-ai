@@ -8,8 +8,7 @@ export class ImageService {
     private readonly OLLAMA_URL: string;
 
     constructor(private readonly configService: ConfigService) {
-        this.OLLAMA_URL =
-            this.configService.get<string>('OLLAMA_API_URL') || '';
+        this.OLLAMA_URL = this.configService.get<string>('OLLAMA_API_URL') || '';
     }
 
     public async analyzeImage(file: Express.Multer.File): Promise<string> {
@@ -32,9 +31,7 @@ export class ImageService {
             };
             try {
                 if (line.trim() !== '') {
-                    llavaStreamChunk = JSON.parse(
-                        line,
-                    ) as OllamaLlavaStreamChunk;
+                    llavaStreamChunk = JSON.parse(line) as OllamaLlavaStreamChunk;
                 }
             } catch (err) {
                 console.error('error ar line: ', line);

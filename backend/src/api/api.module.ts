@@ -14,10 +14,7 @@ import { ImageModule } from './image/image.module';
 import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
-import databaseConfig, {
-    DatabaseConfig,
-    defaultDatabaseConfig,
-} from '../config/database.config';
+import databaseConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
 import { ChatHistoryEntity, LlmModelEntity } from '../orm';
 
 @Module({
@@ -27,9 +24,7 @@ import { ChatHistoryEntity, LlmModelEntity } from '../orm';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                const dbConfig: DatabaseConfig =
-                    configService.get<DatabaseConfig>('database') ??
-                    defaultDatabaseConfig;
+                const dbConfig: DatabaseConfig = configService.get<DatabaseConfig>('database') ?? defaultDatabaseConfig;
                 return {
                     type: dbConfig.type,
                     host: dbConfig.host,

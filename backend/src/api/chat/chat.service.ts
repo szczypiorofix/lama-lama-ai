@@ -11,32 +11,22 @@ export class ChatService {
         private ragService: RagService,
     ) {}
 
-    public sendChatRequestToOllamaAndStreamAnswer(
-        chatQuestion: ChatQuestionDto,
-    ): Observable<MessageEvent> {
-        return from(
-            this.ragService.retrieveContextFromDatabase(chatQuestion),
-        ).pipe(
+    public sendChatRequestToOllamaAndStreamAnswer(chatQuestion: ChatQuestionDto): Observable<MessageEvent> {
+        return from(this.ragService.retrieveContextFromDatabase(chatQuestion)).pipe(
             mergeMap(
                 (chromaCollectionDocuments) =>
                     new Observable<MessageEvent>((observer) => {
-                        this.llamaService.generateStreamingResponse(
-                            chatQuestion,
-                            observer,
-                            [chromaCollectionDocuments],
-                        );
+                        this.llamaService.generateStreamingResponse(chatQuestion, observer, [
+                            chromaCollectionDocuments,
+                        ]);
                     }),
             ),
         );
     }
 
-    public async sendChatRequestToOllamaAndReturnAnswer(
-        chatQuestion: ChatQuestionDto,
-    ) {
+    public async sendChatRequestToOllamaAndReturnAnswer(chatQuestion: ChatQuestionDto) {
         const filteredDocuments: ChromaCollectionDocuments =
             await this.ragService.retrieveContextFromDatabase(chatQuestion);
-        return this.llamaService.generateResponse(chatQuestion, [
-            filteredDocuments,
-        ]);
+        return this.llamaService.generateResponse(chatQuestion, [filteredDocuments]);
     }
 }

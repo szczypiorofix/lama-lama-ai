@@ -1,10 +1,4 @@
-import {
-    Injectable,
-    OnModuleInit,
-    Logger,
-    HttpException,
-    HttpStatus,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
@@ -12,14 +6,9 @@ import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
-function filterDocumentsWithMaxDistance(
-    query: QueryResponse,
-    maxDistance: number,
-): ChromaCollectionDocuments {
+function filterDocumentsWithMaxDistance(query: QueryResponse, maxDistance: number): ChromaCollectionDocuments {
     const flatDocs: ChromaCollectionDocuments = query.documents.flat();
-    const flatDistances: number[] = query.distances
-        ? query.distances.flat()
-        : [];
+    const flatDistances: number[] = query.distances ? query.distances.flat() : [];
     return flatDocs.filter((doc, i) => flatDistances[i] < maxDistance);
 }
 
@@ -38,8 +27,7 @@ export class RagService implements OnModuleInit {
     private readonly CHROMA_DB_URL: string;
 
     constructor(private configService: ConfigService) {
-        this.CHROMA_DB_URL =
-            this.configService.get<string>('CHROMADB_URL') || '';
+        this.CHROMA_DB_URL = this.configService.get<string>('CHROMADB_URL') || '';
         this.client = new ChromaClient({ path: this.CHROMA_DB_URL });
 
         this.textSplitter = new RecursiveCharacterTextSplitter({
@@ -57,17 +45,13 @@ export class RagService implements OnModuleInit {
         } catch (err) {
             this.logger.error('Error initializing ChromaDB collection: ', err);
             throw new HttpException(
-                'Error initializing ChromaDB collection: ' +
-                    JSON.stringify(err),
+                'Error initializing ChromaDB collection: ' + JSON.stringify(err),
                 HttpStatus.NOT_FOUND,
             );
         }
     }
 
-    public async addDocument(
-        content: string,
-        docIdPrefix: string,
-    ): Promise<void> {
+    public async addDocument(content: string, docIdPrefix: string): Promise<void> {
         const chunks = await this.textSplitter.splitText(content);
         const ids = chunks.map((_, i) => `${docIdPrefix}_chunk${i}`);
 
@@ -79,9 +63,7 @@ export class RagService implements OnModuleInit {
         this.logger.log(`Added ${chunks.length} chunks to collection.`);
     }
 
-    public async retrieveContextFromDatabase(
-        chatQuestion: ChatQuestionDto,
-    ): Promise<ChromaCollectionDocuments> {
+    public async retrieveContextFromDatabase(chatQuestion: ChatQuestionDto): Promise<ChromaCollectionDocuments> {
         const queryContext = await this.collection.query({
             queryTexts: [chatQuestion.question],
             nResults: 5,
@@ -89,13 +71,10 @@ export class RagService implements OnModuleInit {
 
         this.logger.log('Query context: ', queryContext);
 
-        const filteredDocuments: ChromaCollectionDocuments =
-            filterDocumentsWithMaxDistance(
-                queryContext,
-                chatQuestion.strictAnswer
-                    ? this.DISTANCE_THRESHOLD_STRICT
-                    : this.DISTANCE_THRESHOLD,
-            );
+        const filteredDocuments: ChromaCollectionDocuments = filterDocumentsWithMaxDistance(
+            queryContext,
+            chatQuestion.strictAnswer ? this.DISTANCE_THRESHOLD_STRICT : this.DISTANCE_THRESHOLD,
+        );
 
         this.logger.log('Filtered documents: ', filteredDocuments);
 

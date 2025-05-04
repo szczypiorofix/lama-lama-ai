@@ -1,10 +1,4 @@
-import {
-    Controller,
-    Logger,
-    Post,
-    UploadedFiles,
-    UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Logger, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { DataService } from './data.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -16,14 +10,10 @@ export class DataController {
 
     @Post('upload')
     @UseInterceptors(FilesInterceptor('files'))
-    public async sendFileMultiple(
-        @UploadedFiles() files: Express.Multer.File[],
-    ) {
+    public async sendFileMultiple(@UploadedFiles() files: Express.Multer.File[]) {
         this.logger.log(`Received ${files.length} files(s).`);
         for (const file of files) {
-            this.logger.log(
-                `Received ${file.originalname} file (${Math.floor(file.size / 1024).toString()} kb).`,
-            );
+            this.logger.log(`Received ${file.originalname} file (${Math.floor(file.size / 1024).toString()} kb).`);
             await this.dataService.putDataFileIntoDatabase(file);
         }
         return {

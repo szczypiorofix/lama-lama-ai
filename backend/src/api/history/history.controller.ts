@@ -9,16 +9,10 @@ export class HistoryController {
     constructor(private readonly historyService: HistoryService) {}
 
     @Post('save')
-    public async sendFileMultiple(
-        userQuestion: string,
-        modelAnswer: string,
-    ): Promise<ChatHistoryEntity> {
+    public async sendFileMultiple(userQuestion: string, modelAnswer: string): Promise<ChatHistoryEntity> {
         this.logger.log('Received question: ', userQuestion);
         this.logger.log('Received answer: ', modelAnswer);
 
-        return await this.historyService.saveChatMessage(
-            userQuestion,
-            modelAnswer,
-        );
+        return await this.historyService.saveChatMessage(userQuestion, modelAnswer);
     }
 }

@@ -13,15 +13,11 @@ export class HistoryService {
     /**
      * Save a new chat message to the database
      */
-    async saveChatMessage(
-        userQuestion: string,
-        modelAnswer: string,
-    ): Promise<ChatHistoryEntity> {
-        const chatMessage: ChatHistoryEntity =
-            this.chatHistoryRepository.create({
-                userQuestion,
-                modelAnswer,
-            });
+    async saveChatMessage(userQuestion: string, modelAnswer: string): Promise<ChatHistoryEntity> {
+        const chatMessage: ChatHistoryEntity = this.chatHistoryRepository.create({
+            userQuestion,
+            modelAnswer,
+        });
 
         return await this.chatHistoryRepository.save(chatMessage);
     }

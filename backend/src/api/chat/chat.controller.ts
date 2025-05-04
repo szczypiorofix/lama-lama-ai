@@ -1,11 +1,4 @@
-import {
-    Body,
-    Controller,
-    MessageEvent,
-    Post,
-    Query,
-    Sse,
-} from '@nestjs/common';
+import { Body, Controller, MessageEvent, Post, Query, Sse } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Observable } from 'rxjs';
 import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
@@ -36,9 +29,7 @@ export class ChatController {
             selectedModel,
             useContextOnly,
         };
-        return this.chatService.sendChatRequestToOllamaAndStreamAnswer(
-            chatQuestion,
-        );
+        return this.chatService.sendChatRequestToOllamaAndStreamAnswer(chatQuestion);
     }
 
     /**
@@ -48,11 +39,7 @@ export class ChatController {
      * @param chatQuestion
      */
     @Post('message')
-    public async fetchOllamaChatResponse(
-        @Body() chatQuestion: ChatQuestionDto,
-    ) {
-        return await this.chatService.sendChatRequestToOllamaAndReturnAnswer(
-            chatQuestion,
-        );
+    public async fetchOllamaChatResponse(@Body() chatQuestion: ChatQuestionDto) {
+        return await this.chatService.sendChatRequestToOllamaAndReturnAnswer(chatQuestion);
     }
 }
