@@ -1,4 +1,5 @@
 import { LlmModelEntity } from '../../orm';
+import { LlmModelPurpose } from '../enums';
 
 export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
     {
@@ -9,6 +10,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         size: 0,
         createdAt: null,
         updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
     },
     {
         id: 2,
@@ -18,6 +20,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         size: 0,
         createdAt: null,
         updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
     },
     {
         id: 3,
@@ -27,6 +30,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         size: 0,
         createdAt: null,
         updatedAi: null,
+        purpose: LlmModelPurpose.IMAGE_ANALYSIS,
     },
     {
         id: 4,
@@ -36,5 +40,16 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         size: 0,
         createdAt: null,
         updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
+    },
+    {
+        id: 5,
+        name: 'qwen3',
+        version: '4b',
+        downloaded: false,
+        size: 0,
+        createdAt: null,
+        updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
     },
 ];
