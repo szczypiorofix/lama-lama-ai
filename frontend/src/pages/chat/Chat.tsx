@@ -4,7 +4,8 @@ import {
     Box,
     Button,
     ButtonGroup,
-    Card, Checkbox,
+    Card,
+    Checkbox,
     CircularProgress,
     FormControlLabel,
     Paper,
@@ -18,6 +19,7 @@ import { Loader } from '../../components/loader/Loader.tsx';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { useFetchModels } from '../../hooks/useFetchModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
+import { LlmModelPurpose } from '../../shared/enums';
 import { LlmImage, RagAskResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
@@ -42,11 +44,11 @@ export function Chat(): JSX.Element {
 
         const encodedPrompt: string = encodeURIComponent(inputValue);
         const eventUrl: string =
-            `${API_BASE_URL}/chat/message?`
-            +`question=${encodedPrompt}`
-            +`&selectedModel=${selectedModel}`
-            +`&strictAnswer=${strictAnswer}`
-            +`&useContextOnly=${useContextOnly}`
+            `${API_BASE_URL}/chat/message?` +
+            `question=${encodedPrompt}` +
+            `&selectedModel=${selectedModel}` +
+            `&strictAnswer=${strictAnswer}` +
+            `&useContextOnly=${useContextOnly}`;
 
         const eventSource = new EventSource(eventUrl);
 
@@ -70,7 +72,7 @@ export function Chat(): JSX.Element {
             setInputValue('');
             setStreaming(false);
         });
-    }
+    };
 
     const sendStandardRequest = async () => {
         const requestUrl: string = API_BASE_URL + '/chat/message';
@@ -100,7 +102,7 @@ export function Chat(): JSX.Element {
             setLoadingAnswerResponse(false);
             setInputValue('');
         }
-    }
+    };
 
     const sendQuestion = async () => {
         setLastQuestion(inputValue);
@@ -117,8 +119,8 @@ export function Chat(): JSX.Element {
         if (!llmImage?.name || !llmImage?.version) {
             return '';
         }
-        return llmImage.name + ":" + llmImage.version;
-    }
+        return llmImage.name + ':' + llmImage.version;
+    };
 
     useEffect(() => {
         if (state.llms.length > 0) {
@@ -129,18 +131,22 @@ export function Chat(): JSX.Element {
     return (
         <Box pt={2}>
             <Paper elevation={1}>
-                {loading
-                    ?
+                {loading ? (
                     <Loader />
-                    :
+                ) : (
                     <Card sx={{ padding: 1 }}>
                         {updated ? (
                             <CardContent>
                                 <DropdownList
                                     values={state.llms.filter(
-                                        (model) => model.downloaded
+                                        (model) =>
+                                            model.downloaded &&
+                                            model.purpose ==
+                                                LlmModelPurpose.CHAT
                                     )}
-                                    getLabel={(item) => getSelectedModelName(item)}
+                                    getLabel={(item) =>
+                                        getSelectedModelName(item)
+                                    }
                                     onSelect={(item) =>
                                         setSelectedModel(item?.name ?? null)
                                     }
@@ -175,7 +181,9 @@ export function Chat(): JSX.Element {
                                             />
                                         }
                                         label='Strict answer (distance threshold < 0.6, default: 1.0)'
-                                        disabled={loadingAnswerResponse || streaming}
+                                        disabled={
+                                            loadingAnswerResponse || streaming
+                                        }
                                     />
                                     <FormControlLabel
                                         control={
@@ -189,7 +197,9 @@ export function Chat(): JSX.Element {
                                             />
                                         }
                                         label='Use trained context only'
-                                        disabled={loadingAnswerResponse || streaming}
+                                        disabled={
+                                            loadingAnswerResponse || streaming
+                                        }
                                     />
                                     <FormControlLabel
                                         sx={{ mb: 1 }}
@@ -204,7 +214,9 @@ export function Chat(): JSX.Element {
                                             />
                                         }
                                         label='Stream output'
-                                        disabled={loadingAnswerResponse || streaming}
+                                        disabled={
+                                            loadingAnswerResponse || streaming
+                                        }
                                     />
                                     <ButtonGroup
                                         variant='contained'
@@ -225,13 +237,19 @@ export function Chat(): JSX.Element {
                                                 setInputValue(e.target.value)
                                             }
                                             fullWidth={true}
-                                            disabled={loadingAnswerResponse || streaming}
+                                            disabled={
+                                                loadingAnswerResponse ||
+                                                streaming
+                                            }
                                             required={true}
                                         />
                                         <Button
                                             variant='contained'
                                             type='submit'
-                                            disabled={loadingAnswerResponse || streaming}
+                                            disabled={
+                                                loadingAnswerResponse ||
+                                                streaming
+                                            }
                                         >
                                             Send
                                         </Button>
@@ -255,14 +273,21 @@ export function Chat(): JSX.Element {
                                 {response !== '' && !loadingAnswerResponse && (
                                     <Box mt={4}>
                                         <Box mt={1} mb={2}>
-                                            <Typography variant={'body1'} component={'div'}>
+                                            <Typography
+                                                variant={'body1'}
+                                                component={'div'}
+                                            >
                                                 <b>Question</b>:
                                                 <div>{lastQuestion}</div>
                                             </Typography>
                                         </Box>
                                         <Box>
-                                            <Typography variant={'body1'} component={'div'}>
-                                                <b>Answer</b>:<div>{response}</div>
+                                            <Typography
+                                                variant={'body1'}
+                                                component={'div'}
+                                            >
+                                                <b>Answer</b>:
+                                                <div>{response}</div>
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -271,12 +296,15 @@ export function Chat(): JSX.Element {
                         ) : (
                             <Loader />
                         )}
-                    </Card>}
-                    {error && <Box>
+                    </Card>
+                )}
+                {error && (
+                    <Box>
                         <Typography variant={'body1'} component={'p'}>
                             {error}
                         </Typography>
-                    </Box>}
+                    </Box>
+                )}
             </Paper>
         </Box>
     );
