@@ -21,11 +21,11 @@ export const defaultDatabaseConfig: DatabaseConfig = {
 export default registerAs(
     'database',
     (): DatabaseConfig => ({
-        type: 'mysql',
-        host: process.env.MYSQL_HOST || 'lama_mysql',
-        port: parseInt(process.env.MYSQL_PORT || '3306', 10),
-        username: process.env.MYSQL_USERNAME || 'root',
-        password: process.env.MYSQL_PASSWORD || '',
-        database: process.env.MYSQL_DATABASE || 'lamalamadb',
+        type: defaultDatabaseConfig.type,
+        host: process.env.MYSQL_HOST || defaultDatabaseConfig.host,
+        port: parseInt(process.env.MYSQL_PORT || '3306', 10) || defaultDatabaseConfig.port,
+        username: process.env.MYSQL_USERNAME || defaultDatabaseConfig.username,
+        password: process.env.MYSQL_PASSWORD || defaultDatabaseConfig.password,
+        database: process.env.MYSQL_DATABASE || defaultDatabaseConfig.database,
     }),
 );

@@ -14,12 +14,12 @@ import { ImageModule } from './image/image.module';
 import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
-import databaseConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
+import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
 import { ChatHistoryEntity, LlmModelEntity } from '../orm';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ isGlobal: true, load: [databaseConfig] }),
+        ConfigModule.forRoot({ isGlobal: true, load: [databaseRegisteredConfig] }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
