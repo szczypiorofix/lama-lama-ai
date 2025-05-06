@@ -1,6 +1,6 @@
 import { JSX, useEffect,useState } from 'react';
 
-import AssistantIcon from '@mui/icons-material/Assistant';
+import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import {
     Box, Button,
@@ -63,17 +63,18 @@ export function Settings(): JSX.Element {
 
     const modelListItem = (image: LlmImage, index: number) => {
         return <ListItem key={index}>
-            <ListItemIcon>
-                <AssistantIcon />
-            </ListItemIcon>
-            <ListItemText primary={ image.name + ':' + image.version} secondary={image.downloaded ? 'Downloaded' : 'Not downloaded'}/>
-            {!image.downloaded &&
+            {!image.downloaded ?
                 <ListItemIcon>
                     <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
                         setPullImage(image.name + ':' + image.version);
                     }}/>
                 </ListItemIcon>
+                :
+                <ListItemIcon>
+                    <CheckCircleIcon color="primary" fontSize={"medium"} />
+                </ListItemIcon>
             }
+            <ListItemText primary={ image.name + ':' + image.version} secondary={image.downloaded ? 'Downloaded' : 'Not downloaded'}/>
         </ListItem>
     }
 
