@@ -164,6 +164,11 @@ export function Chat(): JSX.Element {
                                     onSubmit={(e) => {
                                         e.preventDefault();
                                         console.log(inputValue);
+
+                                        if (selectedModel) {
+                                            setResponse('Select a model first');
+                                            return;
+                                        }
                                         (async () => {
                                             await sendQuestion();
                                         })();
