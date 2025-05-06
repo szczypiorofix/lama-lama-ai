@@ -3,8 +3,10 @@ import { JSX, useEffect,useState } from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import {
-    Box, Button,
+    Box,
+    Button,
     Card,
+    Divider,
     List,
     ListItem,
     ListItemIcon,
@@ -17,6 +19,7 @@ import { Loader } from '../../components/loader/Loader.tsx';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { useFetchModels } from '../../hooks/useFetchModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
+import { llmModelPurposeParser } from "../../shared/helpers/LlmModelPurposeParser.ts";
 import { LlmImage, LlmImageDownloadResponse } from '../../shared/models';
 
 export function Settings(): JSX.Element {
@@ -61,21 +64,24 @@ export function Settings(): JSX.Element {
         }
     }, [dispatch, pullImage, refresh]);
 
-    const modelListItem = (image: LlmImage, index: number) => {
-        return <ListItem key={index}>
-            {!image.downloaded ?
-                <ListItemIcon>
-                    <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
-                        setPullImage(image.name + ':' + image.version);
-                    }}/>
-                </ListItemIcon>
-                :
-                <ListItemIcon>
-                    <CheckCircleIcon color="primary" fontSize={"medium"} />
-                </ListItemIcon>
-            }
-            <ListItemText primary={ image.name + ':' + image.version} secondary={image.downloaded ? 'Downloaded' : 'Not downloaded'}/>
-        </ListItem>
+    const ModelListItem = (props: { image: LlmImage, index: number, isLast: boolean }) => {
+        return <>
+            <ListItem key={props.index}>
+                {!props.image.downloaded ?
+                    <ListItemIcon>
+                        <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
+                            // setPullImage(image.name + ':' + image.version);
+                        }}/>
+                    </ListItemIcon>
+                    :
+                    <ListItemIcon>
+                        <CheckCircleIcon color="primary" fontSize={"medium"} />
+                    </ListItemIcon>
+                }
+                <ListItemText primary={ props.image.name + ':' + props.image.version} secondary={llmModelPurposeParser(props.image.purpose)}/>
+            </ListItem>
+            {!props.isLast && <Divider />}
+        </>
     }
 
     return (
@@ -98,9 +104,11 @@ export function Settings(): JSX.Element {
                         {(!loading && pullImage == null)
                             ?
                             <List dense={false} sx={{ mb: 1}}>
-                                {state.llms.map((modelItem, index) => {
-                                    return modelListItem(modelItem, index);
-                                })}
+                                {state.llms.map((modelItem, index) => <ModelListItem
+                                    image={modelItem}
+                                    index={index}
+                                    isLast={index === state.llms.length - 1}
+                                />)}
                             </List>
                             :
                             <Loader />
