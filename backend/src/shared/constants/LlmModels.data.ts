@@ -72,4 +72,14 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         updatedAi: null,
         purpose: LlmModelPurpose.CHAT,
     },
+    {
+        id: 8,
+        name: 'codellama',
+        version: '7b',
+        downloaded: false,
+        size: 0,
+        createdAt: null,
+        updatedAi: null,
+        purpose: LlmModelPurpose.CODE_ANALYSIS,
+    },
 ];
