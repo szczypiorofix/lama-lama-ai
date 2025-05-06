@@ -1,3 +1,4 @@
+import { LlmModelPurpose } from 'src/shared/enums';
 import { Column, CreateDateColumn, UpdateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('llm_model')
@@ -5,16 +6,19 @@ export class LlmModelEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column('text')
+    @Column({ type: 'text' })
     name: string;
 
-    @Column('text', { default: 'latest' })
+    @Column({ type: 'text', default: 'latest' })
     version: string;
 
-    @Column('boolean', { default: false })
+    @Column({ type: 'boolean', default: false })
     downloaded: boolean;
 
-    @Column('integer', { default: 0 })
+    @Column({ type: 'enum', enum: LlmModelPurpose, default: LlmModelPurpose.CHAT })
+    purpose: LlmModelPurpose;
+
+    @Column({ type: 'integer', default: 0 })
     size: number;
 
     @CreateDateColumn({ nullable: true, default: null })
