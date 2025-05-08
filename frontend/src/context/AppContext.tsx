@@ -7,7 +7,8 @@ import { AppContextModel, AppStateModel } from "./types.ts";
 export const defaultAppStateContext: AppStateModel = {
     llms: [],
     view: APP_VIEW.HOME,
-    isSideNavOpen: false
+    isSideNavOpen: false,
+    backgroundTasks: []
 }
 
 export const AppContext = createContext<AppContextModel>({

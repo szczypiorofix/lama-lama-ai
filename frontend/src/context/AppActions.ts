@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
 
 import { APP_VIEW } from '../shared/enums';
-import { LlmImage } from '../shared/models';
+import { BackgroundTask, LlmImage } from '../shared/models';
 
 import { Action } from './types';
 
@@ -15,4 +15,8 @@ export function toggleSideNav(dispatch: Dispatch<Action>, open: boolean) {
 
 export function changeLlmList(dispatch: Dispatch<Action>, list: LlmImage[]) {
     dispatch({ type: 'CHANGE_LLM_LIST', payload: list });
+}
+
+export function addBackgroundTask(dispatch: Dispatch<Action>, task: BackgroundTask) {
+    dispatch({ type: 'ADD_BACKGROUND_TASK', payload: task });
 }

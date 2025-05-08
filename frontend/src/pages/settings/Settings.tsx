@@ -1,26 +1,17 @@
-import { JSX, useEffect,useState } from 'react';
+import {Fragment, JSX, useEffect, useState} from 'react';
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import {
-    Box,
-    Button,
-    Card,
-    Divider,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-} from '@mui/material';
+import {Box, Button, Card, Divider, List, ListItem, ListItemIcon, ListItemText, Paper,} from '@mui/material';
 import Typography from '@mui/material/Typography';
 
-import { Loader } from '../../components/loader/Loader.tsx';
-import { useGlobalAppContext } from '../../context/AppContext.tsx';
-import { useFetchModels } from '../../hooks/useFetchModels.ts';
-import { API_BASE_URL } from '../../shared/constants';
-import { llmModelPurposeParser } from "../../shared/helpers/LlmModelPurposeParser.ts";
-import { LlmImage, LlmImageDownloadResponse } from '../../shared/models';
+import {Loader} from '../../components/loader/Loader.tsx';
+import {useGlobalAppContext} from '../../context/AppContext.tsx';
+import {useFetchModels} from '../../hooks/useFetchModels.ts';
+import {llmModelPurposeParser} from "../../shared/helpers/LlmModelPurposeParser.ts";
+import {BackgroundTask, LlmImage} from '../../shared/models';
+import {addBackgroundTask} from "../../context/AppActions.ts";
+import {BackgroundTaskStatusEnum} from "../../shared/enums";
 
 export function Settings(): JSX.Element {
     const [pullError, setPullError] = useState('');
@@ -31,46 +22,77 @@ export function Settings(): JSX.Element {
 
     useEffect(() => {
         if (pullImage) {
-            const pullImageRequest = async () => {
-                try {
-                    await fetch(API_BASE_URL + '/models/pull', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({name: pullImage})
-                        })
-                        .then((response) => response.json())
-                        .then((response: LlmImageDownloadResponse) => {
-                            console.log('Response: ', response);
-                            if (!response.success) {
-                                setPullError(response.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error(error);
-                            setPullError(error.toString());
-                        })
-                        .finally(() => {
-                            setPullImage(null);
-                            refresh();
-                        })
-                } catch (err) {
-                    console.error(err);
-                    setPullError(JSON.stringify(err));
+            // const pullImageRequest = async () => {
+            //     try {
+            //         await fetch(API_BASE_URL + '/models/pull', {
+            //                 method: 'POST',
+            //                 headers: {
+            //                     'Content-Type': 'application/json',
+            //                 },
+            //                 body: JSON.stringify({name: pullImage})
+            //             })
+            //             .then((response) => response.json())
+            //             .then((response: LlmImageDownloadResponse) => {
+            //                 console.log('Response: ', response);
+            //                 if (!response.success) {
+            //                     setPullError(response.message);
+            //                 }
+            //             })
+            //             .catch(error => {
+            //                 console.error(error);
+            //                 setPullError(error.toString());
+            //             })
+            //             .finally(() => {
+            //                 setPullImage(null);
+            //                 refresh();
+            //             })
+            //     } catch (err) {
+            //         console.error(err);
+            //         setPullError(JSON.stringify(err));
+            //     }
+            // };
+            // pullImageRequest().then().catch(err => console.error(err));
+
+            const startModelDownload = (modelName: string) => {
+                // const source = new EventSource(`${API_BASE_URL}/models/pull/${modelName}/stream`);
+                //
+                // source.onmessage = (event) => {
+                //     const data = JSON.parse(event.data);
+                //     console.log('progress:', data);
+                // };
+                //
+                // source.addEventListener('end', () => {
+                //     console.log('Model pull complete');
+                //     source.close();
+                // });
+                //
+                // source.onerror = (e) => {
+                //     console.error('Error during pull', e);
+                //     source.close();
+                // };
+
+                const backgroundTask: BackgroundTask = {
+                    name: 'Downloading model',
+                    message: 'Downloading LLM model',
+                    progress: 0,
+                    status: BackgroundTaskStatusEnum.IDLE,
+                    error: null,
                 }
+                addBackgroundTask(dispatch, backgroundTask);
+
             };
-            pullImageRequest().then().catch(err => console.error(err));
+
+            startModelDownload(pullImage);
         }
     }, [dispatch, pullImage, refresh]);
 
     const ModelListItem = (props: { image: LlmImage, index: number, isLast: boolean }) => {
-        return <>
-            <ListItem key={props.index}>
+        return <Fragment key={props.index}>
+            <ListItem>
                 {!props.image.downloaded ?
                     <ListItemIcon>
                         <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
-                            // setPullImage(image.name + ':' + image.version);
+                            setPullImage(props.image.name + ':' + props.image.version);
                         }}/>
                     </ListItemIcon>
                     :
@@ -81,7 +103,7 @@ export function Settings(): JSX.Element {
                 <ListItemText primary={ props.image.name + ':' + props.image.version} secondary={llmModelPurposeParser(props.image.purpose)}/>
             </ListItem>
             {!props.isLast && <Divider />}
-        </>
+        </Fragment>
     }
 
     return (
