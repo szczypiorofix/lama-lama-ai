@@ -181,7 +181,12 @@ export class LlamaService implements OnModuleInit {
                                     observer.next({ data: pullingImage });
                                 } catch (err) {
                                     console.error(err);
-                                    // observer.next({ event: 'error', data: `Invalid JSON: ${line}` });
+                                    const me: MessageEvent = {
+                                        data: `Error: Invalid JSON: ${line}`,
+                                        type: 'error',
+                                    };
+                                    observer.next(me);
+                                    observer.complete();
                                 }
                             }
 
@@ -190,7 +195,11 @@ export class LlamaService implements OnModuleInit {
                     });
 
                     stream.on('end', () => {
-                        // observer.next({ event: 'end', data: 'Model download complete' });
+                        const me: MessageEvent = {
+                            data: 'Model download complete',
+                            type: 'end',
+                        };
+                        observer.next(me);
                         observer.complete();
                     });
 
