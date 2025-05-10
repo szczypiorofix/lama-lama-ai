@@ -17,6 +17,6 @@ export function changeLlmList(dispatch: Dispatch<Action>, list: LlmImage[]) {
     dispatch({ type: 'CHANGE_LLM_LIST', payload: list });
 }
 
-export function addBackgroundTask(dispatch: Dispatch<Action>, task: BackgroundTask) {
+export function setBackgroundTask(dispatch: Dispatch<Action>, task: BackgroundTask<unknown>) {
     dispatch({ type: 'ADD_BACKGROUND_TASK', payload: task });
 }

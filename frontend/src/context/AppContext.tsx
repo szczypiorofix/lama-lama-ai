@@ -8,7 +8,7 @@ export const defaultAppStateContext: AppStateModel = {
     llms: [],
     view: APP_VIEW.HOME,
     isSideNavOpen: false,
-    backgroundTasks: []
+    backgroundTask: null,
 }
 
 export const AppContext = createContext<AppContextModel>({

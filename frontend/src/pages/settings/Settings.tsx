@@ -1,20 +1,41 @@
-import {Fragment, JSX, useEffect, useState} from 'react';
+import { Fragment, JSX, useEffect, useState } from 'react';
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import {Box, Button, Card, Divider, List, ListItem, ListItemIcon, ListItemText, Paper,} from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {
+    Box,
+    Button,
+    Card,
+    Divider,
+    List,
+    ListItem,
+    ListItemText,
+    Paper,
+} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
-import {Loader} from '../../components/loader/Loader.tsx';
-import {useGlobalAppContext} from '../../context/AppContext.tsx';
-import {useFetchModels} from '../../hooks/useFetchModels.ts';
-import {llmModelPurposeParser} from "../../shared/helpers/LlmModelPurposeParser.ts";
-import {BackgroundTask, LlmImage} from '../../shared/models';
-import {addBackgroundTask} from "../../context/AppActions.ts";
-import {BackgroundTaskStatusEnum} from "../../shared/enums";
+import { ProgressBar } from '../../components/progress-bar/ProgressBar.tsx';
+import { setBackgroundTask } from '../../context/AppActions';
+import { useGlobalAppContext } from '../../context/AppContext';
+import { useFetchModels } from '../../hooks/useFetchModels';
+import { API_BASE_URL } from '../../shared/constants';
+import {
+    BackgroundTaskStatusEnum,
+    LlmModelImageStatus,
+} from '../../shared/enums';
+import { llmModelPurposeParser } from '../../shared/helpers/LlmModelPurposeParser';
+import { BackgroundTask, LlmImage } from '../../shared/models';
+
+interface PullingImageModel {
+    status: string;
+    digest?: string;
+    total?: number;
+    completed?: number;
+}
 
 export function Settings(): JSX.Element {
-    const [pullError, setPullError] = useState('');
     const [pullImage, setPullImage] = useState<string | null>(null);
 
     const { error, updated, refresh, loading } = useFetchModels();
@@ -22,127 +43,202 @@ export function Settings(): JSX.Element {
 
     useEffect(() => {
         if (pullImage) {
-            // const pullImageRequest = async () => {
-            //     try {
-            //         await fetch(API_BASE_URL + '/models/pull', {
-            //                 method: 'POST',
-            //                 headers: {
-            //                     'Content-Type': 'application/json',
-            //                 },
-            //                 body: JSON.stringify({name: pullImage})
-            //             })
-            //             .then((response) => response.json())
-            //             .then((response: LlmImageDownloadResponse) => {
-            //                 console.log('Response: ', response);
-            //                 if (!response.success) {
-            //                     setPullError(response.message);
-            //                 }
-            //             })
-            //             .catch(error => {
-            //                 console.error(error);
-            //                 setPullError(error.toString());
-            //             })
-            //             .finally(() => {
-            //                 setPullImage(null);
-            //                 refresh();
-            //             })
-            //     } catch (err) {
-            //         console.error(err);
-            //         setPullError(JSON.stringify(err));
-            //     }
-            // };
-            // pullImageRequest().then().catch(err => console.error(err));
-
             const startModelDownload = (modelName: string) => {
-                // const source = new EventSource(`${API_BASE_URL}/models/pull/${modelName}/stream`);
-                //
-                // source.onmessage = (event) => {
-                //     const data = JSON.parse(event.data);
-                //     console.log('progress:', data);
-                // };
-                //
-                // source.addEventListener('end', () => {
-                //     console.log('Model pull complete');
-                //     source.close();
-                // });
-                //
-                // source.onerror = (e) => {
-                //     console.error('Error during pull', e);
-                //     source.close();
-                // };
+                const imageNameParts: string[] = modelName.split(':');
+                const foundLlmImage: LlmImage | null =
+                    state.llms.find(
+                        (llm) =>
+                            llm.name === imageNameParts[0] &&
+                            llm.version === imageNameParts[1]
+                    ) || null;
 
-                const backgroundTask: BackgroundTask = {
-                    name: 'Downloading model',
-                    message: 'Downloading LLM model',
-                    progress: 0,
-                    status: BackgroundTaskStatusEnum.IDLE,
-                    error: null,
+                if (foundLlmImage) {
+                    const backgroundTask: BackgroundTask<LlmImage> = {
+                        id: 1,
+                        name: 'Downloading LLM model',
+                        message: `Downloading ${modelName} ...`,
+                        progress: 0,
+                        taskObject: foundLlmImage,
+                        status: BackgroundTaskStatusEnum.RUNNING,
+                        error: null,
+                    };
+                    setBackgroundTask(dispatch, backgroundTask);
                 }
-                addBackgroundTask(dispatch, backgroundTask);
-
             };
 
             startModelDownload(pullImage);
         }
-    }, [dispatch, pullImage, refresh]);
+    }, [dispatch, pullImage, refresh, state.llms]);
 
-    const ModelListItem = (props: { image: LlmImage, index: number, isLast: boolean }) => {
-        return <Fragment key={props.index}>
-            <ListItem>
-                {!props.image.downloaded ?
-                    <ListItemIcon>
-                        <DownloadIcon color="primary" fontSize={"medium"} sx={{cursor: 'pointer'}} onClick={() => {
-                            setPullImage(props.image.name + ':' + props.image.version);
-                        }}/>
-                    </ListItemIcon>
-                    :
-                    <ListItemIcon>
-                        <CheckCircleIcon color="primary" fontSize={"medium"} />
-                    </ListItemIcon>
+    useEffect(() => {
+        function startDownloadTask(name: string) {
+            console.log('Starting download task for ', name);
+            const source = new EventSource(
+                `${API_BASE_URL}/models/pull/${name}/stream`
+            );
+
+            source.onmessage = (event) => {
+                const backgroundTask = state.backgroundTask;
+                if (!backgroundTask) {
+                    return;
                 }
-                <ListItemText primary={ props.image.name + ':' + props.image.version} secondary={llmModelPurposeParser(props.image.purpose)}/>
-            </ListItem>
-            {!props.isLast && <Divider />}
-        </Fragment>
-    }
+                if (event.data.startsWith('{')) {
+                    const data = JSON.parse(event.data) as PullingImageModel;
+                    const completed = data.completed || 0;
+                    const total = data.total || 0;
+                    if (total <= 0) {
+                        return;
+                    }
+
+                    backgroundTask.progress = Math.round(
+                        (completed * 100) / total
+                    );
+                } else {
+                    backgroundTask.message = event.data;
+                    backgroundTask.status = BackgroundTaskStatusEnum.FINISHED;
+                }
+                setBackgroundTask(dispatch, backgroundTask);
+            };
+
+            source.addEventListener('end', () => {
+                console.log('Model pull complete');
+                const backgroundTask = state.backgroundTask;
+                if (backgroundTask) {
+                    backgroundTask.taskObject = null;
+                    backgroundTask.status = BackgroundTaskStatusEnum.FINISHED;
+                    backgroundTask.progress = 0;
+                    setBackgroundTask(dispatch, backgroundTask);
+                }
+                source.close();
+                setPullImage(null);
+                refresh();
+            });
+
+            source.onerror = (e) => {
+                console.error('Error during pull', e);
+                source.close();
+                const backgroundTask = state.backgroundTask;
+                if (backgroundTask) {
+                    backgroundTask.taskObject = null;
+                    backgroundTask.status = BackgroundTaskStatusEnum.FINISHED;
+                    backgroundTask.progress = 0;
+                    setBackgroundTask(dispatch, backgroundTask);
+                }
+                setPullImage(null);
+                refresh();
+            };
+        }
+
+        if (state.backgroundTask?.status === BackgroundTaskStatusEnum.RUNNING) {
+            const image: LlmImage = state.backgroundTask
+                ?.taskObject as LlmImage;
+            const imageName: string = image.name + ':' + image.version;
+            startDownloadTask(imageName);
+        }
+    }, [dispatch, refresh, state.backgroundTask, state.backgroundTask?.status]);
+
+    const ModelListItem = (props: {
+        image: LlmImage;
+        isLast: boolean;
+        downloading: boolean;
+        progress: number;
+    }) => {
+        const imageFullName: string =
+            props.image.name + ':' + props.image.version;
+        return (
+            <Fragment>
+                <ListItem sx={{ pt: 0, pb: 0, pl: 1, pr: 1 }}>
+                    <Box sx={{ minWidth: '64px' }}>
+                        {!props.image.downloaded ? (
+                            <IconButton
+                                onClick={() => setPullImage(imageFullName)}
+                                disabled={
+                                    !updated ||
+                                    loading ||
+                                    pullImage !== null ||
+                                    props.image.status == LlmModelImageStatus.DOWNLOADING ||
+                                    props.image.status == LlmModelImageStatus.DOWNLOADED
+                                }
+                            >
+                                <DownloadIcon color='primary' fontSize={'small'} />
+                            </IconButton>
+                        ) : (
+                            <IconButton disabled={true}>
+                                <CheckCircleIcon color='primary' fontSize={'small'} />
+                            </IconButton>
+                        )}
+                    </Box>
+                    <ListItemText
+                        primary={imageFullName}
+                        secondary={llmModelPurposeParser(props.image.purpose)}
+                        sx={{ minWidth: '132px' }}
+                    />
+                    {props.downloading && (
+                        <ProgressBar progress={props.progress} />
+                    )}
+                </ListItem>
+                {!props.isLast && <Divider />}
+            </Fragment>
+        );
+    };
 
     return (
         <Box pt={2}>
             <Paper elevation={1}>
                 <Card sx={{ padding: 1 }}>
-                    <Typography variant={'h5'}>SETTINGS</Typography>
+                    <Box mt={2} mb={2}>
+                        <Typography variant={'h5'}>SETTINGS</Typography>
+                    </Box>
                     <Box>
-                        <Typography>List of available local LLM models</Typography>
+                        <Typography mb={2}>
+                            List of available local LLM models
+                        </Typography>
                         <Box mb={1} mt={1}>
                             <Button
-                                variant="contained"
+                                variant='contained'
                                 onClick={() => refresh()}
-                                disabled={!updated || loading || pullImage !== null}
-                            >Refresh list</Button>
+                                disabled={
+                                    !updated ||
+                                    loading ||
+                                    pullImage !== null ||
+                                    state.backgroundTask?.status ===
+                                        BackgroundTaskStatusEnum.RUNNING
+                                }
+                                loading={
+                                    !updated || loading || pullImage !== null
+                                }
+                                startIcon={<RefreshIcon />}
+                            >
+                                Refresh list
+                            </Button>
                         </Box>
-                        {(pullImage && pullImage.length > 0) && <Box>
-                            <Typography variant={'body1'} align={'center'}>Downloading LLM {pullImage}, please wait...</Typography>
-                        </Box>}
-                        {(!loading && pullImage == null)
-                            ?
-                            <List dense={false} sx={{ mb: 1}}>
-                                {state.llms.map((modelItem, index) => <ModelListItem
-                                    image={modelItem}
-                                    index={index}
-                                    isLast={index === state.llms.length - 1}
-                                />)}
+                        {!loading && (
+                            <List dense={false} sx={{ mb: 1 }}>
+                                {state.llms.map((modelItem, index) => (
+                                    <ModelListItem
+                                        key={index}
+                                        image={modelItem}
+                                        isLast={index === state.llms.length - 1}
+                                        progress={
+                                            state.backgroundTask?.progress || 0
+                                        }
+                                        downloading={
+                                            modelItem.id ===
+                                                (state.backgroundTask?.taskObject as LlmImage)?.id &&
+                                            (state.backgroundTask?.status ===
+                                                BackgroundTaskStatusEnum.RUNNING ||
+                                                state.backgroundTask?.status ===
+                                                    BackgroundTaskStatusEnum.SUSPENDED)
+                                        }
+                                    />
+                                ))}
                             </List>
-                            :
-                            <Loader />
-                        }
+                        )}
                         {error && error.length > 0 && (
                             <Box mb={2} mt={2}>
-                                <Typography variant={'body1'}>An error occurred: {error}</Typography>
-                            </Box>
-                        )}
-                        {pullError.length > 0 && (
-                            <Box mb={2} mt={2}>
-                                <Typography variant={'body1'}>An error occurred while pulling LLM image: {pullError}</Typography>
+                                <Typography variant={'body1'}>
+                                    An error occurred: {error}
+                                </Typography>
                             </Box>
                         )}
                     </Box>

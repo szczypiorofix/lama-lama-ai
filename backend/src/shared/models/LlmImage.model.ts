@@ -24,3 +24,10 @@ export interface LlmImageDownloadResponse {
     message: string;
     success: boolean;
 }
+
+export interface PullingImageModel {
+    status: string;
+    digest?: string;
+    total?: number;
+    completed?: number;
+}

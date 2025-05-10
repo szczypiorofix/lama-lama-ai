@@ -3,6 +3,7 @@ import { LlamaService } from '../../llama/llama.service';
 import { LlmModelEntity } from '../../orm';
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { LlmImageDownloadResponse } from '../../shared/models';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ModelsService {
@@ -14,5 +15,11 @@ export class ModelsService {
 
     public async pullOllamaImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
         return await this.llamaService.pullImage(ollamaImage);
+    }
+
+    public pullOllamaImageStream(modelName: string): Observable<MessageEvent> {
+        return new Observable((subscriber) => {
+            this.llamaService.pullImageStream(modelName, subscriber);
+        });
     }
 }

@@ -5,7 +5,8 @@ import {
     LlmImage,
     LlmImageDownloadResponse,
     LlmImageList,
-    OllamaStreamChunk,
+    OllamaChatStreamChunk,
+    PullingImageModel,
     RagAskResponse,
 } from '../shared/models';
 import { ChatQuestionDto } from '../dto/chatQuestion.dto';
@@ -86,7 +87,7 @@ export class LlamaService implements OnModuleInit {
                     const lines: string[] = chunk.toString().split('\n').filter(Boolean);
                     for (const line of lines) {
                         try {
-                            const parsed: OllamaStreamChunk = JSON.parse(line) as OllamaStreamChunk;
+                            const parsed: OllamaChatStreamChunk = JSON.parse(line) as OllamaChatStreamChunk;
                             if (parsed?.message?.content) {
                                 observer.next({
                                     data: parsed.message.content,
@@ -148,13 +149,60 @@ export class LlamaService implements OnModuleInit {
         }
 
         const responsesStringArray: string = responses.map((responseChunk) => responseChunk.message.content).join('');
-
         await this.historyService.saveChatMessage(question, responsesStringArray);
 
         const askResponse: RagAskResponse = {
             answer: responsesStringArray,
         };
         return askResponse;
+    }
+
+    public pullImageStream(modelName: string, observer: Subscriber<MessageEvent>) {
+        const requestUrl: string = this.OLLAMA_URL + '/api/pull';
+        try {
+            axios
+                .post(requestUrl, { name: modelName }, { responseType: 'stream' })
+                .then((response: AxiosResponse<Readable>) => {
+                    const stream: Readable = response.data;
+
+                    let buffer: string = '';
+
+                    stream.on('data', (chunk: Buffer) => {
+                        buffer += chunk.toString();
+
+                        let boundary = buffer.indexOf('\n');
+                        while (boundary !== -1) {
+                            const line: string = buffer.slice(0, boundary).trim();
+                            buffer = buffer.slice(boundary + 1);
+
+                            if (line) {
+                                try {
+                                    const pullingImage: PullingImageModel = JSON.parse(line) as PullingImageModel;
+                                    observer.next({ data: pullingImage });
+                                } catch (err) {
+                                    console.error(err);
+                                    // observer.next({ event: 'error', data: `Invalid JSON: ${line}` });
+                                }
+                            }
+
+                            boundary = buffer.indexOf('\n');
+                        }
+                    });
+
+                    stream.on('end', () => {
+                        // observer.next({ event: 'end', data: 'Model download complete' });
+                        observer.complete();
+                    });
+
+                    stream.on('error', (err: Error) => {
+                        observer.error({ event: 'error', data: err.message });
+                    });
+                })
+                .catch((err) => console.error(err));
+        } catch (err: unknown) {
+            const error = err as Error;
+            observer.error({ event: 'error', data: error.message });
+        }
     }
 
     public async pullImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {

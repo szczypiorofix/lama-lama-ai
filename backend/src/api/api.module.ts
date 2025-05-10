@@ -34,8 +34,8 @@ import { ChatHistoryEntity, LlmModelEntity } from '../orm';
                     database: dbConfig.database,
                     entities: [ChatHistoryEntity, LlmModelEntity],
                     synchronize: true,
-                    logging: true,
-                    logger: 'advanced-console',
+                    // logging: true,
+                    // logger: 'advanced-console',
                 };
             },
         }),

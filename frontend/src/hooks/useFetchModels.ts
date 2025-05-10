@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { changeLlmList } from '../context/AppActions.ts';
 import { useGlobalAppContext } from '../context/AppContext.tsx';
 import { API_BASE_URL } from '../shared/constants';
+import { LlmModelImageStatus } from '../shared/enums';
 import { LlmImage } from '../shared/models';
 
 export const useFetchModels = (autoFetch: boolean = true) => {
@@ -17,6 +18,9 @@ export const useFetchModels = (autoFetch: boolean = true) => {
         try {
             const res = await fetch(`${API_BASE_URL}/models`);
             const data: LlmImage[] = await res.json();
+            data?.forEach((llmImage: LlmImage) => {
+                llmImage.status = llmImage.downloaded ? LlmModelImageStatus.DOWNLOADED : LlmModelImageStatus.NOT_DOWNLOADED;
+            });
             changeLlmList(dispatch, data ?? []);
             setUpdated(true);
         } catch (err: any) {

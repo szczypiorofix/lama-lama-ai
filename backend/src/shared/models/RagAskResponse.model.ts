@@ -17,7 +17,7 @@ export interface OllamaMessage {
     content: string;
 }
 
-export interface OllamaStreamChunk {
+export interface OllamaChatStreamChunk {
     model?: string;
     created_at?: string;
     done?: boolean;
