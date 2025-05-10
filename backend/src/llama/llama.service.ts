@@ -233,6 +233,29 @@ export class LlamaService implements OnModuleInit {
         };
     }
 
+    public async deleteImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
+        const requestUrl: string = this.OLLAMA_URL + '/api/delete';
+        const payload = {
+            model: ollamaImage.name,
+        };
+
+        console.log(payload);
+
+        const response = await this.httpService
+            .delete(requestUrl, {
+                data: payload,
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .toPromise();
+
+        console.log('Delete image image response data: ', response?.data);
+
+        return {
+            message: 'Image deleted successfully.',
+            success: true,
+        };
+    }
+
     public async getAvailableModels(): Promise<LlmModelEntity[]> {
         const requestUrl: string = this.OLLAMA_URL + '/api/tags';
         const response = await this.httpService.get(requestUrl).toPromise();

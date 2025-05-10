@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Logger, Param, Post, Sse } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, Post, Sse } from '@nestjs/common';
 import { ModelsService } from './models.service';
 import { LlmModelEntity } from '../../orm';
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { LlmImageDownloadResponse } from '../../shared/models';
 
 interface MessageEvent {
     data?: any;
@@ -25,8 +26,13 @@ export class ModelsController {
     }
 
     @Post('pull')
-    public async pullOllamaImage(@Body() ollamaImage: OllamaImageDto): Promise<void> {
-        await this.modelsService.pullOllamaImage(ollamaImage);
+    public async pullOllamaImage(@Body() ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
+        return await this.modelsService.pullOllamaImage(ollamaImage);
+    }
+
+    @Delete('delete')
+    public async deleteOllamaImage(@Body() ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
+        return await this.modelsService.deleteOllamaImage(ollamaImage);
     }
 
     @Sse('pull/:name/stream')

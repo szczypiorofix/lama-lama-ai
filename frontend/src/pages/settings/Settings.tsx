@@ -1,6 +1,6 @@
 import { Fragment, JSX, useEffect, useState } from 'react';
 
-import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {
@@ -37,6 +37,7 @@ interface PullingImageModel {
 
 export function Settings(): JSX.Element {
     const [pullImage, setPullImage] = useState<string | null>(null);
+    const [deleteImage, setDeleteImage] = useState<string | null>(null);
 
     const { error, updated, refresh, loading } = useFetchModels();
     const { state, dispatch } = useGlobalAppContext();
@@ -69,6 +70,33 @@ export function Settings(): JSX.Element {
             startModelDownload(pullImage);
         }
     }, [dispatch, pullImage, refresh, state.llms]);
+
+    useEffect(() => {
+        if (deleteImage) {
+            const url: string = `${API_BASE_URL}/models/delete`;
+            fetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    name: deleteImage
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then((response) => {
+                return response.json();
+            })
+                .then((resp) => {
+                    console.log(resp);
+                })
+                .catch((err) => {
+                    console.error(err);
+                })
+                .finally(() => {
+                    setDeleteImage(null);
+                    refresh();
+                })
+        }
+    }, [deleteImage, refresh]);
 
     useEffect(() => {
         function startDownloadTask(name: string) {
@@ -163,8 +191,10 @@ export function Settings(): JSX.Element {
                                 <DownloadIcon color='primary' fontSize={'small'} />
                             </IconButton>
                         ) : (
-                            <IconButton disabled={true}>
-                                <CheckCircleIcon color='primary' fontSize={'small'} />
+                            <IconButton
+                                onClick={() => setDeleteImage(imageFullName)}
+                            >
+                                <DeleteIcon color='primary' fontSize={'small'} />
                             </IconButton>
                         )}
                     </Box>

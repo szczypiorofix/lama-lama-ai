@@ -17,6 +17,10 @@ export class ModelsService {
         return await this.llamaService.pullImage(ollamaImage);
     }
 
+    public async deleteOllamaImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
+        return await this.llamaService.deleteImage(ollamaImage);
+    }
+
     public pullOllamaImageStream(modelName: string): Observable<MessageEvent> {
         return new Observable((subscriber) => {
             this.llamaService.pullImageStream(modelName, subscriber);
