@@ -145,6 +145,11 @@ export function Settings(): JSX.Element {
     }) => {
         const imageFullName: string =
             props.image.name + ':' + props.image.version;
+        const isDownloading: boolean = !updated ||
+            loading ||
+            pullImage !== null ||
+            props.image.status == LlmModelImageStatus.DOWNLOADING ||
+            props.image.status == LlmModelImageStatus.DOWNLOADED;
         return (
             <Fragment>
                 <ListItem sx={{ pt: 0, pb: 0, pl: 1, pr: 1 }}>
@@ -152,13 +157,8 @@ export function Settings(): JSX.Element {
                         {!props.image.downloaded ? (
                             <IconButton
                                 onClick={() => setPullImage(imageFullName)}
-                                disabled={
-                                    !updated ||
-                                    loading ||
-                                    pullImage !== null ||
-                                    props.image.status == LlmModelImageStatus.DOWNLOADING ||
-                                    props.image.status == LlmModelImageStatus.DOWNLOADED
-                                }
+                                disabled={isDownloading}
+                                loading={props.downloading}
                             >
                                 <DownloadIcon color='primary' fontSize={'small'} />
                             </IconButton>
