@@ -44,13 +44,10 @@ services:
     image: ollama/ollama
     volumes:
       - ollama-data:/root/.ollama
-      - ./start-ollama.sh:/start-ollama.sh
     ports:
       - "11434:11434"
     env_file:
       - backend/.env
-    entrypoint: ["/bin/bash", "/start-ollama.sh"]
-
 
   lama_frontend:
     container_name: lama_frontend
