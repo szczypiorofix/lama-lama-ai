@@ -82,4 +82,14 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         updatedAi: null,
         purpose: LlmModelPurpose.CODE_ANALYSIS,
     },
+    {
+        id: 9,
+        name: 'nomic-embed-text',
+        version: 'latest',
+        downloaded: false,
+        size: 0,
+        createdAt: null,
+        updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
+    },
 ];
