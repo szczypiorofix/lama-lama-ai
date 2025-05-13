@@ -15,6 +15,8 @@ dist-ssr
 chroma
 example-data
 
+scripts/__pycache__
+
 
 # Editor directories and files
 .vscode/*
