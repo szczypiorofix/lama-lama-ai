@@ -9,7 +9,7 @@ export class LlmModelEntity {
     @Column({ type: 'text' })
     name: string;
 
-    @Column({ type: 'text', default: 'latest' })
+    @Column({ type: 'text' })
     version: string;
 
     @Column({ type: 'boolean', default: false })
