@@ -21,7 +21,7 @@ export class ChatController {
         @Query('question') question: string,
         @Query('selectedModel') selectedModel: string,
         @Query('strictAnswer') strictAnswer: boolean = false,
-        @Query('useContextOnly') useContextOnly: boolean = true,
+        @Query('useContextOnly') useContextOnly: boolean = false,
     ): Observable<MessageEvent> {
         const chatQuestion: ChatQuestionDto = {
             question,
