@@ -64,7 +64,7 @@ export class LlamaService implements OnModuleInit {
         observer: Subscriber<MessageEvent>,
         context: ChromaCollectionDocuments[] = [],
     ) {
-        const { question, useContextOnly } = chatQuestion;
+        const { question, useContextOnly, selectedModel } = chatQuestion;
 
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
@@ -76,7 +76,7 @@ export class LlamaService implements OnModuleInit {
             .post(
                 requestUrl,
                 {
-                    model: chatQuestion.selectedModel || this.OLLAMA_MODEL || 'tinyllama',
+                    model: selectedModel || this.OLLAMA_MODEL || 'tinyllama',
                     messages: messages,
                     stream: true,
                 },
@@ -99,10 +99,23 @@ export class LlamaService implements OnModuleInit {
                     }
                 });
 
-                res.data.on('end', () => observer.complete());
-                res.data.on('error', (err: Error) => observer.error(err));
+                res.data.on('end', () => {
+                    const me: MessageEvent = {
+                        data: 'Model download complete',
+                        type: 'end',
+                    };
+                    observer.next(me);
+                    observer.complete();
+                });
+                res.data.on('error', (err: Error) => {
+                    this.logger.error('Exios stream on error:', err);
+                    observer.error(err);
+                });
             })
-            .catch((err) => observer.error(err));
+            .catch((err) => {
+                this.logger.error('Exios post catch error:', err);
+                observer.error(err);
+            });
     }
 
     public async generateResponse(chatQuestion: ChatQuestionDto, context: ChromaCollectionDocuments[] = []) {
