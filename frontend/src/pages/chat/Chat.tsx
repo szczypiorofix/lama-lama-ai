@@ -148,7 +148,7 @@ export function Chat(): JSX.Element {
                                         getSelectedModelName(item)
                                     }
                                     onSelect={(item) =>
-                                        setSelectedModel(item?.name ?? null)
+                                        setSelectedModel(getSelectedModelName(item))
                                     }
                                     label={'Select LLM'}
                                 />
@@ -165,7 +165,7 @@ export function Chat(): JSX.Element {
                                         e.preventDefault();
                                         console.log(inputValue);
 
-                                        if (selectedModel) {
+                                        if (!selectedModel) {
                                             setResponse('Select a model first');
                                             return;
                                         }
