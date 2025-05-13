@@ -16,10 +16,9 @@ export function UploadData(): JSX.Element {
                 <Card sx={{ padding: 1 }}>
                     <Typography mb={2} variant={'h5'}>Data training</Typography>
                     <Upload
-                        title={'Upload .txt file(s) with text data for AI training'}
-                        buttonText={'Upload file(s)'}
+                        title={'Upload .txt file with text data for AI training'}
+                        buttonText={'Upload file'}
                         acceptType={'.txt'}
-                        multiple={true}
                         urlPath={'/data/upload'}
                     />
                 </Card>
