@@ -16,6 +16,7 @@ chroma
 example-data
 
 scripts/__pycache__
+.venv
 
 
 # Editor directories and files
