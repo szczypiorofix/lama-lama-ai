@@ -11,7 +11,7 @@ interface UploadState {
     file: File | null;
     response: string;
     responseCode: number;
-    dataName: string | null;
+    documentId: string | null;
 }
 
 export interface UploadProps {
@@ -45,7 +45,7 @@ export function Upload(props: UploadProps): JSX.Element {
         file: null,
         response: '',
         responseCode: 0,
-        dataName: null,
+        documentId: null,
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +58,7 @@ export function Upload(props: UploadProps): JSX.Element {
                 file: selectedFile,
                 response: '',
                 responseCode: 100,
-                dataName: '',
+                documentId: '',
             });
         }
     };
@@ -76,11 +76,10 @@ export function Upload(props: UploadProps): JSX.Element {
         if (state.file) {
             const formData = new FormData();
             formData.append('file', state.file);
+            formData.append('documentId', state.documentId || 'document');
 
             let responseString: string = '';
             let responseCode: number = state.responseCode;
-
-            console.log(formData);
 
             const requestUrl: string = API_BASE_URL+ props.urlPath;
             try {
@@ -106,7 +105,7 @@ export function Upload(props: UploadProps): JSX.Element {
                     file: null,
                     response: responseString,
                     responseCode: responseCode,
-                    dataName: null,
+                    documentId: null,
                 });
             }
         }
@@ -163,8 +162,8 @@ export function Upload(props: UploadProps): JSX.Element {
                         variant="outlined"
                         size={'small'}
                         sx={{mt: 2, mb: 2}}
-                        value={state.dataName}
-                        onChange={(e) => setState({...state, dataName: e.target.value})}
+                        value={state.documentId}
+                        onChange={(e) => setState({...state, documentId: e.target.value})}
                         fullWidth={true}
                     />
                     <Box

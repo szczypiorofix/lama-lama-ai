@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { UuidService } from '../uuid/uuid.service';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
@@ -26,7 +27,10 @@ export class RagService implements OnModuleInit {
     private readonly CHUNK_OVERLAP = 200;
     private readonly CHROMA_DB_URL: string;
 
-    constructor(private configService: ConfigService) {
+    constructor(
+        private configService: ConfigService,
+        private uuidService: UuidService,
+    ) {
         this.CHROMA_DB_URL = this.configService.get<string>('CHROMADB_URL') || '';
         this.client = new ChromaClient({ path: this.CHROMA_DB_URL });
 
@@ -51,9 +55,15 @@ export class RagService implements OnModuleInit {
         }
     }
 
-    public async addDocument(content: string, docIdPrefix: string): Promise<void> {
+    public async addDocument(content: string, documentId: string): Promise<void> {
+        const normalizedDocumentId: string = documentId
+            ? this.normalizeDocumentId(documentId)
+            : this.uuidService.generate();
+
+        this.logger.log(`Set document ID to ${normalizedDocumentId}.`);
+
         const chunks = await this.textSplitter.splitText(content);
-        const ids = chunks.map((_, i) => `${docIdPrefix}_chunk${i}`);
+        const ids = chunks.map((_, i) => `${normalizedDocumentId}_${i}`);
 
         await this.collection.add({
             documents: chunks,
@@ -79,5 +89,14 @@ export class RagService implements OnModuleInit {
         this.logger.log('Filtered documents: ', filteredDocuments);
 
         return filteredDocuments;
+    }
+
+    private normalizeDocumentId(name: string): string {
+        const sanitized = name
+            .toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '');
+        const suffix = this.uuidService.generate().split('-').pop();
+        return `${sanitized}_${suffix}`;
     }
 }
