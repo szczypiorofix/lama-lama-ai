@@ -17,6 +17,7 @@ example-data
 
 scripts/__pycache__
 .venv
+scripts/data
 
 
 # Editor directories and files
