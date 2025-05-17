@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
@@ -7,10 +7,31 @@ import { UuidService } from '../uuid/uuid.service';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
-function filterDocumentsWithMaxDistance(query: QueryResponse, maxDistance: number): ChromaCollectionDocuments {
+type DocumentWithDistance = {
+    document: string;
+    distance: number;
+};
+
+function filterDocumentsWithMaxDistance(query: QueryResponse, maxDistance: number): string[] {
     const flatDocs: ChromaCollectionDocuments = query.documents.flat();
     const flatDistances: number[] = query.distances ? query.distances.flat() : [];
-    return flatDocs.filter((doc, i) => flatDistances[i] < maxDistance);
+    return flatDocs.filter((doc, i) => flatDistances[i] < maxDistance).map((doc) => doc || '');
+
+    // const documents: DocumentWithDistance[] = [];
+    // if (!query.documents[0] || !query.distances) {
+    //     return [''];
+    // }
+    // for (let i = 0; i < query.documents[0].length; i++) {
+    //     documents.push({
+    //         document: query.documents[0][i] || '',
+    //         distance: query.distances.flat()[i],
+    //     });
+    // }
+    //
+    // console.log('All documents length: ', documents.length);
+    // const filtered: string[] = documents.filter((doc) => doc.distance < maxDistance).map((doc) => doc.document);
+    // console.log('Filtered documents length: ', filtered.length);
+    // return filtered;
 }
 
 @Injectable()
@@ -22,7 +43,7 @@ export class RagService implements OnModuleInit {
     private readonly logger = new Logger(RagService.name);
     private readonly COLLECTION_NAME = 'my_collection';
     private readonly DISTANCE_THRESHOLD = 1.0;
-    private readonly DISTANCE_THRESHOLD_STRICT = 0.6;
+    private readonly DISTANCE_THRESHOLD_STRICT = 0.65;
     private readonly CHUNK_SIZE = 1000;
     private readonly CHUNK_OVERLAP = 200;
     private readonly CHROMA_DB_URL: string;
@@ -73,22 +94,16 @@ export class RagService implements OnModuleInit {
         this.logger.log(`Added ${chunks.length} chunks to collection.`);
     }
 
-    public async retrieveContextFromDatabase(chatQuestion: ChatQuestionDto): Promise<ChromaCollectionDocuments> {
+    public async retrieveContextFromDatabase(chatQuestion: ChatQuestionDto): Promise<string[]> {
         const queryContext = await this.collection.query({
             queryTexts: [chatQuestion.question],
             nResults: 5,
         });
 
-        this.logger.log('Query context: ', queryContext);
-
-        const filteredDocuments: ChromaCollectionDocuments = filterDocumentsWithMaxDistance(
+        return filterDocumentsWithMaxDistance(
             queryContext,
             chatQuestion.strictAnswer ? this.DISTANCE_THRESHOLD_STRICT : this.DISTANCE_THRESHOLD,
         );
-
-        this.logger.log('Filtered documents: ', filteredDocuments);
-
-        return filteredDocuments;
     }
 
     private normalizeDocumentId(name: string): string {

@@ -6,6 +6,7 @@ import {
     LlmImageDownloadResponse,
     LlmImageList,
     OllamaChatStreamChunk,
+    OllamaStreamResponse,
     PullingImageModel,
     RagAskResponse,
 } from '../shared/models';
@@ -62,10 +63,9 @@ export class LlamaService implements OnModuleInit {
     public generateStreamingResponse(
         chatQuestion: ChatQuestionDto,
         observer: Subscriber<MessageEvent>,
-        context: ChromaCollectionDocuments[] = [],
+        context: string[] = [],
     ) {
         const { question, useContextOnly, selectedModel } = chatQuestion;
-
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
@@ -89,8 +89,13 @@ export class LlamaService implements OnModuleInit {
                         try {
                             const parsed: OllamaChatStreamChunk = JSON.parse(line) as OllamaChatStreamChunk;
                             if (parsed?.message?.content) {
+                                const responseChunk: OllamaStreamResponse = {
+                                    message: parsed.message.content,
+                                    type: 'answer',
+                                    sources: [],
+                                };
                                 observer.next({
-                                    data: parsed.message.content,
+                                    data: responseChunk,
                                 });
                             }
                         } catch (err) {
@@ -100,11 +105,28 @@ export class LlamaService implements OnModuleInit {
                 });
 
                 res.data.on('end', () => {
-                    const me: MessageEvent = {
-                        data: 'Model download complete',
+                    console.log(context.length);
+                    const sourcesData: OllamaStreamResponse = {
+                        message: '',
+                        type: 'sources',
+                        sources: context || [],
+                    };
+                    const sourcesEventData: MessageEvent = {
+                        data: sourcesData,
+                    };
+                    observer.next(sourcesEventData);
+
+                    const endingEventData: OllamaStreamResponse = {
+                        message: 'Response complete',
+                        type: 'answer',
+                        sources: [],
+                    };
+                    const endingEvent: MessageEvent = {
+                        data: endingEventData,
                         type: 'end',
                     };
-                    observer.next(me);
+                    observer.next(endingEvent);
+
                     observer.complete();
                 });
                 res.data.on('error', (err: Error) => {
@@ -118,7 +140,7 @@ export class LlamaService implements OnModuleInit {
             });
     }
 
-    public async generateResponse(chatQuestion: ChatQuestionDto, context: ChromaCollectionDocuments[] = []) {
+    public async generateResponse(chatQuestion: ChatQuestionDto, context: string[] = []) {
         const { question, useContextOnly } = chatQuestion;
 
         if (!question) {
@@ -309,7 +331,7 @@ export class LlamaService implements OnModuleInit {
 
     private getQueryMessages(
         question: string,
-        context: ChromaCollectionDocuments[] = [],
+        context: string[] = [],
         useContextOnly: boolean = false,
     ): OllamaMessages[] {
         const contextForQuery: ChromaCollectionDocuments = context && Array.isArray(context) ? context.flat() : [];
@@ -320,7 +342,7 @@ export class LlamaService implements OnModuleInit {
             : 'Answer as accurately as possible, using the provided context if available. You may also use your own knowledge if needed.';
         const userQuery: string = `Context:\n${contextAsString}\n\nQuestion:\n${question}`;
 
-        const messages: OllamaMessages[] = [
+        return [
             {
                 role: 'system',
                 content: systemQuery,
@@ -330,8 +352,5 @@ export class LlamaService implements OnModuleInit {
                 content: userQuery,
             },
         ];
-        this.logger.log('Messages: ', messages);
-
-        return messages;
     }
 }

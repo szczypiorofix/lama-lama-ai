@@ -24,6 +24,12 @@ export interface OllamaChatStreamChunk {
     message: OllamaMessage;
 }
 
+export interface OllamaStreamResponse {
+    message: string;
+    type: 'answer' | 'sources';
+    sources: string[];
+}
+
 export interface OllamaLlavaStreamChunk {
     model: string;
     created_at: string;

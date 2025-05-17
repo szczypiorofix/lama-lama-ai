@@ -20,7 +20,7 @@ import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { useFetchModels } from '../../hooks/useFetchModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
 import { LlmModelPurpose } from '../../shared/enums';
-import { LlmImage, RagAskResponse } from '../../shared/models';
+import { LlmImage, OllamaStreamResponse, RagAskResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
     const [inputValue, setInputValue] = useState('');
@@ -29,6 +29,7 @@ export function Chat(): JSX.Element {
     const [lastQuestion, setLastQuestion] = useState('');
     const [loadingAnswerResponse, setLoadingAnswerResponse] = useState(false);
     const [response, setResponse] = useState('');
+    const [responseSources, setResponseSources] = useState<string[]>([]);
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
     const [streamOutput, setStreamOutput] = useState<boolean>(false);
@@ -39,6 +40,7 @@ export function Chat(): JSX.Element {
 
     const sendStreamRequest = async () => {
         setResponse('');
+        setResponseSources([]);
         setStreaming(true);
         setLoadingAnswerResponse(false);
 
@@ -53,13 +55,27 @@ export function Chat(): JSX.Element {
         const eventSource = new EventSource(eventUrl);
 
         eventSource.onmessage = (event: MessageEvent<string>) => {
-            setResponse((prev) => prev + event.data);
+            try {
+                const responseMessage: OllamaStreamResponse = JSON.parse(event.data) as OllamaStreamResponse;
+                if (responseMessage.type === 'answer') {
+                    setResponse((prev) => prev + responseMessage.message);
+                } else {
+                    if (responseMessage.sources.length > 0) {
+                        console.log(responseMessage.sources.length);
+                        setResponseSources(responseMessage.sources);
+                    }
+                }
+            } catch(err) {
+                console.error(err);
+                setResponse('Connection error: ' + JSON.stringify(err));
+            }
         };
 
         eventSource.onerror = (err) => {
             console.error('Connection error!', err);
             setStreaming(false);
             setInputValue('');
+            setResponseSources([]);
             eventSource.close();
         };
 
@@ -296,6 +312,20 @@ export function Chat(): JSX.Element {
                                                 <div>{response}</div>
                                             </Typography>
                                         </Box>
+                                    </Box>
+                                )}
+                                {responseSources.length > 0 && (
+                                    <Box mt={3}>
+                                        <Typography
+                                            variant={'body1'}
+                                            component={'div'}
+                                        >
+                                            <b>Found {responseSources.length} source(s):</b>:
+                                            { responseSources.map((source, index) => <Box mt={1} mb={1} key={index}>
+                                                <Typography variant={'body1'}>{index + 1}:</Typography>
+                                                <Typography variant={'body2'}>{source}</Typography>
+                                            </Box>) }
+                                        </Typography>
                                     </Box>
                                 )}
                             </CardContent>
