@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
@@ -39,6 +40,7 @@ import { ChatHistoryEntity, LlmModelEntity } from '../orm';
                 };
             },
         }),
+        ScheduleModule.forRoot(),
         ChatModule,
         DataModule,
         HistoryModule,

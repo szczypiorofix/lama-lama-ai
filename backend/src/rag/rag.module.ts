@@ -4,10 +4,11 @@ import { LlamaModule } from '../llama/llama.module';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { UuidModule } from '../uuid/uuid.module';
+import { ScannerService } from '../scanner/scanner.service';
 
 @Module({
     imports: [ConfigModule.forRoot({ isGlobal: true }), HttpModule, LlamaModule, UuidModule],
-    providers: [RagService],
+    providers: [RagService, ScannerService],
     exports: [RagService],
 })
 export class RagModule {}
