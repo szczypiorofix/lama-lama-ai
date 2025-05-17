@@ -101,11 +101,11 @@ export function Settings(): JSX.Element {
     useEffect(() => {
         function startDownloadTask(name: string) {
             console.log('Starting download task for ', name);
-            const source = new EventSource(
+            const eventSource = new EventSource(
                 `${API_BASE_URL}/models/pull/${name}/stream`
             );
 
-            source.onmessage = (event) => {
+            eventSource.onmessage = (event: MessageEvent<string>) => {
                 const backgroundTask = state.backgroundTask;
                 if (!backgroundTask) {
                     return;
@@ -128,7 +128,7 @@ export function Settings(): JSX.Element {
                 setBackgroundTask(dispatch, backgroundTask);
             };
 
-            source.addEventListener('end', () => {
+            eventSource.addEventListener('end', () => {
                 console.log('Model pull complete');
                 const backgroundTask = state.backgroundTask;
                 if (backgroundTask) {
@@ -137,14 +137,14 @@ export function Settings(): JSX.Element {
                     backgroundTask.progress = 0;
                     setBackgroundTask(dispatch, backgroundTask);
                 }
-                source.close();
+                eventSource.close();
                 setPullImage(null);
                 refresh();
             });
 
-            source.onerror = (e) => {
+            eventSource.onerror = (e) => {
                 console.error('Error during pull', e);
-                source.close();
+                eventSource.close();
                 const backgroundTask = state.backgroundTask;
                 if (backgroundTask) {
                     backgroundTask.taskObject = null;

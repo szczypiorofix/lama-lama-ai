@@ -52,7 +52,7 @@ export function Chat(): JSX.Element {
 
         const eventSource = new EventSource(eventUrl);
 
-        eventSource.onmessage = (event) => {
+        eventSource.onmessage = (event: MessageEvent<string>) => {
             setResponse((prev) => prev + event.data);
         };
 
@@ -69,6 +69,7 @@ export function Chat(): JSX.Element {
 
         eventSource.addEventListener('end', () => {
             console.log('SSE connection closed');
+            eventSource.close();
             setInputValue('');
             setStreaming(false);
         });
