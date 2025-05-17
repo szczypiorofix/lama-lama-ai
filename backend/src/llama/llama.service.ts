@@ -105,7 +105,6 @@ export class LlamaService implements OnModuleInit {
                 });
 
                 res.data.on('end', () => {
-                    console.log(context.length);
                     const sourcesData: OllamaStreamResponse = {
                         message: '',
                         type: 'sources',

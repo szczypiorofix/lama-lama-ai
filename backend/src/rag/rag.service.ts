@@ -7,31 +7,10 @@ import { UuidService } from '../uuid/uuid.service';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
-type DocumentWithDistance = {
-    document: string;
-    distance: number;
-};
-
 function filterDocumentsWithMaxDistance(query: QueryResponse, maxDistance: number): string[] {
     const flatDocs: ChromaCollectionDocuments = query.documents.flat();
     const flatDistances: number[] = query.distances ? query.distances.flat() : [];
     return flatDocs.filter((doc, i) => flatDistances[i] < maxDistance).map((doc) => doc || '');
-
-    // const documents: DocumentWithDistance[] = [];
-    // if (!query.documents[0] || !query.distances) {
-    //     return [''];
-    // }
-    // for (let i = 0; i < query.documents[0].length; i++) {
-    //     documents.push({
-    //         document: query.documents[0][i] || '',
-    //         distance: query.distances.flat()[i],
-    //     });
-    // }
-    //
-    // console.log('All documents length: ', documents.length);
-    // const filtered: string[] = documents.filter((doc) => doc.distance < maxDistance).map((doc) => doc.document);
-    // console.log('Filtered documents length: ', filtered.length);
-    // return filtered;
 }
 
 @Injectable()
