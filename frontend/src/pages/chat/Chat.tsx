@@ -1,6 +1,10 @@
 import { JSX, useEffect, useState } from 'react';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Button,
     ButtonGroup,
@@ -61,7 +65,6 @@ export function Chat(): JSX.Element {
                     setResponse((prev) => prev + responseMessage.message);
                 } else {
                     if (responseMessage.sources.length > 0) {
-                        console.log(responseMessage.sources.length);
                         setResponseSources(responseMessage.sources);
                     }
                 }
@@ -180,8 +183,6 @@ export function Chat(): JSX.Element {
                                     }}
                                     onSubmit={(e) => {
                                         e.preventDefault();
-                                        console.log(inputValue);
-
                                         if (!selectedModel) {
                                             setResponse('Select a model first');
                                             return;
@@ -294,21 +295,19 @@ export function Chat(): JSX.Element {
                                 )}
                                 {response !== '' && !loadingAnswerResponse && (
                                     <Box mt={4}>
-                                        <Box mt={1} mb={2}>
-                                            <Typography
-                                                variant={'body1'}
-                                                component={'div'}
-                                            >
-                                                <b>Question</b>:
+                                        <Box mb={1}>
+                                            <Typography variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                                Question:
+                                            </Typography>
+                                            <Typography ml={2} mr={2} variant={'body1'} component={'div'}>
                                                 <div>{lastQuestion}</div>
                                             </Typography>
                                         </Box>
-                                        <Box>
-                                            <Typography
-                                                variant={'body1'}
-                                                component={'div'}
-                                            >
-                                                <b>Answer</b>:
+                                        <Box mb={1}>
+                                            <Typography variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                                Answer:
+                                            </Typography>
+                                            <Typography ml={2} mr={2} variant={'body1'} component={'div'}>
                                                 <div>{response}</div>
                                             </Typography>
                                         </Box>
@@ -316,16 +315,21 @@ export function Chat(): JSX.Element {
                                 )}
                                 {responseSources.length > 0 && (
                                     <Box mt={3}>
-                                        <Typography
-                                            variant={'body1'}
-                                            component={'div'}
-                                        >
-                                            <b>Found {responseSources.length} source(s):</b>:
-                                            { responseSources.map((source, index) => <Box mt={1} mb={1} key={index}>
-                                                <Typography variant={'body1'}>{index + 1}:</Typography>
-                                                <Typography variant={'body2'}>{source}</Typography>
-                                            </Box>) }
+                                        <Typography mb={1} variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                            Found {responseSources.length} source(s):
                                         </Typography>
+                                        { responseSources.map((source, index) => <Accordion key={index}>
+                                            <AccordionSummary
+                                                expandIcon={<ExpandMoreIcon />}
+                                                aria-controls="panel1-content"
+                                                id="panel1-header"
+                                            >
+                                                <Typography component="span">Source {index + 1}</Typography>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Typography variant={'body2'}>{source}</Typography>
+                                            </AccordionDetails>
+                                        </Accordion>) }
                                     </Box>
                                 )}
                             </CardContent>
