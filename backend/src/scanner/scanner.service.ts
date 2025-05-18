@@ -61,6 +61,7 @@ export class ScannerService {
 
                 const content = fs.readFileSync(filePath, 'utf-8');
                 try {
+                    this.logger.log('Processing ' + filePath.split('/').pop() + '...');
                     await this.ragService.addDocument(content, file);
 
                     fs.unlinkSync(filePath);
