@@ -16,7 +16,7 @@ import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
 import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
-import { ChatHistoryEntity, LlmModelEntity } from '../orm';
+import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../orm';
 
 @Module({
     imports: [
@@ -33,7 +33,7 @@ import { ChatHistoryEntity, LlmModelEntity } from '../orm';
                     username: dbConfig.username,
                     password: dbConfig.password,
                     database: dbConfig.database,
-                    entities: [ChatHistoryEntity, LlmModelEntity],
+                    entities: [ChatHistoryEntity, LlmModelEntity, ProcessedFile],
                     synchronize: true,
                     // logging: true,
                     // logger: 'advanced-console',
