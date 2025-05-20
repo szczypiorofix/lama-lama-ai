@@ -192,6 +192,7 @@ export function Settings(): JSX.Element {
                             </IconButton>
                         ) : (
                             <IconButton
+                                disabled={pullImage !== null}
                                 onClick={() => setDeleteImage(imageFullName)}
                             >
                                 <DeleteIcon color='primary' fontSize={'small'} />
