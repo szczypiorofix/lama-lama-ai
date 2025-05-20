@@ -46,8 +46,6 @@ services:
       - ollama-data:/root/.ollama
     ports:
       - "11434:11434"
-    env_file:
-      - backend/.env
 
   lama_frontend:
     container_name: lama_frontend
