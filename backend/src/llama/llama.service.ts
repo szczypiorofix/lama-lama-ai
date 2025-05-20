@@ -16,7 +16,7 @@ import { ChromaCollectionDocuments } from '../rag/rag.service';
 import { Subscriber } from 'rxjs';
 import { HistoryService } from '../api/history/history.service';
 import { DEFAULT_LLM_MODELS } from '../shared/constants/LlmModels.data';
-import { LlmModelEntity } from '../orm';
+import { LlmModelEntity } from '../entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OllamaImageDto } from '../dto/ollamaImage';

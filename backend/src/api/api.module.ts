@@ -16,7 +16,7 @@ import { ModelsModule } from './models/models.module';
 import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
 import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
-import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../orm';
+import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../entities';
 import { TtsModule } from './tts/tts.module';
 
 @Module({

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { LlamaService } from '../../llama/llama.service';
-import { LlmModelEntity } from '../../orm';
+import { LlmModelEntity } from '../../entities';
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { LlmImageDownloadResponse } from '../../shared/models';
 import { Observable } from 'rxjs';

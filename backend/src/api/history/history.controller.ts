@@ -1,6 +1,6 @@
 import { Controller, Logger, Post } from '@nestjs/common';
 import { HistoryService } from './history.service';
-import { ChatHistoryEntity } from '../../orm';
+import { ChatHistoryEntity } from '../../entities';
 
 @Controller('api/history')
 export class HistoryController {

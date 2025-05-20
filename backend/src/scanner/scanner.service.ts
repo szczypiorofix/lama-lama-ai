@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 
 import { RagService } from '../rag/rag.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProcessedFile } from '../orm';
+import { ProcessedFile } from '../entities';
 
 @Injectable()
 export class ScannerService {

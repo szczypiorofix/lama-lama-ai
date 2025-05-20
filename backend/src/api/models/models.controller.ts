@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Sse } from '@nestjs/common';
 import { ModelsService } from './models.service';
-import { LlmModelEntity } from '../../orm';
+import { LlmModelEntity } from '../../entities';
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';

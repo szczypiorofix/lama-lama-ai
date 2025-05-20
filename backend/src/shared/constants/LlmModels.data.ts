@@ -1,4 +1,4 @@
-import { LlmModelEntity } from '../../orm';
+import { LlmModelEntity } from '../../entities';
 import { LlmModelPurpose } from '../enums';
 
 export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [

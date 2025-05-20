@@ -6,7 +6,7 @@ import { HttpModule } from '@nestjs/axios';
 import { HistoryModule } from '../api/history/history.module';
 import { HistoryService } from '../api/history/history.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatHistoryEntity, LlmModelEntity } from '../orm';
+import { ChatHistoryEntity, LlmModelEntity } from '../entities';
 
 @Module({
     imports: [
