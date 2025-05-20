@@ -21,9 +21,4 @@ export class ChatService {
             ),
         );
     }
-
-    public async sendChatRequestToOllamaAndReturnAnswer(chatQuestion: ChatQuestionDto) {
-        const filteredDocuments: string[] = await this.ragService.retrieveContextFromDatabase(chatQuestion);
-        return this.llamaService.generateResponse(chatQuestion, filteredDocuments);
-    }
 }

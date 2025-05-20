@@ -24,7 +24,7 @@ import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { useFetchModels } from '../../hooks/useFetchModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
 import { LlmModelPurpose } from '../../shared/enums';
-import { LlmImage, OllamaStreamResponse, RagAskResponse } from '../../shared/models';
+import { LlmImage, OllamaStreamResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
     const [inputValue, setInputValue] = useState('');
@@ -36,7 +36,6 @@ export function Chat(): JSX.Element {
     const [responseSources, setResponseSources] = useState<string[]>([]);
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
-    const [streamOutput, setStreamOutput] = useState<boolean>(false);
     const [streaming, setStreaming] = useState(false);
 
     const { error, updated, loading } = useFetchModels();
@@ -94,45 +93,10 @@ export function Chat(): JSX.Element {
         });
     };
 
-    const sendStandardRequest = async () => {
-        const requestUrl: string = API_BASE_URL + '/chat/message';
-        try {
-            const resp = await fetch(requestUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question: inputValue,
-                    selectedModel: selectedModel,
-                    strictAnswer: strictAnswer,
-                    useContextOnly: useContextOnly,
-                }),
-            });
-
-            const response = (await resp.json()) as RagAskResponse;
-            console.log('Response: ', response);
-            if (response.answer) {
-                setResponse(response.answer);
-            }
-        } catch (err) {
-            console.error(err);
-            setResponse('Connection error: ' + JSON.stringify(err));
-        } finally {
-            setLoadingAnswerResponse(false);
-            setInputValue('');
-        }
-    };
-
     const sendQuestion = async () => {
         setLastQuestion(inputValue);
         setLoadingAnswerResponse(true);
-
-        if (streamOutput) {
-            await sendStreamRequest();
-        } else {
-            await sendStandardRequest();
-        }
+        await sendStreamRequest();
     };
 
     const getSelectedModelName = (llmImage: LlmImage) => {
@@ -209,6 +173,7 @@ export function Chat(): JSX.Element {
                                         }
                                     />
                                     <FormControlLabel
+                                        sx={{ mb: 1 }}
                                         control={
                                             <Checkbox
                                                 value={useContextOnly}
@@ -220,23 +185,6 @@ export function Chat(): JSX.Element {
                                             />
                                         }
                                         label='Use trained context only'
-                                        disabled={
-                                            loadingAnswerResponse || streaming
-                                        }
-                                    />
-                                    <FormControlLabel
-                                        sx={{ mb: 1 }}
-                                        control={
-                                            <Checkbox
-                                                value={streamOutput}
-                                                onChange={(e) =>
-                                                    setStreamOutput(
-                                                        e.currentTarget.checked
-                                                    )
-                                                }
-                                            />
-                                        }
-                                        label='Stream output'
                                         disabled={
                                             loadingAnswerResponse || streaming
                                         }

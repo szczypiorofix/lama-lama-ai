@@ -1,14 +1,12 @@
 import { HttpException, HttpStatus, Injectable, Logger, MessageEvent, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-    LlamaResponseChunk,
     LlmImage,
     LlmImageDownloadResponse,
     LlmImageList,
     OllamaChatStreamChunk,
     OllamaStreamResponse,
     PullingImageModel,
-    RagAskResponse,
 } from '../shared/models';
 import { ChatQuestionDto } from '../dto/chatQuestion.dto';
 import { HttpService } from '@nestjs/axios';
@@ -137,58 +135,6 @@ export class LlamaService implements OnModuleInit {
                 this.logger.error('Exios post catch error:', err);
                 observer.error(err);
             });
-    }
-
-    public async generateResponse(chatQuestion: ChatQuestionDto, context: string[] = []) {
-        const { question, useContextOnly } = chatQuestion;
-
-        if (!question) {
-            throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
-        }
-
-        const messages: OllamaMessages[] = this.getQueryMessages(question, context, useContextOnly);
-
-        const responses: LlamaResponseChunk[] = [];
-        try {
-            const payload = {
-                model: this.OLLAMA_MODEL,
-                messages: messages,
-            };
-
-            const requestUrl: string = this.OLLAMA_URL + '/api/chat';
-            const response = await this.httpService
-                .post(requestUrl, payload, {
-                    headers: { 'Content-Type': 'application/json' },
-                })
-                .toPromise();
-            const raw: string = response ? (response.data as string) : '{}';
-            const lines: string[] = raw
-                .trim()
-                .split('\n')
-                .filter((line) => line.trim());
-            for (const line of lines) {
-                try {
-                    const parsed = JSON.parse(line) as LlamaResponseChunk;
-                    responses.push(parsed);
-                } catch (e) {
-                    console.error(e);
-                }
-            }
-        } catch (err) {
-            this.logger.error('Error occurred while sending request to Ollama: ', err);
-            throw new HttpException(
-                'Error occurred while sending request to Ollama: ' + JSON.stringify(err),
-                HttpStatus.NOT_FOUND,
-            );
-        }
-
-        const responsesStringArray: string = responses.map((responseChunk) => responseChunk.message.content).join('');
-        await this.historyService.saveChatMessage(question, responsesStringArray);
-
-        const askResponse: RagAskResponse = {
-            answer: responsesStringArray,
-        };
-        return askResponse;
     }
 
     public pullImageStream(modelName: string, observer: Subscriber<MessageEvent>) {
