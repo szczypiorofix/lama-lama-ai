@@ -17,6 +17,7 @@ import { UtilsModule } from './utils/utils.module';
 import { HistoryModule } from './history/history.module';
 import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
 import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../orm';
+import { TtsModule } from './tts/tts.module';
 
 @Module({
     imports: [
@@ -48,6 +49,7 @@ import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../orm';
         ModelsModule,
         UtilsModule,
         LlamaModule,
+        TtsModule,
         RagModule,
     ],
     controllers: [ApiController],

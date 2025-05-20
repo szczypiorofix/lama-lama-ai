@@ -61,6 +61,14 @@ services:
     stdin_open: true
     tty: true
 
+  lama_tts:
+    container_name: lama_tts
+    build: ./piper-tts
+    ports:
+      - '8080:8080'
+    volumes:
+      - tts-data:/app/model
+
 volumes:
   ollama-data:
     name: lama_ollama_volume
@@ -70,5 +78,7 @@ volumes:
     name: lama_backend_volume
   frontend-data:
     name: lama_frontend_volume
+  tts-data:
+    name: lama_tts_volume
   mysql_data:
     name: lama_mysql_volume
