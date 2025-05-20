@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RagService } from './rag.service';
-import { LlamaModule } from '../llama/llama.module';
+import { OllamaModule } from '../ollama/ollama.module';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { UuidModule } from '../uuid/uuid.module';
@@ -13,7 +13,7 @@ import { ProcessedFile } from '../entities';
         ConfigModule.forRoot({ isGlobal: true }),
         TypeOrmModule.forFeature([ProcessedFile]),
         HttpModule,
-        LlamaModule,
+        OllamaModule,
         UuidModule,
     ],
     providers: [RagService, ScannerService],

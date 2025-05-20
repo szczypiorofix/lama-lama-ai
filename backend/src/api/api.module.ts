@@ -8,7 +8,7 @@ import { ApiService } from './api.service';
 import { LoggerMiddleware } from '../middleware/logger.middleware';
 import { HeaderMiddleware } from '../middleware/header.middleware';
 import { ChatModule } from './chat/chat.module';
-import { LlamaModule } from '../llama/llama.module';
+import { OllamaModule } from '../ollama/ollama.module';
 import { RagModule } from '../rag/rag.module';
 import { DataModule } from './data/data.module';
 import { ImageModule } from './image/image.module';
@@ -48,7 +48,7 @@ import { TtsModule } from './tts/tts.module';
         ImageModule,
         ModelsModule,
         UtilsModule,
-        LlamaModule,
+        OllamaModule,
         TtsModule,
         RagModule,
     ],

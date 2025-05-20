@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ModelsController } from './models.controller';
 import { ModelsService } from './models.service';
-import { LlamaModule } from '../../llama/llama.module';
+import { OllamaModule } from '../../ollama/ollama.module';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-    imports: [LlamaModule, HttpModule],
+    imports: [OllamaModule, HttpModule],
     controllers: [ModelsController],
     providers: [ModelsService],
 })

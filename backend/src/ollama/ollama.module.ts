@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { LlamaService } from './llama.service';
+import { OllamaService } from './ollama.service';
 import { HttpModule } from '@nestjs/axios';
 import { HistoryModule } from '../api/history/history.module';
 import { HistoryService } from '../api/history/history.service';
@@ -15,7 +15,7 @@ import { ChatHistoryEntity, LlmModelEntity } from '../entities';
         HttpModule,
         HistoryModule,
     ],
-    providers: [LlamaService, HistoryService],
-    exports: [LlamaService, HistoryService],
+    providers: [OllamaService, HistoryService],
+    exports: [OllamaService, HistoryService],
 })
-export class LlamaModule {}
+export class OllamaModule {}

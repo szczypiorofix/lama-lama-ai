@@ -1,13 +1,13 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 import { from, mergeMap, Observable } from 'rxjs';
-import { LlamaService } from '../../llama/llama.service';
+import { OllamaService } from '../../ollama/ollama.service';
 import { RagService } from '../../rag/rag.service';
 
 @Injectable()
 export class ChatService {
     constructor(
-        private llamaService: LlamaService,
+        private ollamaService: OllamaService,
         private ragService: RagService,
     ) {}
 
@@ -16,7 +16,7 @@ export class ChatService {
             mergeMap(
                 (chromaCollectionDocuments: string[]) =>
                     new Observable<MessageEvent>((observer) => {
-                        this.llamaService.generateStreamingResponse(chatQuestion, observer, chromaCollectionDocuments);
+                        this.ollamaService.generateStreamingResponse(chatQuestion, observer, chromaCollectionDocuments);
                     }),
             ),
         );

@@ -27,8 +27,8 @@ interface OllamaMessages {
 }
 
 @Injectable()
-export class LlamaService implements OnModuleInit {
-    private readonly logger = new Logger(LlamaService.name);
+export class OllamaService implements OnModuleInit {
+    private readonly logger = new Logger(OllamaService.name);
     private readonly OLLAMA_URL: string;
     private readonly OLLAMA_MODEL: string;
 

@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
-import { LlamaModule } from '../../llama/llama.module';
+import { OllamaModule } from '../../ollama/ollama.module';
 import { RagModule } from '../../rag/rag.module';
 
 @Module({
-    imports: [LlamaModule, RagModule],
+    imports: [OllamaModule, RagModule],
     controllers: [ChatController],
     providers: [ChatService],
 })
