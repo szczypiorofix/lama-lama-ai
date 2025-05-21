@@ -11,6 +11,9 @@ export class ChatHistoryEntity {
     @Column('text')
     modelAnswer: string;
 
+    @Column('text')
+    modelName: string;
+
     @CreateDateColumn()
     createdAt: Date;
 }

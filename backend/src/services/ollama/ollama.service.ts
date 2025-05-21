@@ -33,6 +33,7 @@ export class OllamaService implements OnModuleInit {
     private readonly OLLAMA_MODEL: string;
     private chatResponse: string;
     private chatQuestion: string;
+    private currentModel: string;
 
     constructor(
         private readonly configService: ConfigService,
@@ -45,6 +46,7 @@ export class OllamaService implements OnModuleInit {
         this.OLLAMA_MODEL = this.configService.get<string>('OLLAMA_MODEL') || '';
         this.chatResponse = '';
         this.chatQuestion = '';
+        this.currentModel = '';
     }
 
     async onModuleInit() {
@@ -64,13 +66,14 @@ export class OllamaService implements OnModuleInit {
 
         this.chatResponse = '';
         this.chatQuestion = question;
+        this.currentModel = selectedModel || this.OLLAMA_MODEL || 'tinyllama';
 
         const requestUrl: string = this.OLLAMA_URL + '/api/chat';
         axios
             .post(
                 requestUrl,
                 {
-                    model: selectedModel || this.OLLAMA_MODEL || 'tinyllama',
+                    model: this.currentModel,
                     messages: messages,
                     stream: true,
                 },
@@ -112,7 +115,11 @@ export class OllamaService implements OnModuleInit {
                     observer.next(sourcesEventData);
 
                     void (async () => {
-                        await this.historyService.saveChatMessage(this.chatQuestion, this.chatResponse);
+                        await this.historyService.saveChatMessage(
+                            this.chatQuestion,
+                            this.chatResponse,
+                            this.currentModel,
+                        );
                     })();
 
                     const endingEventData: OllamaStreamResponse = {
