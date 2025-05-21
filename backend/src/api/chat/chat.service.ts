@@ -1,8 +1,8 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
 import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 import { from, mergeMap, Observable } from 'rxjs';
-import { OllamaService } from '../../ollama/ollama.service';
-import { RagService } from '../../rag/rag.service';
+import { OllamaService } from '../../services/ollama/ollama.service';
+import { RagService } from '../../services/rag/rag.service';
 
 @Injectable()
 export class ChatService {

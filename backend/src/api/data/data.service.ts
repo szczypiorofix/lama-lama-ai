@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RagService } from 'src/rag/rag.service';
+import { RagService } from 'src/services/rag/rag.service';
 
 @Injectable()
 export class DataService {

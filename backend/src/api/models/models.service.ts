@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OllamaService } from '../../ollama/ollama.service';
+import { OllamaService } from '../../services/ollama/ollama.service';
 import { LlmModelEntity } from '../../entities';
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { LlmImageDownloadResponse } from '../../shared/models';

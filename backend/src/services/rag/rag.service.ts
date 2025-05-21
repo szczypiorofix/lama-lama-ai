@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ChatQuestionDto } from '../dto/chatQuestion.dto';
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { UuidService } from '../uuid/uuid.service';

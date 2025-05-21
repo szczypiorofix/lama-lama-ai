@@ -3,10 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 
 import { OllamaService } from './ollama.service';
 import { HttpModule } from '@nestjs/axios';
-import { HistoryModule } from '../api/history/history.module';
-import { HistoryService } from '../api/history/history.service';
+import { HistoryModule } from '../../api/history/history.module';
+import { HistoryService } from '../../api/history/history.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatHistoryEntity, LlmModelEntity } from '../entities';
+import { ChatHistoryEntity, LlmModelEntity } from '../../entities';
 
 @Module({
     imports: [
