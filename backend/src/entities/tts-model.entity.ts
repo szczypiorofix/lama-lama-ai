@@ -20,6 +20,12 @@ export class TtsModel {
     @Column({ default: false })
     downloaded: boolean;
 
+    @Column({ name: 'download_url' })
+    downloadUrl: string;
+
+    @Column({ name: 'local_path' })
+    localPath: string;
+
     @Column({ default: true })
     isActive: boolean;
 
