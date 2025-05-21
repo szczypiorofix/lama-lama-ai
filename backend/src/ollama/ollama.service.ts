@@ -31,6 +31,8 @@ export class OllamaService implements OnModuleInit {
     private readonly logger = new Logger(OllamaService.name);
     private readonly OLLAMA_URL: string;
     private readonly OLLAMA_MODEL: string;
+    private chatResponse: string;
+    private chatQuestion: string;
 
     constructor(
         private readonly configService: ConfigService,
@@ -41,21 +43,12 @@ export class OllamaService implements OnModuleInit {
     ) {
         this.OLLAMA_URL = this.configService.get<string>('OLLAMA_API_URL') || '';
         this.OLLAMA_MODEL = this.configService.get<string>('OLLAMA_MODEL') || '';
+        this.chatResponse = '';
+        this.chatQuestion = '';
     }
 
     async onModuleInit() {
         await this.initializeSettings();
-    }
-
-    async initializeSettings() {
-        for (const llmModel of DEFAULT_LLM_MODELS) {
-            const existingLlmModel = await this.llmModelRepository.findOneBy({
-                id: llmModel.id,
-            });
-            if (!existingLlmModel) {
-                await this.llmModelRepository.save(llmModel);
-            }
-        }
     }
 
     public generateStreamingResponse(
@@ -68,6 +61,9 @@ export class OllamaService implements OnModuleInit {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
         const messages: OllamaMessages[] = this.getQueryMessages(question, context, useContextOnly);
+
+        this.chatResponse = '';
+        this.chatQuestion = question;
 
         const requestUrl: string = this.OLLAMA_URL + '/api/chat';
         axios
@@ -87,6 +83,8 @@ export class OllamaService implements OnModuleInit {
                         try {
                             const parsed: OllamaChatStreamChunk = JSON.parse(line) as OllamaChatStreamChunk;
                             if (parsed?.message?.content) {
+                                this.chatResponse += parsed.message.content;
+
                                 const responseChunk: OllamaStreamResponse = {
                                     message: parsed.message.content,
                                     type: 'answer',
@@ -112,6 +110,10 @@ export class OllamaService implements OnModuleInit {
                         data: sourcesData,
                     };
                     observer.next(sourcesEventData);
+
+                    void (async () => {
+                        await this.historyService.saveChatMessage(this.chatQuestion, this.chatResponse);
+                    })();
 
                     const endingEventData: OllamaStreamResponse = {
                         message: 'Response complete',
@@ -260,6 +262,17 @@ export class OllamaService implements OnModuleInit {
         }
 
         throw new HttpException('Error occurred while fetching models', HttpStatus.NOT_FOUND);
+    }
+
+    private async initializeSettings() {
+        for (const llmModel of DEFAULT_LLM_MODELS) {
+            const existingLlmModel = await this.llmModelRepository.findOneBy({
+                id: llmModel.id,
+            });
+            if (!existingLlmModel) {
+                await this.llmModelRepository.save(llmModel);
+            }
+        }
     }
 
     private checkOllamaModels(ollamaModels: LlmImageList, llmModel: LlmModelEntity): LlmImage | undefined {
