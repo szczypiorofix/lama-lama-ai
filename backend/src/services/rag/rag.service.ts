@@ -1,9 +1,11 @@
 import { HttpException, HttpStatus, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
 import { ChromaClient, Collection, QueryResponse } from 'chromadb';
+import { v4 as uuidV4 } from 'uuid';
+
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
+
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-import { UuidService } from '../uuid/uuid.service';
 
 export type ChromaCollectionDocuments = (string | null)[];
 
@@ -27,10 +29,7 @@ export class RagService implements OnModuleInit {
     private readonly CHUNK_OVERLAP = 200;
     private readonly CHROMA_DB_URL: string;
 
-    constructor(
-        private configService: ConfigService,
-        private uuidService: UuidService,
-    ) {
+    constructor(private configService: ConfigService) {
         this.CHROMA_DB_URL = this.configService.get<string>('CHROMADB_URL') || '';
         this.client = new ChromaClient({ path: this.CHROMA_DB_URL });
 
@@ -56,9 +55,7 @@ export class RagService implements OnModuleInit {
     }
 
     public async addDocument(content: string, documentId: string): Promise<void> {
-        const normalizedDocumentId: string = documentId
-            ? this.normalizeDocumentId(documentId)
-            : this.uuidService.generate();
+        const normalizedDocumentId: string = documentId ? this.normalizeDocumentId(documentId) : uuidV4();
 
         this.logger.log(`Set document ID to ${normalizedDocumentId}.`);
 
@@ -90,7 +87,7 @@ export class RagService implements OnModuleInit {
             .toLowerCase()
             .replace(/\s+/g, '_')
             .replace(/[^a-z0-9_]/g, '');
-        const suffix = this.uuidService.generate().split('-').pop();
+        const suffix = uuidV4().split('-').pop();
         return `${sanitized}_${suffix}`;
     }
 }

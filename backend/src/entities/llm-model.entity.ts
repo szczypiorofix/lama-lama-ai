@@ -1,5 +1,5 @@
 import { LlmModelPurpose } from 'src/shared/enums';
-import { Column, CreateDateColumn, UpdateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('llm_model')
 export class LlmModelEntity {

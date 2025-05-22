@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
+import { Response } from 'express';
 import { Readable } from 'stream';
 
 @Injectable()

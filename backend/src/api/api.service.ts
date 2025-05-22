@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { apiDetails } from '../shared/constants';
 import { ApiDetails } from '../shared/models';
 

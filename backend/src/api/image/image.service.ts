@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+
 import { OllamaLlavaStreamChunk } from '../../shared/models';
 
 @Injectable()

@@ -1,5 +1,6 @@
-import { API_VERSION } from './Config.data';
 import { ApiDetails } from '../models';
+
+import { API_VERSION } from './Config.data';
 
 export const apiDetails: ApiDetails = {
     name: 'Local Lama API Service',

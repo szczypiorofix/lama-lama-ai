@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Repository } from 'typeorm';
 
-import { RagService } from '../rag/rag.service';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ProcessedFile } from '../../entities';
+import { RagService } from '../';
 
 @Injectable()
 export class ScannerService {

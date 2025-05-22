@@ -1,6 +1,7 @@
 import { Controller, Logger, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ImageService } from './image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+import { ImageService } from './image.service';
 
 @Controller('api/image')
 export class ImageController {

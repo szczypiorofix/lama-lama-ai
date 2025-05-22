@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatHistoryEntity } from '../../entities';
 import { Repository } from 'typeorm';
+
+import { ChatHistoryEntity } from '../../entities';
 
 @Injectable()
 export class HistoryService {

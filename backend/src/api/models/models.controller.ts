@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, Logger, Param, Post, Sse } from '@nestjs/common';
-import { ModelsService } from './models.service';
-import { LlmModelEntity } from '../../entities';
-import { OllamaImageDto } from '../../dto/ollamaImage';
 import { Observable } from 'rxjs';
-import { HttpService } from '@nestjs/axios';
+
+import { OllamaImageDto } from '../../dto/ollamaImage';
+import { LlmModelEntity } from '../../entities';
 import { LlmImageDownloadResponse } from '../../shared/models';
+
+import { ModelsService } from './models.service';
 
 interface MessageEvent {
     data?: any;
@@ -15,10 +16,7 @@ interface MessageEvent {
 export class ModelsController {
     private readonly logger = new Logger(ModelsController.name);
 
-    constructor(
-        private readonly modelsService: ModelsService,
-        private readonly httpService: HttpService,
-    ) {}
+    constructor(private readonly modelsService: ModelsService) {}
 
     @Get()
     public async getAvailableLLMModels(): Promise<LlmModelEntity[]> {

@@ -1,6 +1,7 @@
 import { Body, Controller, Logger, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { DataService } from './data.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+import { DataService } from './data.service';
 
 @Controller('api/data')
 export class DataController {

@@ -1,23 +1,23 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ApiController } from './api.controller';
-import { ApiService } from './api.service';
-import { LoggerMiddleware } from '../middleware/logger.middleware';
-import { HeaderMiddleware } from '../middleware/header.middleware';
-import { ChatModule } from './chat/chat.module';
-import { OllamaModule } from '../services/ollama/ollama.module';
-import { RagModule } from '../services/rag/rag.module';
-import { DataModule } from './data/data.module';
-import { ImageModule } from './image/image.module';
-import { ModelsModule } from './models/models.module';
-import { UtilsModule } from './utils/utils.module';
-import { HistoryModule } from './history/history.module';
 import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from '../config/database.config';
 import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../entities';
+import { HeaderMiddleware } from '../middleware/header.middleware';
+import { LoggerMiddleware } from '../middleware/logger.middleware';
+import { OllamaModule, RagModule, ScannerModule } from '../services/';
+
+import { ChatModule } from './chat/chat.module';
+import { DataModule } from './data/data.module';
+import { HistoryModule } from './history/history.module';
+import { ImageModule } from './image/image.module';
+import { ModelsModule } from './models/models.module';
 import { TtsModule } from './tts-old/tts.module';
+import { UtilsModule } from './utils/utils.module';
+import { ApiController } from './api.controller';
+import { ApiService } from './api.service';
 
 @Module({
     imports: [
@@ -51,6 +51,7 @@ import { TtsModule } from './tts-old/tts.module';
         OllamaModule,
         TtsModule,
         RagModule,
+        ScannerModule,
     ],
     controllers: [ApiController],
     providers: [ApiService],

@@ -1,21 +1,15 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { HistoryModule } from '../../api/history/history.module';
+import { LlmModelEntity } from '../../entities';
 
 import { OllamaService } from './ollama.service';
-import { HttpModule } from '@nestjs/axios';
-import { HistoryModule } from '../../api/history/history.module';
-import { HistoryService } from '../../api/history/history.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatHistoryEntity, LlmModelEntity } from '../../entities';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
-        TypeOrmModule.forFeature([ChatHistoryEntity, LlmModelEntity]),
-        HttpModule,
-        HistoryModule,
-    ],
-    providers: [OllamaService, HistoryService],
-    exports: [OllamaService, HistoryService],
+    imports: [TypeOrmModule.forFeature([LlmModelEntity]), HttpModule, HistoryModule],
+    providers: [OllamaService],
+    exports: [OllamaService],
 })
 export class OllamaModule {}

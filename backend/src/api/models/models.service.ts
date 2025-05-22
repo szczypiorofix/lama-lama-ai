@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { OllamaService } from '../../services/ollama/ollama.service';
-import { LlmModelEntity } from '../../entities';
-import { OllamaImageDto } from '../../dto/ollamaImage';
-import { LlmImageDownloadResponse } from '../../shared/models';
 import { Observable } from 'rxjs';
+
+import { OllamaImageDto } from '../../dto/ollamaImage';
+import { LlmModelEntity } from '../../entities';
+import { OllamaService } from '../../services';
+import { LlmImageDownloadResponse } from '../../shared/models';
 
 @Injectable()
 export class ModelsService {

@@ -1,5 +1,17 @@
+import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable, Logger, MessageEvent, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import axios, { AxiosResponse } from 'axios';
+import { Subscriber } from 'rxjs';
+import { Readable } from 'stream';
+import { Repository } from 'typeorm';
+
+import { HistoryService } from '../../api/history/history.service';
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
+import { OllamaImageDto } from '../../dto/ollamaImage';
+import { LlmModelEntity } from '../../entities';
+import { DEFAULT_LLM_MODELS } from '../../shared/constants/LlmModels.data';
 import {
     LlmImage,
     LlmImageDownloadResponse,
@@ -8,18 +20,7 @@ import {
     OllamaStreamResponse,
     PullingImageModel,
 } from '../../shared/models';
-import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
-import { HttpService } from '@nestjs/axios';
-import axios, { AxiosResponse } from 'axios';
-import { Readable } from 'stream';
-import { ChromaCollectionDocuments } from '../rag/rag.service';
-import { Subscriber } from 'rxjs';
-import { HistoryService } from '../../api/history/history.service';
-import { DEFAULT_LLM_MODELS } from '../../shared/constants/LlmModels.data';
-import { LlmModelEntity } from '../../entities';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { OllamaImageDto } from '../../dto/ollamaImage';
+import { ChromaCollectionDocuments } from '../';
 
 interface OllamaMessages {
     role: 'system' | 'user';
