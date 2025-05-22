@@ -13,6 +13,6 @@ export class HistoryController {
         this.logger.log('Received question: ', userQuestion);
         this.logger.log('Received answer: ', modelAnswer);
 
-        return await this.historyService.saveChatMessage(userQuestion, modelAnswer);
+        return await this.historyService.saveChatMessage(userQuestion, modelAnswer, modelAnswer);
     }
 }
