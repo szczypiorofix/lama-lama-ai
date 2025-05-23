@@ -1,6 +1,8 @@
 import { JSX, useEffect, useState } from 'react';
 
 import CheckIcon from '@mui/icons-material/Check';
+import PauseIcon from '@mui/icons-material/PauseCircle';
+import PlayIcon from '@mui/icons-material/PlayCircle';
 import {
     Box, Button,
     Card, Divider, List, ListItem, ListItemIcon, ListItemText,
@@ -14,9 +16,14 @@ export function Home(): JSX.Element {
     const [textToRead, setTextToRead] = useState('');
     const [response, setResponse] = useState('');
     const [sent, setSent] = useState(false);
+    const [streaming, setStreaming] = useState(false);
     
     useEffect(() => {
         const playPiper = async () => {
+            if (!textToRead) {
+                return;
+            }
+            setStreaming(true);
             const requestUrl: string = API_BASE_URL+ '/tts';
             const response = await fetch(requestUrl, {
                 method: "POST",
@@ -33,6 +40,7 @@ export function Home(): JSX.Element {
                 console.error("Audio error:", errorResponse);
                 setResponse(errorResponse);
                 setSent(false);
+                setStreaming(false);
                 return;
             }
 
@@ -44,19 +52,26 @@ export function Home(): JSX.Element {
                 .catch(err => {
                     console.error(err);
                     setResponse(err.toString());
+                    setStreaming(false);
                     setSent(false);
                 });
 
             audio.onended = () => {
                 console.log('Stopped playing audio.');
-                setSent(false);
+                setStreaming(false);
             };
         };
         if (sent) {
             playPiper()
                 .then()
-                .catch(err => console.error(err))
-                .finally(() => setSent(false));
+                .catch(err => {
+                    console.error(err);
+                    setStreaming(false);
+                })
+                .finally(() => {
+                    setSent(false);
+                    setResponse('');
+                });
         }
     }, [sent, textToRead]);
 
@@ -100,7 +115,7 @@ export function Home(): JSX.Element {
                 <Typography mt={2} mb={2} variant={'body1'}>Enter text to read:</Typography>
                 <TextField
                     id="outlined-basic"
-                    label="Outlined"
+                    label="Write something to read"
                     variant="outlined"
                     sx={{ minWidth: '400px', mb: 2, mt: 1}}
                     size={'small'}
@@ -108,7 +123,7 @@ export function Home(): JSX.Element {
                     onChange={(e) => setTextToRead(e.target.value)}
                     fullWidth={true}
                 />
-                <Button variant="contained" onClick={() => {
+                <Button variant="contained" startIcon={ streaming ? <PauseIcon /> : <PlayIcon />} onClick={() => {
                     setSent(true);
                 }}>Read me!</Button>
             </Box>
