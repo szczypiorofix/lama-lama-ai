@@ -137,12 +137,12 @@ export class OllamaService implements OnModuleInit {
                     observer.complete();
                 });
                 res.data.on('error', (err: Error) => {
-                    this.logger.error('Exios stream on error:', err);
+                    this.logger.error('Axios stream on error:', err);
                     observer.error(err);
                 });
             })
             .catch((err) => {
-                this.logger.error('Exios post catch error:', err);
+                this.logger.error('Axios post catch error:', err);
                 observer.error(err);
             });
     }
@@ -274,9 +274,7 @@ export class OllamaService implements OnModuleInit {
 
     private async initializeSettings() {
         for (const llmModel of DEFAULT_LLM_MODELS) {
-            const existingLlmModel = await this.llmModelRepository.findOneBy({
-                id: llmModel.id,
-            });
+            const existingLlmModel = await this.llmModelRepository.findOneBy({ id: llmModel.id });
             if (!existingLlmModel) {
                 await this.llmModelRepository.save(llmModel);
             }
