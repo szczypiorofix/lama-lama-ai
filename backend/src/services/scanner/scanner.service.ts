@@ -19,7 +19,9 @@ export class ScannerService {
         private readonly ragService: RagService,
         @InjectRepository(ProcessedFile)
         private readonly processedFileRepo: Repository<ProcessedFile>,
-    ) {}
+    ) {
+        this.logger.log('ScannerService initialized!');
+    }
 
     @Cron('*/60 * * * * *')
     public async handleCron() {
