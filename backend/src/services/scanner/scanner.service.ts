@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { ProcessedFile } from '../../entities';
-import { RagService } from '../';
+import { RagService } from '../rag/rag.service';
 
 @Injectable()
 export class ScannerService {
@@ -19,9 +19,7 @@ export class ScannerService {
         private readonly ragService: RagService,
         @InjectRepository(ProcessedFile)
         private readonly processedFileRepo: Repository<ProcessedFile>,
-    ) {
-        this.logger.log('ScannerService initialized!');
-    }
+    ) {}
 
     @Cron('*/60 * * * * *')
     public async handleCron() {

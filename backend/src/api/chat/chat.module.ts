@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { RagModule } from 'src/services/rag/rag.module';
 
-import { OllamaModule, RagModule } from '../../services';
+import { OllamaModule } from '../../services/ollama/ollama.module';
 
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 import { OllamaImageDto } from '../../dto/ollamaImage';
 import { LlmModelEntity } from '../../entities';
-import { OllamaService } from '../../services';
+import { OllamaService } from '../../services/ollama/ollama.service';
 import { LlmImageDownloadResponse } from '../../shared/models';
 
 @Injectable()

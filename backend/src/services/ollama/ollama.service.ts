@@ -20,7 +20,7 @@ import {
     OllamaStreamResponse,
     PullingImageModel,
 } from '../../shared/models';
-import { ChromaCollectionDocuments } from '../';
+import { ChromaCollectionDocuments } from '../rag/rag.service';
 
 interface OllamaMessages {
     role: 'system' | 'user';

@@ -11,19 +11,19 @@ export class TtsModelService {
         private readonly repo: Repository<TtsModel>,
     ) {}
 
-    findAll(): Promise<TtsModel[]> {
+    public findAll(): Promise<TtsModel[]> {
         return this.repo.find({ where: { isActive: true } });
     }
 
-    findByVoiceId(voiceId: string): Promise<TtsModel | null> {
+    public findByVoiceId(voiceId: string): Promise<TtsModel | null> {
         return this.repo.findOne({ where: { voiceId } });
     }
 
-    async markAsDownloaded(id: number) {
+    public async markAsDownloaded(id: number) {
         await this.repo.update(id, { downloaded: true });
     }
 
-    async create(data: Partial<TtsModel>) {
+    public async create(data: Partial<TtsModel>) {
         return this.repo.save(this.repo.create(data));
     }
 }
