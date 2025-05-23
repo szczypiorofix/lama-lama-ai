@@ -10,14 +10,14 @@ app.use(express.json());
 app.post("/tts", (req, res) => {
     const text = req.body.text;
 
-    console.log("Body, text:", text);
+    console.log("body.text:", text);
 
     if (!text) return res.status(400).send("Missing 'text' field.");
 
     const output = "/tmp/output.wav";
 
     const piper = spawn("piper", [
-        "--model", "model/pl_PL-gosia-medium.onnx",
+        "--model", "models/pl_PL-gosia-medium.onnx",
         "--output_file", output
     ]);
 
