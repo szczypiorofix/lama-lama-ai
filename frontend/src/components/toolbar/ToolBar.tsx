@@ -7,9 +7,9 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
+import { toggleSideNav } from '../../context/AppActions.ts';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { getRoute } from '../../shared/helpers';
-import { toggleSideNav } from '../../context/AppActions.ts';
 
 export function ToolBar(): JSX.Element {
     const { state, dispatch } = useGlobalAppContext();
