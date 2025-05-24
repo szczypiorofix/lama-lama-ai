@@ -11,4 +11,4 @@ import { TtsModelService } from './tts-model.service';
     controllers: [TtsModelController],
     providers: [TtsModelService],
 })
-export class TtsModule {}
+export class TtsModelModule {}
