@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
 
@@ -15,8 +16,8 @@ describe('AppController', () => {
     });
 
     describe('root', () => {
-        it('should return "Hello World!"', () => {
-            expect(appController.getHello()).toBe('Hello World!');
+        it('should return "Local Lama API Service"', () => {
+            expect(appController.getApiDetails().name).toBe('Local Lama API Service');
         });
     });
 });

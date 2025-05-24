@@ -1,10 +1,19 @@
 import { createContext, useContext } from 'react';
 
-import { defaultAppContextState } from '../shared/constants';
-import { AppContextModel } from '../shared/models';
+import { APP_VIEW } from '../shared/enums';
 
-export const AppContext = createContext<AppContextModel>(
-    defaultAppContextState
-);
+import { AppContextModel, AppStateModel } from "./types.ts";
+
+export const defaultAppStateContext: AppStateModel = {
+    llms: [],
+    view: APP_VIEW.HOME,
+    isSideNavOpen: false,
+    backgroundTask: null,
+}
+
+export const AppContext = createContext<AppContextModel>({
+    state: defaultAppStateContext,
+    dispatch: () => {}
+});
 
 export const useGlobalAppContext = () => useContext(AppContext);

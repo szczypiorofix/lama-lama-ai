@@ -5,7 +5,7 @@ import { AppContextProvider } from './context/AppContext.provider.tsx';
 
 function App(): JSX.Element {
     return <AppContextProvider>
-        <ViewPort />;
+        <ViewPort />
     </AppContextProvider>
 }
 

@@ -6,12 +6,11 @@ import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { APP_VIEW } from '../../shared/enums';
 import { getRoute } from '../../shared/helpers';
 import { Footer } from '../footer/Footer.tsx';
-import { Logo } from '../logo/Logo.tsx';
 import { SideNav } from '../sidenav/SideNav.tsx';
 import { ToolBar } from '../toolbar/ToolBar.tsx';
 
 export function ViewPort(): JSX.Element {
-    const { contextState } = useGlobalAppContext();
+    const { state } = useGlobalAppContext();
 
     const resolveView = (view: APP_VIEW) => {
         return getRoute(view).page;
@@ -21,9 +20,8 @@ export function ViewPort(): JSX.Element {
         <Box>
             <ToolBar />
             <SideNav />
-            <Logo />
             <Container maxWidth='lg'>
-                {resolveView(contextState.view)}
+                {resolveView(state.view)}
             </Container>
             <Box mt={3}></Box>
             <Divider />

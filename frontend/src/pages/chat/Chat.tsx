@@ -1,10 +1,15 @@
-import { JSX, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Button,
     ButtonGroup,
-    Card, Checkbox,
+    Card,
+    Checkbox,
     CircularProgress,
     FormControlLabel,
     Paper,
@@ -13,35 +18,66 @@ import {
 } from '@mui/material';
 import CardContent from '@mui/material/CardContent';
 
-import { RagAskResponse } from '../../shared/models';
+import { DropdownList } from '../../components/dropdown-list/DropdownList.tsx';
+import { Loader } from '../../components/loader/Loader.tsx';
+import { useGlobalAppContext } from '../../context/AppContext.tsx';
+import { useFetchModels } from '../../hooks/useFetchModels.ts';
+import { API_BASE_URL } from '../../shared/constants';
+import { LlmModelPurpose } from '../../shared/enums';
+import { LlmImage, OllamaStreamResponse } from '../../shared/models';
 
 export function Chat(): JSX.Element {
     const [inputValue, setInputValue] = useState('');
     const [strictAnswer, setStrictAnswer] = useState<boolean>(false);
     const [useContextOnly, setUseContextOnly] = useState<boolean>(false);
     const [lastQuestion, setLastQuestion] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loadingAnswerResponse, setLoadingAnswerResponse] = useState(false);
     const [response, setResponse] = useState('');
+    const [responseSources, setResponseSources] = useState<string[]>([]);
+    const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
-    const [streamOutput, setStreamOutput] = useState<boolean>(false);
     const [streaming, setStreaming] = useState(false);
+
+    const { error, updated, loading } = useFetchModels();
+    const { state } = useGlobalAppContext();
 
     const sendStreamRequest = async () => {
         setResponse('');
+        setResponseSources([]);
         setStreaming(true);
-        setLoading(false);
+        setLoadingAnswerResponse(false);
 
         const encodedPrompt: string = encodeURIComponent(inputValue);
-        const eventSource = new EventSource(`http://localhost:3000/v1/api/chat?question=${encodedPrompt}&strictanswer=${strictAnswer}&usecontextonly=${useContextOnly}`);
+        const eventUrl: string =
+            `${API_BASE_URL}/chat/message?` +
+            `question=${encodedPrompt}` +
+            `&selectedModel=${selectedModel}` +
+            `&strictAnswer=${strictAnswer}` +
+            `&useContextOnly=${useContextOnly}`;
 
-        eventSource.onmessage = (event) => {
-            setResponse((prev) => prev + event.data);
+        const eventSource = new EventSource(eventUrl);
+
+        eventSource.onmessage = (event: MessageEvent<string>) => {
+            try {
+                const responseMessage: OllamaStreamResponse = JSON.parse(event.data) as OllamaStreamResponse;
+                if (responseMessage.type === 'answer') {
+                    setResponse((prev) => prev + responseMessage.message);
+                } else {
+                    if (responseMessage.sources.length > 0) {
+                        setResponseSources(responseMessage.sources);
+                    }
+                }
+            } catch(err) {
+                console.error(err);
+                setResponse('Connection error: ' + JSON.stringify(err));
+            }
         };
 
         eventSource.onerror = (err) => {
             console.error('Connection error!', err);
             setStreaming(false);
             setInputValue('');
+            setResponseSources([]);
             eventSource.close();
         };
 
@@ -51,152 +87,212 @@ export function Chat(): JSX.Element {
 
         eventSource.addEventListener('end', () => {
             console.log('SSE connection closed');
+            eventSource.close();
             setInputValue('');
             setStreaming(false);
         });
-    }
-
-    const sendStandardRequest = async () => {
-        try {
-            const resp = await fetch('http://localhost:3000/v1/api/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question: inputValue,
-                    strictanswer: strictAnswer,
-                    usecontextonly: useContextOnly,
-                }),
-            });
-
-            const response = (await resp.json()) as RagAskResponse;
-            console.log('Response: ', response);
-            if (response.answer) {
-                setResponse(response.answer);
-            }
-            setInputValue('');
-        } catch (err) {
-            console.error(err);
-            setResponse('Connection error: ' + JSON.stringify(err));
-            setInputValue('');
-        } finally {
-            setLoading(false);
-        }
-    }
+    };
 
     const sendQuestion = async () => {
         setLastQuestion(inputValue);
-        setLoading(true);
-
-        if (streamOutput) {
-            await sendStreamRequest();
-        } else {
-            await sendStandardRequest();
-        }
+        setLoadingAnswerResponse(true);
+        await sendStreamRequest();
     };
+
+    const getSelectedModelName = (llmImage: LlmImage) => {
+        if (!llmImage?.name || !llmImage?.version) {
+            return '';
+        }
+        return llmImage.name + ':' + llmImage.version;
+    };
+
+    useEffect(() => {
+        if (state.llms.length > 0) {
+            setSelectedModel(getSelectedModelName(state.llms[0]));
+        }
+    }, [state.llms]);
 
     return (
         <Box pt={2}>
             <Paper elevation={1}>
-                <Card sx={{ padding: 1 }}>
-                    <CardContent>
-                        <Box
-                            component={'form'}
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'flex-start',
-                                alignItems: 'flex-start',
-                                width: '100%',
-                            }}
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                console.log(inputValue);
-                                (async () => {
-                                    await sendQuestion();
-                                })();
-                            }}
-                        >
-                            <FormControlLabel
-                                control={<Checkbox value={strictAnswer} onChange={(e) => setStrictAnswer(e.currentTarget.checked)} />}
-                                label="Strict answer (distance threshold < 0.6, default: 1.0)"
-                                disabled={loading || streaming}
-                            />
-                            <FormControlLabel
-                                control={<Checkbox value={useContextOnly} onChange={(e) => setUseContextOnly(e.currentTarget.checked)} />}
-                                label="Use trained context only"
-                                disabled={loading || streaming}
-                            />
-                            <FormControlLabel
-                                sx={{ mb: 1 }}
-                                control={<Checkbox value={streamOutput} onChange={(e) => setStreamOutput(e.currentTarget.checked)} />}
-                                label="Stream output"
-                                disabled={loading || streaming}
-                            />
-                            <ButtonGroup
-                                variant='contained'
-                                aria-label='Basic button group'
-                                sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
-                            >
-                                <TextField
-                                    id='outlined-basic'
-                                    label='Write a question'
-                                    variant='outlined'
-                                    value={inputValue}
-                                    onChange={(e) =>
-                                        setInputValue(e.target.value)
+                {loading ? (
+                    <Loader />
+                ) : (
+                    <Card sx={{ padding: 1 }}>
+                        {updated ? (
+                            <CardContent>
+                                <DropdownList
+                                    values={state.llms.filter(
+                                        (model) =>
+                                            model.downloaded &&
+                                            model.purpose ==
+                                                LlmModelPurpose.CHAT
+                                    )}
+                                    getLabel={(item) =>
+                                        getSelectedModelName(item)
                                     }
-                                    fullWidth={true}
-                                    disabled={loading || streaming}
-                                    required={true}
+                                    onSelect={(item) =>
+                                        setSelectedModel(getSelectedModelName(item))
+                                    }
+                                    label={'Select LLM'}
                                 />
-                                <Button
-                                    variant='contained'
-                                    type='submit'
-                                    disabled={loading || streaming}
+                                <Box
+                                    component={'form'}
+                                    sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'flex-start',
+                                        alignItems: 'flex-start',
+                                        width: '100%',
+                                    }}
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (!selectedModel) {
+                                            setResponse('Select a model first');
+                                            return;
+                                        }
+                                        (async () => {
+                                            await sendQuestion();
+                                        })();
+                                    }}
                                 >
-                                    Send
-                                </Button>
-                            </ButtonGroup>
-                        </Box>
-                        {(loading || (response.length === 0 && streaming)) && (
-                            <Box
-                                mt={8}
-                                mb={4}
-                                sx={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <CircularProgress />
-                            </Box>
-                        )}
-                        {response !== '' && !loading && (
-                            <Box mt={4}>
-                                <Box mt={1} mb={2}>
-                                    <Typography
-                                        variant={'body1'}
-                                        component={'div'}
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                value={strictAnswer}
+                                                onChange={(e) =>
+                                                    setStrictAnswer(
+                                                        e.currentTarget.checked
+                                                    )
+                                                }
+                                            />
+                                        }
+                                        label='Strict answer (distance threshold < 0.6, default: 1.0)'
+                                        disabled={
+                                            loadingAnswerResponse || streaming
+                                        }
+                                    />
+                                    <FormControlLabel
+                                        sx={{ mb: 1 }}
+                                        control={
+                                            <Checkbox
+                                                value={useContextOnly}
+                                                onChange={(e) =>
+                                                    setUseContextOnly(
+                                                        e.currentTarget.checked
+                                                    )
+                                                }
+                                            />
+                                        }
+                                        label='Use trained context only'
+                                        disabled={
+                                            loadingAnswerResponse || streaming
+                                        }
+                                    />
+                                    <ButtonGroup
+                                        variant='contained'
+                                        aria-label='Basic button group'
+                                        sx={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                        }}
                                     >
-                                        <b>Question</b>:
-                                        <div>{lastQuestion}</div>
-                                    </Typography>
+                                        <TextField
+                                            id='outlined-basic'
+                                            label='Write a question'
+                                            variant='outlined'
+                                            value={inputValue}
+                                            onChange={(e) =>
+                                                setInputValue(e.target.value)
+                                            }
+                                            fullWidth={true}
+                                            disabled={
+                                                loadingAnswerResponse ||
+                                                streaming
+                                            }
+                                            required={true}
+                                        />
+                                        <Button
+                                            variant='contained'
+                                            type='submit'
+                                            disabled={
+                                                loadingAnswerResponse ||
+                                                streaming
+                                            }
+                                        >
+                                            Send
+                                        </Button>
+                                    </ButtonGroup>
                                 </Box>
-                                <Box>
-                                    <Typography
-                                        variant={'body1'}
-                                        component={'div'}
+                                {(loadingAnswerResponse ||
+                                    (response.length === 0 && streaming)) && (
+                                    <Box
+                                        mt={8}
+                                        mb={4}
+                                        sx={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
                                     >
-                                        <b>Answer</b>:<div>{response}</div>
-                                    </Typography>
-                                </Box>
-                            </Box>
+                                        <CircularProgress />
+                                    </Box>
+                                )}
+                                {response !== '' && !loadingAnswerResponse && (
+                                    <Box mt={4}>
+                                        <Box mb={1}>
+                                            <Typography variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                                Question:
+                                            </Typography>
+                                            <Typography ml={2} mr={2} variant={'body1'} component={'div'}>
+                                                <div>{lastQuestion}</div>
+                                            </Typography>
+                                        </Box>
+                                        <Box mb={1}>
+                                            <Typography variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                                Answer:
+                                            </Typography>
+                                            <Typography ml={2} mr={2} variant={'body1'} component={'div'}>
+                                                <div>{response}</div>
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                )}
+                                {responseSources.length > 0 && (
+                                    <Box mt={3}>
+                                        <Typography mb={1} variant={'body1'} component={'div'} fontWeight={'bold'}>
+                                            Found {responseSources.length} source(s):
+                                        </Typography>
+                                        { responseSources.map((source, index) => <Accordion key={index}>
+                                            <AccordionSummary
+                                                expandIcon={<ExpandMoreIcon />}
+                                                aria-controls="panel1-content"
+                                                id="panel1-header"
+                                            >
+                                                <Typography component="span">Source {index + 1}</Typography>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <Typography variant={'body2'}>{source}</Typography>
+                                            </AccordionDetails>
+                                        </Accordion>) }
+                                    </Box>
+                                )}
+                            </CardContent>
+                        ) : (
+                            <Loader />
                         )}
-                    </CardContent>
-                </Card>
+                    </Card>
+                )}
+                {error && (
+                    <Box>
+                        <Typography variant={'body1'} component={'p'}>
+                            {error}
+                        </Typography>
+                    </Box>
+                )}
             </Paper>
         </Box>
     );

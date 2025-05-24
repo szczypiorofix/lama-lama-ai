@@ -2,13 +2,23 @@ import { ChangeEvent, JSX, MouseEvent,useRef, useState } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
-import { Box, Button, styled, Typography } from '@mui/material';
+import { Box, Button, styled, TextField, Typography } from '@mui/material';
+
+import { API_BASE_URL } from '../../shared/constants';
 
 interface UploadState {
     uploading: boolean;
-    files: File[] | null;
+    file: File | null;
     response: string;
     responseCode: number;
+    documentId: string | null;
+}
+
+export interface UploadProps {
+    title: string;
+    buttonText: string;
+    acceptType: string;
+    urlPath: string;
 }
 
 interface UploadResponse {
@@ -29,26 +39,28 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-export function Upload(): JSX.Element {
+export function Upload(props: UploadProps): JSX.Element {
     const [state, setState] = useState<UploadState>({
         uploading: false,
-        files: null,
+        file: null,
         response: '',
         responseCode: 0,
+        documentId: null,
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const selectedFiles = Array.from(event.target.files ?? []).filter(
-            (file) => file.type === 'text/plain'
-        );
-        setState({
-            uploading: false,
-            files: selectedFiles,
-            response: '',
-            responseCode: 100,
-        });
+        const selectedFile: File | null = event.target.files ? event.target.files[0] : null;
+        if (selectedFile) {
+            setState({
+                uploading: false,
+                file: selectedFile,
+                response: '',
+                responseCode: 100,
+                documentId: '',
+            });
+        }
     };
 
     const handleFileInputClick = (event: MouseEvent<HTMLInputElement>) => {
@@ -61,20 +73,18 @@ export function Upload(): JSX.Element {
     };
 
     const sendFileToServer = async () => {
-        if (state.files) {
+        if (state.file) {
             const formData = new FormData();
-            for (const file of state.files) {
-                formData.append('files', file);
-            }
+            formData.append('file', state.file);
+            formData.append('documentId', state.documentId || 'document');
 
             let responseString: string = '';
             let responseCode: number = state.responseCode;
 
-            console.log(formData);
-
+            const requestUrl: string = API_BASE_URL+ props.urlPath;
             try {
                 const resp = await fetch(
-                    'http://localhost:3000/v1/api/uploadfiles',
+                    requestUrl,
                     {
                         method: 'POST',
                         body: formData,
@@ -85,22 +95,23 @@ export function Upload(): JSX.Element {
                 console.log('Response: ', responseJson);
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
-            } catch (err) {
+            } catch (err: unknown) {
                 console.error(err);
                 responseCode = 500;
-                responseString = JSON.stringify(err);
+                responseString = "An error occurred: " + String(err);
             } finally {
                 setState({
                     uploading: false,
-                    files: null,
+                    file: null,
                     response: responseString,
                     responseCode: responseCode,
+                    documentId: null,
                 });
             }
         }
     };
 
-    const uploadFile = () => {
+    const onUploadFile = async () => {
         if (fileInputRef.current) {
             setState({
                 ...state,
@@ -108,15 +119,13 @@ export function Upload(): JSX.Element {
             });
 
             fileInputRef.current.value = '';
-            (async () => {
-                await sendFileToServer();
-            })();
+            await sendFileToServer();
         }
     };
 
     return (
         <Box mt={1} ml={1} mr={1} mb={4}>
-            <Typography mb={1} variant={'body1'}>Upload .txt file(s) with text data for AI training</Typography>
+            <Typography mb={1} variant={'body1'}>{props.title}</Typography>
             <Button
                 component='label'
                 role={undefined}
@@ -125,30 +134,38 @@ export function Upload(): JSX.Element {
                 disabled={state.uploading}
                 startIcon={<CloudUploadIcon />}
             >
-                Upload file
+                {props.buttonText}
                 <VisuallyHiddenInput
                     type='file'
                     onClick={handleFileInputClick}
                     onChange={handleFileChange}
                     ref={fileInputRef}
-                    accept={'.txt'}
-                    multiple={true}
+                    accept={props.acceptType}
                 />
             </Button>
             {state.responseCode > 0 && (
-                <Typography variant={'body1'}>{state.response}</Typography>
+                <Box mt={2} mb={2}>
+                    <Typography variant={'body1'}>{state.response}</Typography>
+                </Box>
             )}
-            {state.files !== null && (
+            {state.file !== null && (
                 <Box mt={1} mb={1}>
-                    {state.files.map((file: File, index: number) => (
-                        <Typography
-                            key={'file_' + index}
-                            variant={'body1'}
-                            sx={{ color: 'darkcyan' }}
-                        >
-                            Uploaded file: {file.name}
-                        </Typography>
-                    ))}
+                    <Typography
+                        variant={'body1'}
+                        sx={{ color: 'darkcyan' }}
+                    >
+                        Uploaded file: {state.file.name}
+                    </Typography>
+                    <TextField
+                        id="outlined-basic"
+                        label="Data name"
+                        variant="outlined"
+                        size={'small'}
+                        sx={{mt: 2, mb: 2}}
+                        value={state.documentId}
+                        onChange={(e) => setState({...state, documentId: e.target.value})}
+                        fullWidth={true}
+                    />
                     <Box
                         display={'flex'}
                         flex={1}
@@ -160,7 +177,7 @@ export function Upload(): JSX.Element {
                             loading={state.uploading}
                             variant='contained'
                             endIcon={<SendIcon />}
-                            onClick={uploadFile}
+                            onClick={onUploadFile}
                             loadingPosition='end'
                         >
                             Send

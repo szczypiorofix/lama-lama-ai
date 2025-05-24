@@ -1,22 +1,12 @@
-import { JSX, PropsWithChildren, useState } from 'react';
+import { JSX, PropsWithChildren, useReducer } from 'react';
 
-import { defaultAppState } from '../shared/constants';
-import { AppStateModel } from '../shared/models';
-
-import { AppContext } from './AppContext.tsx';
+import { AppContext, defaultAppStateContext } from './AppContext.tsx';
+import { appContextReducer } from './AppState.reducer.ts';
 
 export function AppContextProvider(props: PropsWithChildren): JSX.Element {
-    const [contextState, setContextState] =
-        useState<AppStateModel>(defaultAppState);
+    const [state, dispatch] = useReducer(appContextReducer, defaultAppStateContext);
     return (
-        <AppContext.Provider
-            value={{
-                contextState,
-                setContextState: (state: AppStateModel) => {
-                    setContextState({ ...contextState, ...state });
-                },
-            }}
-        >
+        <AppContext.Provider value={{ state, dispatch }}>
             {props.children}
         </AppContext.Provider>
     );
