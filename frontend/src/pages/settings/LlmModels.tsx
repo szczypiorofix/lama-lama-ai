@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import { ProgressBar } from '../../components/progress-bar/ProgressBar.tsx';
 import { setBackgroundTask } from '../../context/AppActions.ts';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
-import { useFetchModels } from '../../hooks/useFetchModels.ts';
+import { useFetchLlmModels } from '../../hooks/useFetchLlmModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
 import { BackgroundTaskStatusEnum, LlmModelImageStatus } from '../../shared/enums';
 import { llmModelPurposeParser } from '../../shared/helpers/LlmModelPurposeParser.ts';
@@ -27,7 +27,12 @@ export function LlmModels() {
     const [pullImage, setPullImage] = useState<string | null>(null);
     const [deleteImage, setDeleteImage] = useState<string | null>(null);
 
-    const { error, updated, refresh, loading } = useFetchModels();
+    const {
+        error: fetchLlmModelsError,
+        updated: fetchLlmModelsUpdated,
+        refresh: fetchLlmModelsRefresh,
+        loading: fetchLlmModelsLoading
+    } = useFetchLlmModels();
     const { state, dispatch } = useGlobalAppContext();
 
     useEffect(() => {
@@ -57,7 +62,7 @@ export function LlmModels() {
 
             startModelDownload(pullImage);
         }
-    }, [dispatch, pullImage, refresh, state.llms]);
+    }, [dispatch, pullImage, fetchLlmModelsRefresh, state.llms]);
 
     useEffect(() => {
         if (deleteImage) {
@@ -81,10 +86,10 @@ export function LlmModels() {
                 })
                 .finally(() => {
                     setDeleteImage(null);
-                    refresh();
+                    fetchLlmModelsRefresh();
                 })
         }
-    }, [deleteImage, refresh]);
+    }, [deleteImage, fetchLlmModelsRefresh]);
 
     useEffect(() => {
         function startDownloadTask(name: string) {
@@ -127,7 +132,7 @@ export function LlmModels() {
                 }
                 eventSource.close();
                 setPullImage(null);
-                refresh();
+                fetchLlmModelsRefresh();
             });
 
             eventSource.onerror = (e) => {
@@ -141,7 +146,7 @@ export function LlmModels() {
                     setBackgroundTask(dispatch, backgroundTask);
                 }
                 setPullImage(null);
-                refresh();
+                fetchLlmModelsRefresh();
             };
         }
 
@@ -151,7 +156,7 @@ export function LlmModels() {
             const imageName: string = image.name + ':' + image.version;
             startDownloadTask(imageName);
         }
-    }, [dispatch, refresh, state.backgroundTask, state.backgroundTask?.status]);
+    }, [dispatch, fetchLlmModelsRefresh, state.backgroundTask, state.backgroundTask?.status]);
 
     const ModelListItem = (props: {
         image: LlmImage;
@@ -161,8 +166,8 @@ export function LlmModels() {
     }) => {
         const imageFullName: string =
             props.image.name + ':' + props.image.version;
-        const isDownloading: boolean = !updated ||
-            loading ||
+        const isDownloading: boolean = !fetchLlmModelsUpdated ||
+            fetchLlmModelsLoading ||
             pullImage !== null ||
             props.image.status == LlmModelImageStatus.DOWNLOADING ||
             props.image.status == LlmModelImageStatus.DOWNLOADED;
@@ -208,22 +213,22 @@ export function LlmModels() {
         <Box mb={1} mt={1}>
             <Button
                 variant='contained'
-                onClick={() => refresh()}
+                onClick={() => fetchLlmModelsRefresh()}
                 disabled={
-                    !updated ||
-                    loading ||
+                    !fetchLlmModelsUpdated ||
+                    fetchLlmModelsLoading ||
                     pullImage !== null ||
                     state.backgroundTask?.status === BackgroundTaskStatusEnum.RUNNING
                 }
                 loading={
-                    !updated || loading || pullImage !== null
+                    !fetchLlmModelsUpdated || fetchLlmModelsLoading || pullImage !== null
                 }
                 startIcon={<RefreshIcon />}
             >
                 Refresh list
             </Button>
         </Box>
-        {!loading && (
+        {!fetchLlmModelsLoading && (
             <List dense={false} sx={{ mb: 1 }}>
                 {state.llms.map((modelItem, index) => (
                     <ModelListItem
@@ -245,10 +250,10 @@ export function LlmModels() {
                 ))}
             </List>
         )}
-        {error && error.length > 0 && (
+        {fetchLlmModelsError && fetchLlmModelsError.length > 0 && (
             <Box mb={2} mt={2}>
                 <Typography variant={'body1'}>
-                    An error occurred: {error}
+                    An error occurred: {fetchLlmModelsError}
                 </Typography>
             </Box>
         )}

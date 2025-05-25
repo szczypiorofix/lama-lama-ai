@@ -21,7 +21,7 @@ import CardContent from '@mui/material/CardContent';
 import { DropdownList } from '../../components/dropdown-list/DropdownList.tsx';
 import { Loader } from '../../components/loader/Loader.tsx';
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
-import { useFetchModels } from '../../hooks/useFetchModels.ts';
+import { useFetchLlmModels } from '../../hooks/useFetchLlmModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
 import { LlmModelPurpose } from '../../shared/enums';
 import { LlmImage, OllamaStreamResponse } from '../../shared/models';
@@ -38,7 +38,11 @@ export function Chat(): JSX.Element {
 
     const [streaming, setStreaming] = useState(false);
 
-    const { error, updated, loading } = useFetchModels();
+    const {
+        error: fetchLlmModelsError,
+        updated: fetchLlmModelsUpdated,
+        loading: fetchLlmModelsLoading,
+    } = useFetchLlmModels();
     const { state } = useGlobalAppContext();
 
     const sendStreamRequest = async () => {
@@ -115,11 +119,11 @@ export function Chat(): JSX.Element {
     return (
         <Box pt={2}>
             <Paper elevation={1}>
-                {loading ? (
+                {fetchLlmModelsLoading ? (
                     <Loader />
                 ) : (
                     <Card sx={{ padding: 1 }}>
-                        {updated ? (
+                        {fetchLlmModelsUpdated ? (
                             <CardContent>
                                 <DropdownList
                                     values={state.llms.filter(
@@ -286,10 +290,10 @@ export function Chat(): JSX.Element {
                         )}
                     </Card>
                 )}
-                {error && (
+                {fetchLlmModelsError && (
                     <Box>
                         <Typography variant={'body1'} component={'p'}>
-                            {error}
+                            {fetchLlmModelsError}
                         </Typography>
                     </Box>
                 )}

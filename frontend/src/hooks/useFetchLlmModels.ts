@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../shared/constants';
 import { LlmModelImageStatus } from '../shared/enums';
 import { LlmImage } from '../shared/models';
 
-export const useFetchModels = (autoFetch: boolean = true) => {
+export const useFetchLlmModels = (autoFetch: boolean = true) => {
     const { dispatch } = useGlobalAppContext();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
