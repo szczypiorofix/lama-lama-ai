@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 
 import CheckIcon from '@mui/icons-material/Check';
 import PauseIcon from '@mui/icons-material/PauseCircle';
@@ -17,6 +17,8 @@ export function Home(): JSX.Element {
     const [response, setResponse] = useState('');
     const [sent, setSent] = useState(false);
     const [streaming, setStreaming] = useState(false);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioUrlRef = useRef<string>('');
     
     useEffect(() => {
         const playPiper = async () => {
@@ -47,6 +49,10 @@ export function Home(): JSX.Element {
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
+
+            audioUrlRef.current = audioUrl;
+            audioRef.current = audio;
+
             audio.play()
                 .then(() => console.log('Playing audio...'))
                 .catch(err => {
@@ -59,8 +65,13 @@ export function Home(): JSX.Element {
             audio.onended = () => {
                 console.log('Stopped playing audio.');
                 setStreaming(false);
+                if (audioUrlRef.current) {
+                    URL.revokeObjectURL(audioUrlRef.current);
+                    audioUrlRef.current = '';
+                }
             };
         };
+
         if (sent) {
             playPiper()
                 .then()
@@ -73,6 +84,17 @@ export function Home(): JSX.Element {
                     setResponse('');
                 });
         }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+            if (audioUrlRef.current) {
+                URL.revokeObjectURL(audioUrlRef.current);
+                audioUrlRef.current = '';
+            }
+        };
     }, [sent, textToRead]);
 
     return (
