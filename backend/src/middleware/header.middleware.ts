@@ -4,7 +4,9 @@ import { NextFunction, Request, Response } from 'express';
 @Injectable()
 export class HeaderMiddleware implements NestMiddleware {
     use(_: Request, res: Response, next: NextFunction) {
-        res.header('Content-Type', 'application/json');
+        if (!res.get('Content-Type')) {
+            res.header('Content-Type', 'application/json');
+        }
         next();
     }
 }
