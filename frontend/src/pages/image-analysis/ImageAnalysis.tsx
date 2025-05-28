@@ -1,4 +1,4 @@
-import { ChangeEvent, JSX, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
@@ -36,6 +36,14 @@ export function ImageAnalysis(): JSX.Element {
         previewUrl: ''
     });
 
+    useEffect(() => {
+        return () => {
+            if (state.previewUrl) {
+                URL.revokeObjectURL(state.previewUrl);
+            }
+        };
+    }, [state.previewUrl]);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +66,7 @@ export function ImageAnalysis(): JSX.Element {
             ...state,
             response: '',
             responseCode: 0,
+            previewUrl: '',
         });
     };
 
