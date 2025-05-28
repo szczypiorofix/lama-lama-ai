@@ -11,7 +11,7 @@ interface UploadState {
     file: File | null;
     response: string;
     responseCode: number;
-    documentId: string | null;
+    documentId: string;
 }
 
 export interface UploadProps {
@@ -45,7 +45,7 @@ export function Upload(props: UploadProps): JSX.Element {
         file: null,
         response: '',
         responseCode: 0,
-        documentId: null,
+        documentId: '',
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,7 +105,7 @@ export function Upload(props: UploadProps): JSX.Element {
                     file: null,
                     response: responseString,
                     responseCode: responseCode,
-                    documentId: null,
+                    documentId: '',
                 });
             }
         }
