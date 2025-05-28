@@ -16,6 +16,7 @@ import { DataModule } from './data/data.module';
 import { HistoryModule } from './history/history.module';
 import { ImageModule } from './image/image.module';
 import { ModelsModule } from './models/models.module';
+import { SttModule } from './stt/stt.module';
 import { TtsModelModule } from './tts/tts-model.module';
 import { TtsModule } from './tts-old/tts.module';
 import { UtilsModule } from './utils/utils.module';
@@ -54,6 +55,7 @@ import { ApiService } from './api.service';
         OllamaModule,
         TtsModule,
         TtsModelModule,
+        SttModule,
         RagModule,
     ],
     controllers: [ApiController],
