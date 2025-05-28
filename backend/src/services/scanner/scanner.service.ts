@@ -21,7 +21,7 @@ export class ScannerService {
         private readonly processedFileRepo: Repository<ProcessedFile>,
     ) {}
 
-    @Cron('*/60 * * * * *')
+    @Cron('0 * * * * *')
     public async handleCron() {
         if (this.isProcessing) {
             this.logger.log('Scanning is already in progress.');
