@@ -67,6 +67,14 @@ services:
     volumes:
       - tts-data:/app/model
 
+  lama_stt:
+    container_name: lama_stt
+    build: ./whisper-stt
+    ports:
+      - '8081:8081'
+    volumes:
+      - stt-data:/root/.cache/whisper
+
 volumes:
   ollama-data:
     name: lama_ollama_volume
@@ -78,5 +86,7 @@ volumes:
     name: lama_frontend_volume
   tts-data:
     name: lama_tts_volume
+  stt-data:
+    name: lama_stt_volume
   mysql_data:
     name: lama_mysql_volume
