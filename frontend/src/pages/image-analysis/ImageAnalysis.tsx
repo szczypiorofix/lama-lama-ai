@@ -1,4 +1,11 @@
-import { ChangeEvent, JSX, MouseEvent, useEffect, useRef, useState } from 'react';
+import {
+    ChangeEvent,
+    JSX,
+    MouseEvent,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
@@ -33,7 +40,7 @@ export function ImageAnalysis(): JSX.Element {
         file: null,
         response: '',
         responseCode: 0,
-        previewUrl: ''
+        previewUrl: '',
     });
 
     useEffect(() => {
@@ -47,7 +54,9 @@ export function ImageAnalysis(): JSX.Element {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const selectedFile: File | null = event.target.files ? event.target.files[0] : null;
+        const selectedFile: File | null = event.target.files
+            ? event.target.files[0]
+            : null;
         if (selectedFile) {
             const objectUrl = URL.createObjectURL(selectedFile);
             setState({
@@ -55,7 +64,7 @@ export function ImageAnalysis(): JSX.Element {
                 file: selectedFile,
                 response: '',
                 responseCode: 100,
-                previewUrl: objectUrl
+                previewUrl: objectUrl,
             });
         }
     };
@@ -79,24 +88,21 @@ export function ImageAnalysis(): JSX.Element {
             const formData = new FormData();
             formData.append('file', state.file);
 
-            const requestUrl: string = API_BASE_URL+ '/image/analyze';
+            const requestUrl: string = API_BASE_URL + '/image/analyze';
             try {
-                const resp = await fetch(
-                    requestUrl,
-                    {
-                        method: 'POST',
-                        body: formData,
-                    }
-                );
+                const resp = await fetch(requestUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
 
-                const responseJson = (await resp.json());
+                const responseJson = await resp.json();
                 console.log('Response: ', responseJson);
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
             } catch (err: any) {
                 console.error(err);
                 responseCode = 500;
-                responseString = "An error occurred: " + err.toString();
+                responseString = 'An error occurred: ' + err.toString();
             } finally {
                 setState({
                     ...state,
@@ -123,9 +129,13 @@ export function ImageAnalysis(): JSX.Element {
         <Box pt={2}>
             <Paper elevation={1}>
                 <Card sx={{ padding: 1 }}>
-                    <Typography mb={2} variant={'h5'}>Image analysis</Typography>
+                    <Typography mb={2} variant={'h5'}>
+                        Image analysis
+                    </Typography>
                     <Box mt={1} ml={1} mr={1} mb={4}>
-                        <Typography mb={1} variant={'body1'}>Upload image file AI analysis</Typography>
+                        <Typography mb={1} variant={'body1'}>
+                            Upload image file AI analysis
+                        </Typography>
                         <Button
                             component='label'
                             role={undefined}
@@ -146,17 +156,39 @@ export function ImageAnalysis(): JSX.Element {
                         </Button>
                         {state.file && state.previewUrl && (
                             <Box mt={1} mb={1}>
-                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 1, mb: 1 }}>
-                                    <img src={state.previewUrl} alt="preview" style={{ maxWidth: '240px', width: '100%', height: 'auto' }} />
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        mt: 1,
+                                        mb: 1,
+                                    }}
+                                >
+                                    <img
+                                        src={state.previewUrl}
+                                        alt='preview'
+                                        style={{
+                                            maxWidth: '240px',
+                                            width: '100%',
+                                            height: 'auto',
+                                        }}
+                                    />
                                 </Box>
                                 <Typography
                                     variant={'body1'}
-                                    sx={{ color: 'darkcyan', mb: 2, textAlign: 'center' }}
+                                    sx={{
+                                        color: 'darkcyan',
+                                        mb: 2,
+                                        textAlign: 'center',
+                                    }}
                                 >
                                     {state.file.name}
                                 </Typography>
                                 <Box mt={2} mb={2}>
-                                    <Typography align={'center'}>Describe what is in this image?</Typography>
+                                    <Typography align={'center'}>
+                                        Describe what is in this image?
+                                    </Typography>
                                 </Box>
                                 <Box
                                     display={'flex'}
@@ -179,7 +211,9 @@ export function ImageAnalysis(): JSX.Element {
                         )}
                         {state.responseCode > 0 && (
                             <Box mt={2} mb={2}>
-                                <Typography variant={'body1'}>{state.response}</Typography>
+                                <Typography variant={'body1'}>
+                                    {state.response}
+                                </Typography>
                             </Box>
                         )}
                     </Box>
