@@ -19,7 +19,9 @@ export const useFetchLlmModels = (autoFetch: boolean = true) => {
             const res = await fetch(`${API_BASE_URL}/models`);
             const data: LlmImage[] = await res.json();
             data?.forEach((llmImage: LlmImage) => {
-                llmImage.status = llmImage.downloaded ? LlmModelImageStatus.DOWNLOADED : LlmModelImageStatus.NOT_DOWNLOADED;
+                llmImage.status = llmImage.downloaded
+                    ? LlmModelImageStatus.DOWNLOADED
+                    : LlmModelImageStatus.NOT_DOWNLOADED;
             });
             changeLlmList(dispatch, data ?? []);
             setUpdated(true);
