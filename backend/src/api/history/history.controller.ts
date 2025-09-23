@@ -12,6 +12,6 @@ export class HistoryController {
 
     @Post('save')
     public async sendFileMultiple(userQuestion: string, modelAnswer: string): Promise<ChatHistoryEntity> {
-        return await this.historyService.saveChatMessage(userQuestion, modelAnswer, modelAnswer);
+        return this.historyService.saveChatMessage(userQuestion, modelAnswer, modelAnswer);
     }
 }

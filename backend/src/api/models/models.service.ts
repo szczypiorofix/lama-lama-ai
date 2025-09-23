@@ -11,15 +11,15 @@ export class ModelsService {
     constructor(private readonly ollamaService: OllamaService) {}
 
     public async getAvailableModels(): Promise<LlmModelEntity[]> {
-        return await this.ollamaService.getAvailableModels();
+        return this.ollamaService.getAvailableModels();
     }
 
     public async pullOllamaImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
-        return await this.ollamaService.pullImage(ollamaImage);
+        return this.ollamaService.pullImage(ollamaImage);
     }
 
     public async deleteOllamaImage(ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
-        return await this.ollamaService.deleteImage(ollamaImage);
+        return this.ollamaService.deleteImage(ollamaImage);
     }
 
     public pullOllamaImageStream(modelName: string): Observable<MessageEvent> {

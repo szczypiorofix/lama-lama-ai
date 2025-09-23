@@ -21,14 +21,14 @@ export class HistoryService {
             modelName,
         });
 
-        return await this.chatHistoryRepository.save(chatMessage);
+        return this.chatHistoryRepository.save(chatMessage);
     }
 
     /**
      * (Optional) Get last N chat messages
      */
     async getRecentChats(limit = 10): Promise<ChatHistoryEntity[]> {
-        return await this.chatHistoryRepository.find({
+        return this.chatHistoryRepository.find({
             order: { createdAt: 'DESC' },
             take: limit,
         });

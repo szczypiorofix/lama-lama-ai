@@ -20,17 +20,17 @@ export class ModelsController {
 
     @Get()
     public async getAvailableLLMModels(): Promise<LlmModelEntity[]> {
-        return await this.modelsService.getAvailableModels();
+        return this.modelsService.getAvailableModels();
     }
 
     @Post('pull')
     public async pullOllamaImage(@Body() ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
-        return await this.modelsService.pullOllamaImage(ollamaImage);
+        return this.modelsService.pullOllamaImage(ollamaImage);
     }
 
     @Delete('delete')
     public async deleteOllamaImage(@Body() ollamaImage: OllamaImageDto): Promise<LlmImageDownloadResponse> {
-        return await this.modelsService.deleteOllamaImage(ollamaImage);
+        return this.modelsService.deleteOllamaImage(ollamaImage);
     }
 
     @Sse('pull/:name/stream')

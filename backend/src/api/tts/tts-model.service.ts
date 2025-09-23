@@ -11,11 +11,11 @@ export class TtsModelService {
         private readonly repo: Repository<TtsModel>,
     ) {}
 
-    public findAll(): Promise<TtsModel[]> {
+    public async findAll(): Promise<TtsModel[]> {
         return this.repo.find({ where: { isActive: true } });
     }
 
-    public findByVoiceId(voiceId: string): Promise<TtsModel | null> {
+    public async findByVoiceId(voiceId: string): Promise<TtsModel | null> {
         return this.repo.findOne({ where: { voiceId } });
     }
 

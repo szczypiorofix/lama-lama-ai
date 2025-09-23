@@ -7,12 +7,12 @@ export class TtsModelController {
     constructor(private readonly modelService: TtsModelService) {}
 
     @Get()
-    public list() {
+    public async list() {
         return this.modelService.findAll();
     }
 
     @Get(':voiceId')
-    public getByVoiceId(@Param('voiceId') voiceId: string) {
+    public async getByVoiceId(@Param('voiceId') voiceId: string) {
         return this.modelService.findByVoiceId(voiceId);
     }
 }

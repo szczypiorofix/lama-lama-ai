@@ -8,6 +8,6 @@ export class DataService {
 
     public async putDataFileIntoDatabase(file: Express.Multer.File, documentId: string) {
         const content: string = file.buffer.toString('utf-8');
-        return await this.ragService.addDocument(content, documentId);
+        return this.ragService.addDocument(content, documentId);
     }
 }
