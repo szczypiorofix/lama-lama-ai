@@ -115,14 +115,6 @@ export class OllamaService implements OnModuleInit {
                     };
                     observer.next(sourcesEventData);
 
-                    void (async () => {
-                        await this.historyService.saveChatMessage(
-                            this.chatQuestion,
-                            this.chatResponse,
-                            this.currentModel,
-                        );
-                    })();
-
                     const endingEventData: OllamaStreamResponse = {
                         message: 'Response complete',
                         type: 'answer',
