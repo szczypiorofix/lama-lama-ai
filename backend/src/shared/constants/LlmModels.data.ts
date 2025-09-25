@@ -44,6 +44,16 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
     },
     {
         id: 5,
+        name: 'gemma3',
+        version: '12b',
+        downloaded: false,
+        size: 0,
+        createdAt: null,
+        updatedAi: null,
+        purpose: LlmModelPurpose.CHAT,
+    },
+    {
+        id: 6,
         name: 'qwen3',
         version: '4b',
         downloaded: false,
@@ -53,7 +63,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         purpose: LlmModelPurpose.CHAT,
     },
     {
-        id: 6,
+        id: 7,
         name: 'llama3',
         version: '8b',
         downloaded: false,
@@ -63,7 +73,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         purpose: LlmModelPurpose.CHAT,
     },
     {
-        id: 7,
+        id: 8,
         name: 'phi3',
         version: 'mini',
         downloaded: false,
@@ -73,7 +83,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         purpose: LlmModelPurpose.CHAT,
     },
     {
-        id: 8,
+        id: 9,
         name: 'codellama',
         version: '7b',
         downloaded: false,
@@ -83,7 +93,7 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         purpose: LlmModelPurpose.CODE_ANALYSIS,
     },
     {
-        id: 9,
+        id: 10,
         name: 'nomic-embed-text',
         version: 'latest',
         downloaded: false,
