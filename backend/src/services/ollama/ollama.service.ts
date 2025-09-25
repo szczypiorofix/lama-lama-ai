@@ -301,10 +301,12 @@ export class OllamaService implements OnModuleInit {
         const contextForQuery: ChromaCollectionDocuments = context && Array.isArray(context) ? context.flat() : [];
 
         const contextAsString: string = contextForQuery.join('. \n');
-        const systemQuery: string = useContextOnly
-            ? "Answer strictly based on the provided context. If the answer is not found in the context, reply with 'I don't know'. Do not use any external knowledge."
-            : 'Answer as accurately as possible, using the provided context if available. You may also use your own knowledge if needed.';
         const userQuery: string = `Context:\n${contextAsString}\n\nQuestion:\n${question}`;
+        let systemQuery: string = 'You are a helpful assistant.';
+        if (useContextOnly) {
+            systemQuery +=
+                " Answer strictly based on the provided context. If the answer is not found in the context, reply with 'I didn't found information about it in provided context'. Do not use any external knowledge.";
+        }
 
         return [
             {
