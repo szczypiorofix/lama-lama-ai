@@ -22,7 +22,7 @@ import {
 } from '../../shared/models';
 import { ChromaCollectionDocuments } from '../rag/rag.service';
 
-interface OllamaMessages {
+interface OllamaMessage {
     role: 'system' | 'user';
     content: string;
 }
@@ -63,7 +63,7 @@ export class OllamaService implements OnModuleInit {
         if (!question) {
             throw new HttpException('Question not found', HttpStatus.NOT_FOUND);
         }
-        const messages: OllamaMessages[] = this.getQueryMessages(question, context, useContextOnly);
+        const messages: OllamaMessage[] = this.getQueryMessages(question, context, useContextOnly);
 
         this.chatResponse = '';
         this.chatQuestion = question;
@@ -297,7 +297,7 @@ export class OllamaService implements OnModuleInit {
         question: string,
         context: string[] = [],
         useContextOnly: boolean = false,
-    ): OllamaMessages[] {
+    ): OllamaMessage[] {
         const contextForQuery: ChromaCollectionDocuments = context && Array.isArray(context) ? context.flat() : [];
 
         const contextAsString: string = contextForQuery.join('. \n');
