@@ -17,7 +17,7 @@ export const useFetchModels = (autoFetch: boolean = true) => {
         setError(null);
         try {
             const res = await fetch(`${API_BASE_URL}/models`);
-            const data: LlmImage[] = await res.json();
+            const data = (await res.json()) as LlmImage[];
             data?.forEach((llmImage: LlmImage) => {
                 llmImage.status = llmImage.downloaded
                     ? LlmModelImageStatus.DOWNLOADED
@@ -27,7 +27,7 @@ export const useFetchModels = (autoFetch: boolean = true) => {
             setUpdated(true);
         } catch (err: any) {
             console.error(err);
-            setError(err.toString());
+            setError(err as string);
         } finally {
             setLoading(false);
         }
@@ -35,7 +35,9 @@ export const useFetchModels = (autoFetch: boolean = true) => {
 
     useEffect(() => {
         if (autoFetch && !updated) {
-            refresh();
+            void (async () => {
+                await refresh();
+            })();
         }
     }, [autoFetch, updated, refresh]);
 

@@ -13,7 +13,7 @@ export interface LlmImage {
     updatedAi: Date | null;
 }
 
-export interface LlmImageDownloadResponse {
+export interface LlmImageUploadResponse {
     message: string;
-    success: boolean;
+    code: number;
 }

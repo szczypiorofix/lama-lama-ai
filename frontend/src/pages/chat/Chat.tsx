@@ -40,7 +40,7 @@ export function Chat(): JSX.Element {
     const { error, updated, loading } = useFetchModels();
     const { state } = useGlobalAppContext();
 
-    const sendStreamRequest = async () => {
+    const sendStreamRequest = () => {
         setResponse('');
         setResponseSources([]);
         setStreaming(true);
@@ -92,10 +92,10 @@ export function Chat(): JSX.Element {
         });
     };
 
-    const sendQuestion = async () => {
+    const sendQuestion = () => {
         setLastQuestion(inputValue);
         setLoadingAnswerResponse(true);
-        await sendStreamRequest();
+        sendStreamRequest();
     };
 
     const getSelectedModelName = (llmImage: LlmImage) => {
@@ -143,9 +143,7 @@ export function Chat(): JSX.Element {
                                             setResponse('Select a model first');
                                             return;
                                         }
-                                        (async () => {
-                                            await sendQuestion();
-                                        })();
+                                        sendQuestion();
                                     }}
                                 >
                                     <FormControlLabel

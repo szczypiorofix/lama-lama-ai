@@ -68,7 +68,7 @@ export function LlmModels() {
                 },
             })
                 .then(async (response) => {
-                    return response.json();
+                    return (await response.json()) as Promise<void>;
                 })
                 .then((resp) => {
                     console.log(resp);
@@ -78,10 +78,10 @@ export function LlmModels() {
                 })
                 .finally(() => {
                     setDeleteImage(null);
-                    refresh();
+                    refreshModels();
                 });
         }
-    }, [deleteImage, refresh]);
+    }, [deleteImage, refreshModels]);
 
     useEffect(() => {
         function startDownloadTask(name: string) {
@@ -120,7 +120,7 @@ export function LlmModels() {
                 }
                 eventSource.close();
                 setPullImage(null);
-                refresh();
+                refreshModels();
             });
 
             eventSource.onerror = (e) => {
@@ -134,7 +134,7 @@ export function LlmModels() {
                     setBackgroundTask(dispatch, backgroundTask);
                 }
                 setPullImage(null);
-                refresh();
+                refreshModels();
             };
         }
 
@@ -183,13 +183,19 @@ export function LlmModels() {
         );
     };
 
+    function refreshModels() {
+        void (async () => {
+            await refresh();
+        })();
+    }
+
     return (
         <Box>
             <Typography mb={2}>List of available local LLM models</Typography>
             <Box mb={1} mt={1}>
                 <Button
                     variant='contained'
-                    onClick={async () => refresh()}
+                    onClick={refreshModels}
                     disabled={
                         !updated ||
                         loading ||

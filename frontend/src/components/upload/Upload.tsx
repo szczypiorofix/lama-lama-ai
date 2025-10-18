@@ -107,16 +107,18 @@ export function Upload(props: UploadProps): JSX.Element {
         }
     };
 
-    const onUploadFile = async () => {
-        if (fileInputRef.current) {
-            setState({
-                ...state,
-                uploading: true,
-            });
+    const onUploadFile = () => {
+        void (async () => {
+            if (fileInputRef.current) {
+                setState({
+                    ...state,
+                    uploading: true,
+                });
 
-            fileInputRef.current.value = '';
-            await sendFileToServer();
-        }
+                fileInputRef.current.value = '';
+                await sendFileToServer();
+            }
+        })();
     };
 
     return (

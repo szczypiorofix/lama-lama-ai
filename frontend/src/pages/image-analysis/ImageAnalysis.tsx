@@ -11,7 +11,7 @@ import { useGlobalAppContext } from '../../context/AppContext.tsx';
 import { useFetchModels } from '../../hooks/useFetchModels.ts';
 import { API_BASE_URL } from '../../shared/constants';
 import { LlmModelPurpose } from '../../shared/enums';
-import { LlmImage } from '../../shared/models';
+import { LlmImage, LlmImageUploadResponse } from '../../shared/models';
 
 interface UploadState {
     uploading: boolean;
@@ -85,7 +85,7 @@ export function ImageAnalysis(): JSX.Element {
                     body: formData,
                 });
 
-                const responseJson = await resp.json();
+                const responseJson = (await resp.json()) as LlmImageUploadResponse;
                 responseString = responseJson.message;
                 responseCode = responseJson.code;
             } catch (err) {
@@ -103,16 +103,18 @@ export function ImageAnalysis(): JSX.Element {
         }
     };
 
-    const uploadFile = async () => {
-        if (fileInputRef.current && selectedModel) {
-            setState({
-                ...state,
-                uploading: true,
-            });
+    const uploadFile = () => {
+        void (async () => {
+            if (fileInputRef.current && selectedModel) {
+                setState({
+                    ...state,
+                    uploading: true,
+                });
 
-            fileInputRef.current.value = '';
-            await sendFileToServer();
-        }
+                fileInputRef.current.value = '';
+                await sendFileToServer();
+            }
+        })();
     };
 
     useEffect(() => {

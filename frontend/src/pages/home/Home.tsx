@@ -58,7 +58,7 @@ export function Home(): JSX.Element {
                 .then(() => console.log('Playing audio...'))
                 .catch((err) => {
                     console.error(err);
-                    setResponse(err.toString());
+                    setResponse(err as string);
                     setStreaming(false);
                     setSent(false);
                 });
