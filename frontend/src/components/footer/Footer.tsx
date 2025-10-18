@@ -1,5 +1,4 @@
 import { JSX, PropsWithChildren } from 'react';
-
 import { Box } from '@mui/material';
 
 type FooterProps = PropsWithChildren;

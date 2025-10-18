@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState } from 'react';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -68,7 +67,7 @@ export function LlmModels() {
                     'Content-Type': 'application/json',
                 },
             })
-                .then((response) => {
+                .then(async (response) => {
                     return response.json();
                 })
                 .then((resp) => {
@@ -190,7 +189,7 @@ export function LlmModels() {
             <Box mb={1} mt={1}>
                 <Button
                     variant='contained'
-                    onClick={() => refresh()}
+                    onClick={async () => refresh()}
                     disabled={
                         !updated ||
                         loading ||

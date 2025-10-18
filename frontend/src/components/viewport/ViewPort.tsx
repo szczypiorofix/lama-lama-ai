@@ -1,5 +1,4 @@
 import { JSX } from 'react';
-
 import { Box, Container, Divider } from '@mui/material';
 
 import { useGlobalAppContext } from '../../context/AppContext.tsx';

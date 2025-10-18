@@ -16,7 +16,7 @@
     "main": "index.js",
     "scripts": {
         "lint": "eslint .",
-        "lint-fix": "eslint \"{frontend/src,backend/src,backend/test}/**/*.ts\" --fix",
+        "lint-fix": "eslint . --fix",
         "format": "prettier --write ."
     },
     "devDependencies": {

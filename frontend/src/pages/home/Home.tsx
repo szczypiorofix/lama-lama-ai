@@ -1,5 +1,4 @@
 import { JSX, useEffect, useState } from 'react';
-
 import CheckIcon from '@mui/icons-material/Check';
 import PauseIcon from '@mui/icons-material/PauseCircle';
 import PlayIcon from '@mui/icons-material/PlayCircle';

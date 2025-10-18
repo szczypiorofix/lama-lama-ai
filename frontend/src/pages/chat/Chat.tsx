@@ -1,5 +1,4 @@
 import { JSX, useEffect, useState } from 'react';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
     Accordion,

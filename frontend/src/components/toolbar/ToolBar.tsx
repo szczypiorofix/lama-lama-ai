@@ -1,5 +1,4 @@
 import { JSX } from 'react';
-
 import MenuIcon from '@mui/icons-material/Menu';
 import { Box } from '@mui/material';
 import AppBar from '@mui/material/AppBar';

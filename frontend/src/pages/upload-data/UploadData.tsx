@@ -1,5 +1,4 @@
 import { JSX } from 'react';
-
 import { Box, Card, Paper } from '@mui/material';
 import Typography from '@mui/material/Typography';
 

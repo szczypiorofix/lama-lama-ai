@@ -1,5 +1,4 @@
 import { JSX, ReactNode, SyntheticEvent, useState } from 'react';
-
 import { Box, Tab, Tabs } from '@mui/material';
 
 function tabProps(index: number) {
