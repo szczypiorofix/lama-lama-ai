@@ -15,6 +15,8 @@ dist-ssr
 chroma
 example-data
 
+!backend/src/services/chroma
+
 scripts/__pycache__
 .venv
 scripts/data
