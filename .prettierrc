@@ -10,7 +10,7 @@
     "proseWrap": "preserve",
     "semi": true,
     "singleQuote": true,
-    "endOfLine": "crlf",
+    "endOfLine": "lf",
     "tabWidth": 4,
     "trailingComma": "all",
     "useTabs": false
