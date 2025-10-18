@@ -10,9 +10,7 @@ Piper: https://github.com/rhasspy/piper
 
 Voices: https://github.com/rhasspy/piper/blob/master/VOICES.md
 
-
 EXAMPLE ENV FILE:
-
 
 #Ollama LLM
 OLLAMA_MODEL=tinyllama
@@ -38,5 +36,5 @@ MYSQL_USERNAME=root
 MYSQL_PASSWORD=
 
 # MySQL specific envs
-MYSQL_ALLOW_EMPTY_PASSWORD=yes
 
+MYSQL_ALLOW_EMPTY_PASSWORD=yes

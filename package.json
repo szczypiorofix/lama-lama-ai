@@ -1,0 +1,34 @@
+{
+    "name": "lama-lama-ai",
+    "version": "1.0.0",
+    "description": "Lama Lama AI main module",
+    "homepage": "https://github.com/szczypiorofix/lama-lama-ai#readme",
+    "bugs": {
+        "url": "https://github.com/szczypiorofix/lama-lama-ai/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/szczypiorofix/lama-lama-ai.git"
+    },
+    "license": "MIT",
+    "author": "szczypiorofix",
+    "type": "commonjs",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint .",
+        "lint-fix": "eslint \"{frontend/src,backend/src,backend/test}/**/*.ts\" --fix",
+        "format": "prettier --write ."
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/js": "^9.18.0",
+        "eslint": "^9.18.0",
+        "eslint-config-prettier": "^10.0.1",
+        "eslint-plugin-prettier": "^5.2.2",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
+        "prettier": "^3.4.2",
+        "globals": "^16.0.0",
+        "typescript": "^5.7.3",
+        "typescript-eslint": "^8.20.0"
+    }
+}

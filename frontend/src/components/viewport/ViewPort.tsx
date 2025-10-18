@@ -20,9 +20,7 @@ export function ViewPort(): JSX.Element {
         <Box>
             <ToolBar />
             <SideNav />
-            <Container maxWidth='lg'>
-                {resolveView(state.view)}
-            </Container>
+            <Container maxWidth='lg'>{resolveView(state.view)}</Container>
             <Box mt={3}></Box>
             <Divider />
             <Footer>Lama Lama AI</Footer>

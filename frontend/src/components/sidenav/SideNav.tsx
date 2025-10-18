@@ -1,14 +1,6 @@
 import { JSX } from 'react';
 
-import {
-    Box,
-    Divider,
-    Drawer,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-} from '@mui/material';
+import { Box, Divider, Drawer, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import localLlamaImage from '../../assets/images/local_llama.jpg';
@@ -28,15 +20,12 @@ export function SideNav(): JSX.Element {
     const DrawerList = (
         <Box sx={{ width: 260 }} role='presentation'>
             <Box sx={{ p: 2, textAlign: 'center', borderBottom: '1px solid #ccc' }}>
-                <img src={localLlamaImage} alt="Logo Lama Lama AI" style={{ width: '100px' }} />
-                <Typography variant="h6">Lama Lama AI</Typography>
+                <img src={localLlamaImage} alt='Logo Lama Lama AI' style={{ width: '100px' }} />
+                <Typography variant='h6'>Lama Lama AI</Typography>
             </Box>
             {getAllRoutesAsList().map((route, index) => (
                 <ListItem key={index} disablePadding>
-                    <ListItemButton
-                        selected={route.view === state.view}
-                        onClick={() => changeView(route)}
-                    >
+                    <ListItemButton selected={route.view === state.view} onClick={() => changeView(route)}>
                         <ListItemIcon>{route.icon}</ListItemIcon>
                         <ListItemText primary={route.name} />
                     </ListItemButton>

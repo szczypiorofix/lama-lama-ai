@@ -1,11 +1,4 @@
-import {
-    ChangeEvent,
-    JSX,
-    MouseEvent,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import { ChangeEvent, JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
@@ -56,9 +49,7 @@ export function ImageAnalysis(): JSX.Element {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const selectedFile: File | null = event.target.files
-            ? event.target.files[0]
-            : null;
+        const selectedFile: File | null = event.target.files ? event.target.files[0] : null;
         if (selectedFile) {
             const objectUrl = URL.createObjectURL(selectedFile);
             setState({
@@ -128,7 +119,7 @@ export function ImageAnalysis(): JSX.Element {
     useEffect(() => {
         if (globalState.llms.length > 0) {
             const foundModel: LlmImage | undefined = globalState.llms.find(
-                (item) => item.purpose == LlmModelPurpose.IMAGE_ANALYSIS && item.downloaded
+                (item) => item.purpose == LlmModelPurpose.IMAGE_ANALYSIS && item.downloaded,
             );
             if (foundModel) {
                 setSelectedModel(getSelectedModelName(foundModel));
@@ -161,17 +152,13 @@ export function ImageAnalysis(): JSX.Element {
                                     <DropdownList
                                         values={globalState.llms.filter(
                                             (model) =>
-                                                model.downloaded &&
-                                                model.purpose ==
-                                                    LlmModelPurpose.IMAGE_ANALYSIS
+                                                model.downloaded && model.purpose == LlmModelPurpose.IMAGE_ANALYSIS,
                                         )}
                                         getLabel={(item) => {
                                             return getSelectedModelName(item);
                                         }}
                                         onSelect={(item) => {
-                                            setSelectedModel(
-                                                getSelectedModelName(item)
-                                            );
+                                            setSelectedModel(getSelectedModelName(item));
                                         }}
                                         label={'Select LLM'}
                                     />
@@ -185,9 +172,7 @@ export function ImageAnalysis(): JSX.Element {
                                         role={undefined}
                                         variant='contained'
                                         tabIndex={-1}
-                                        disabled={
-                                            state.uploading || !selectedModel
-                                        }
+                                        disabled={state.uploading || !selectedModel}
                                         startIcon={<CloudUploadIcon />}
                                     >
                                         Upload image
@@ -233,8 +218,7 @@ export function ImageAnalysis(): JSX.Element {
                                             </Typography>
                                             <Box mt={2} mb={2}>
                                                 <Typography align={'center'}>
-                                                    Describe what is in this
-                                                    image?
+                                                    Describe what is in this image?
                                                 </Typography>
                                             </Box>
                                             <Box
@@ -258,9 +242,7 @@ export function ImageAnalysis(): JSX.Element {
                                     )}
                                     {state.responseCode > 0 && (
                                         <Box mt={2} mb={2}>
-                                            <Typography variant={'body1'}>
-                                                {state.response}
-                                            </Typography>
+                                            <Typography variant={'body1'}>{state.response}</Typography>
                                         </Box>
                                     )}
                                 </Box>

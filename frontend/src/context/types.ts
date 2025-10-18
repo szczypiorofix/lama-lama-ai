@@ -17,6 +17,6 @@ export interface AppContextModel {
 
 export type Action =
     | { type: 'CHANGE_LLM_LIST'; payload: LlmImage[] }
-    | { type: 'SIDENAV_TOGGLE', payload: boolean }
-    | { type: 'ADD_BACKGROUND_TASK', payload: BackgroundTask<unknown> }
-    | { type: 'CHANGE_VIEW', payload: APP_VIEW };
+    | { type: 'SIDENAV_TOGGLE'; payload: boolean }
+    | { type: 'ADD_BACKGROUND_TASK'; payload: BackgroundTask<unknown> }
+    | { type: 'CHANGE_VIEW'; payload: APP_VIEW };

@@ -2,10 +2,7 @@ import { BackgroundTask } from '../shared/models';
 
 import { Action, AppStateModel } from './types.ts';
 
-export function appContextReducer(
-    state: AppStateModel,
-    action: Action
-): AppStateModel {
+export function appContextReducer(state: AppStateModel, action: Action): AppStateModel {
     switch (action.type) {
         case 'SIDENAV_TOGGLE':
             return { ...state, isSideNavOpen: action.payload };

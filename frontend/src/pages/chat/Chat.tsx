@@ -67,7 +67,7 @@ export function Chat(): JSX.Element {
                         setResponseSources(responseMessage.sources);
                     }
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error(err);
                 setResponse('Connection error: ' + JSON.stringify(err));
             }
@@ -123,17 +123,10 @@ export function Chat(): JSX.Element {
                             <CardContent>
                                 <DropdownList
                                     values={state.llms.filter(
-                                        (model) =>
-                                            model.downloaded &&
-                                            model.purpose ==
-                                                LlmModelPurpose.CHAT
+                                        (model) => model.downloaded && model.purpose == LlmModelPurpose.CHAT,
                                     )}
-                                    getLabel={(item) =>
-                                        getSelectedModelName(item)
-                                    }
-                                    onSelect={(item) =>
-                                        setSelectedModel(getSelectedModelName(item))
-                                    }
+                                    getLabel={(item) => getSelectedModelName(item)}
+                                    onSelect={(item) => setSelectedModel(getSelectedModelName(item))}
                                     label={'Select LLM'}
                                 />
                                 <Box
@@ -160,34 +153,22 @@ export function Chat(): JSX.Element {
                                         control={
                                             <Checkbox
                                                 value={strictAnswer}
-                                                onChange={(e) =>
-                                                    setStrictAnswer(
-                                                        e.currentTarget.checked
-                                                    )
-                                                }
+                                                onChange={(e) => setStrictAnswer(e.currentTarget.checked)}
                                             />
                                         }
                                         label='Strict answer (distance threshold < 0.6, default: 1.0)'
-                                        disabled={
-                                            loadingAnswerResponse || streaming
-                                        }
+                                        disabled={loadingAnswerResponse || streaming}
                                     />
                                     <FormControlLabel
                                         sx={{ mb: 1 }}
                                         control={
                                             <Checkbox
                                                 value={useContextOnly}
-                                                onChange={(e) =>
-                                                    setUseContextOnly(
-                                                        e.currentTarget.checked
-                                                    )
-                                                }
+                                                onChange={(e) => setUseContextOnly(e.currentTarget.checked)}
                                             />
                                         }
                                         label='Use trained context only'
-                                        disabled={
-                                            loadingAnswerResponse || streaming
-                                        }
+                                        disabled={loadingAnswerResponse || streaming}
                                     />
                                     <ButtonGroup
                                         variant='contained'
@@ -204,30 +185,21 @@ export function Chat(): JSX.Element {
                                             label='Write a question'
                                             variant='outlined'
                                             value={inputValue}
-                                            onChange={(e) =>
-                                                setInputValue(e.target.value)
-                                            }
+                                            onChange={(e) => setInputValue(e.target.value)}
                                             fullWidth={true}
-                                            disabled={
-                                                loadingAnswerResponse ||
-                                                streaming
-                                            }
+                                            disabled={loadingAnswerResponse || streaming}
                                             required={true}
                                         />
                                         <Button
                                             variant='contained'
                                             type='submit'
-                                            disabled={
-                                                loadingAnswerResponse ||
-                                                streaming
-                                            }
+                                            disabled={loadingAnswerResponse || streaming}
                                         >
                                             Send
                                         </Button>
                                     </ButtonGroup>
                                 </Box>
-                                {(loadingAnswerResponse ||
-                                    (response.length === 0 && streaming)) && (
+                                {(loadingAnswerResponse || (response.length === 0 && streaming)) && (
                                     <Box
                                         mt={8}
                                         mb={4}
@@ -266,18 +238,20 @@ export function Chat(): JSX.Element {
                                         <Typography mb={1} variant={'body1'} component={'div'} fontWeight={'bold'}>
                                             Found {responseSources.length} source(s):
                                         </Typography>
-                                        { responseSources.map((source, index) => <Accordion key={index}>
-                                            <AccordionSummary
-                                                expandIcon={<ExpandMoreIcon />}
-                                                aria-controls="panel1-content"
-                                                id="panel1-header"
-                                            >
-                                                <Typography component="span">Source {index + 1}</Typography>
-                                            </AccordionSummary>
-                                            <AccordionDetails>
-                                                <Typography variant={'body2'}>{source}</Typography>
-                                            </AccordionDetails>
-                                        </Accordion>) }
+                                        {responseSources.map((source, index) => (
+                                            <Accordion key={index}>
+                                                <AccordionSummary
+                                                    expandIcon={<ExpandMoreIcon />}
+                                                    aria-controls='panel1-content'
+                                                    id='panel1-header'
+                                                >
+                                                    <Typography component='span'>Source {index + 1}</Typography>
+                                                </AccordionSummary>
+                                                <AccordionDetails>
+                                                    <Typography variant={'body2'}>{source}</Typography>
+                                                </AccordionDetails>
+                                            </Accordion>
+                                        ))}
                                     </Box>
                                 )}
                             </CardContent>

@@ -6,11 +6,12 @@
     "insertPragma": false,
     "jsxBracketSameLine": false,
     "jsxSingleQuote": true,
-    "printWidth": 80,
+    "printWidth": 120,
     "proseWrap": "preserve",
     "semi": true,
     "singleQuote": true,
+    "endOfLine": "crlf",
     "tabWidth": 4,
-    "trailingComma": "es5",
+    "trailingComma": "all",
     "useTabs": false
 }
