@@ -7,7 +7,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 
 import { ProcessedFile } from '../../entities';
-import { RagService } from '../rag/rag.service';
+import { ChromaService } from '../chroma/chroma.service';
 
 @Injectable()
 export class ScannerService {
@@ -17,7 +17,7 @@ export class ScannerService {
     private readonly MAX_BYTES_PER_RUN: number;
 
     constructor(
-        private readonly ragService: RagService,
+        private readonly chromaService: ChromaService,
         private configService: ConfigService,
         @InjectRepository(ProcessedFile)
         private readonly processedFileRepo: Repository<ProcessedFile>,
@@ -85,7 +85,7 @@ export class ScannerService {
         try {
             const content = await fs.readFile(filePath, 'utf-8');
 
-            await this.ragService.addDocument(content, filename);
+            await this.chromaService.addDocuments(content, filename);
 
             await this.processedFileRepo.save({
                 filename: filename,
