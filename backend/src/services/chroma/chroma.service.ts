@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ChromaClient, Collection, OllamaEmbeddingFunction } from 'chromadb';
+import { ChromaClient, Collection, OllamaEmbeddingFunction, QueryResponse } from 'chromadb';
 
 @Injectable()
 export class ChromaService implements OnModuleInit {
@@ -41,7 +41,7 @@ export class ChromaService implements OnModuleInit {
         }
     }
 
-    async addDocuments(content: string, documentId: string) {
+    async addDocuments(content: string, documentId: string): Promise<void> {
         await this.collection.add({
             documents: [content],
             ids: [documentId],
@@ -50,12 +50,12 @@ export class ChromaService implements OnModuleInit {
         this.logger.log('Added document(s).');
     }
 
-    async queryDocuments(queryText: string) {
+    async queryDocuments(queryText: string): Promise<QueryResponse> {
         if (!this.collection) {
             throw new Error('Chroma collection was not initialized.');
         }
 
-        const results = await this.collection.query({
+        const results: QueryResponse = await this.collection.query({
             queryTexts: [queryText],
             nResults: 1,
         });
