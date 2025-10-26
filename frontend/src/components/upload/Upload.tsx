@@ -1,5 +1,4 @@
-import { ChangeEvent, JSX, MouseEvent,useRef, useState } from 'react';
-
+import { ChangeEvent, JSX, MouseEvent, useRef, useState } from 'react';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, styled, TextField, Typography } from '@mui/material';
@@ -81,15 +80,12 @@ export function Upload(props: UploadProps): JSX.Element {
             let responseString: string = '';
             let responseCode: number = state.responseCode;
 
-            const requestUrl: string = API_BASE_URL+ props.urlPath;
+            const requestUrl: string = API_BASE_URL + props.urlPath;
             try {
-                const resp = await fetch(
-                    requestUrl,
-                    {
-                        method: 'POST',
-                        body: formData,
-                    }
-                );
+                const resp = await fetch(requestUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
 
                 const responseJson = (await resp.json()) as UploadResponse;
                 console.log('Response: ', responseJson);
@@ -98,7 +94,7 @@ export function Upload(props: UploadProps): JSX.Element {
             } catch (err: unknown) {
                 console.error(err);
                 responseCode = 500;
-                responseString = "An error occurred: " + String(err);
+                responseString = 'An error occurred: ' + String(err);
             } finally {
                 setState({
                     uploading: false,
@@ -111,21 +107,25 @@ export function Upload(props: UploadProps): JSX.Element {
         }
     };
 
-    const onUploadFile = async () => {
-        if (fileInputRef.current) {
-            setState({
-                ...state,
-                uploading: true,
-            });
+    const onUploadFile = () => {
+        void (async () => {
+            if (fileInputRef.current) {
+                setState({
+                    ...state,
+                    uploading: true,
+                });
 
-            fileInputRef.current.value = '';
-            await sendFileToServer();
-        }
+                fileInputRef.current.value = '';
+                await sendFileToServer();
+            }
+        })();
     };
 
     return (
         <Box mt={1} ml={1} mr={1} mb={4}>
-            <Typography mb={1} variant={'body1'}>{props.title}</Typography>
+            <Typography mb={1} variant={'body1'}>
+                {props.title}
+            </Typography>
             <Button
                 component='label'
                 role={undefined}
@@ -150,29 +150,20 @@ export function Upload(props: UploadProps): JSX.Element {
             )}
             {state.file !== null && (
                 <Box mt={1} mb={1}>
-                    <Typography
-                        variant={'body1'}
-                        sx={{ color: 'darkcyan' }}
-                    >
+                    <Typography variant={'body1'} sx={{ color: 'darkcyan' }}>
                         Uploaded file: {state.file.name}
                     </Typography>
                     <TextField
-                        id="outlined-basic"
-                        label="Data name"
-                        variant="outlined"
+                        id='outlined-basic'
+                        label='Data name'
+                        variant='outlined'
                         size={'small'}
-                        sx={{mt: 2, mb: 2}}
+                        sx={{ mt: 2, mb: 2 }}
                         value={state.documentId}
-                        onChange={(e) => setState({...state, documentId: e.target.value})}
+                        onChange={(e) => setState({ ...state, documentId: e.target.value })}
                         fullWidth={true}
                     />
-                    <Box
-                        display={'flex'}
-                        flex={1}
-                        flexGrow={1}
-                        flexDirection={'row'}
-                        justifyContent={'center'}
-                    >
+                    <Box display={'flex'} flex={1} flexGrow={1} flexDirection={'row'} justifyContent={'center'}>
                         <Button
                             loading={state.uploading}
                             variant='contained'

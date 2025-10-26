@@ -100,6 +100,6 @@ export const DEFAULT_LLM_MODELS: LlmModelEntity[] = [
         size: 0,
         createdAt: null,
         updatedAi: null,
-        purpose: LlmModelPurpose.CHAT,
+        purpose: LlmModelPurpose.EMBEDDING,
     },
 ];

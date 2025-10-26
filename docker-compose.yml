@@ -1,82 +1,82 @@
 version: '3.8'
 services:
-  chromadb:
-    container_name: lama_chroma
-    image: chromadb/chroma:latest
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/data
+    chromadb:
+        container_name: lama_chroma
+        image: chromadb/chroma:latest
+        ports:
+            - '8000:8000'
+        volumes:
+            - chroma_data:/data
 
-  lama_backend:
-    container_name: lama_backend
-    build: ./backend
-    ports:
-      - '3000:3000'
-    depends_on:
-      chromadb:
-        condition: service_started
-      lama_mysql:
-        condition: service_healthy
-    env_file:
-      - backend/.env
-    volumes:
-      - backend-data:/app
+    lama_backend:
+        container_name: lama_backend
+        build: ./backend
+        ports:
+            - '3000:3000'
+        depends_on:
+            chromadb:
+                condition: service_started
+            lama_mysql:
+                condition: service_healthy
+        env_file:
+            - backend/.env
+        volumes:
+            - backend-data:/app
 
-  lama_mysql:
-    container_name: lama_mysql
-    image: mysql:8.0
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    env_file:
-      - backend/.env
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    lama_mysql:
+        container_name: lama_mysql
+        image: mysql:8.0
+        restart: unless-stopped
+        ports:
+            - '3306:3306'
+        env_file:
+            - backend/.env
+        volumes:
+            - mysql_data:/var/lib/mysql
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
-  ollama:
-    container_name: lama_ollama
-    image: ollama/ollama
-    volumes:
-      - ollama-data:/root/.ollama
-    ports:
-      - "11434:11434"
+    ollama:
+        container_name: lama_ollama
+        image: ollama/ollama
+        volumes:
+            - ollama-data:/root/.ollama
+        ports:
+            - '11434:11434'
 
-  lama_frontend:
-    container_name: lama_frontend
-    build: ./frontend
-    ports:
-      - '5173:5173'
-    depends_on:
-      - lama_backend
-    volumes:
-      - frontend-data:/app
-    stdin_open: true
-    tty: true
+    lama_frontend:
+        container_name: lama_frontend
+        build: ./frontend
+        ports:
+            - '5173:5173'
+        depends_on:
+            - lama_backend
+        volumes:
+            - frontend-data:/app
+        stdin_open: true
+        tty: true
 
-  lama_tts:
-    container_name: lama_tts
-    build: ./piper-tts
-    ports:
-      - '8080:8080'
-    volumes:
-      - tts-data:/app/model
+    lama_tts:
+        container_name: lama_tts
+        build: ./piper-tts
+        ports:
+            - '8080:8080'
+        volumes:
+            - tts-data:/app/model
 
 volumes:
-  ollama-data:
-    name: lama_ollama_volume
-  chroma_data:
-    name: lama_chroma_volume
-  backend-data:
-    name: lama_backend_volume
-  frontend-data:
-    name: lama_frontend_volume
-  tts-data:
-    name: lama_tts_volume
-  mysql_data:
-    name: lama_mysql_volume
+    ollama-data:
+        name: lama_ollama_volume
+    chroma_data:
+        name: lama_chroma_volume
+    backend-data:
+        name: lama_backend_volume
+    frontend-data:
+        name: lama_frontend_volume
+    tts-data:
+        name: lama_tts_volume
+    mysql_data:
+        name: lama_mysql_volume

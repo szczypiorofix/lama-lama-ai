@@ -1,5 +1,4 @@
 import { JSX, ReactNode, SyntheticEvent, useState } from 'react';
-
 import { Box, Tab, Tabs } from '@mui/material';
 
 function tabProps(index: number) {
@@ -28,7 +27,7 @@ function CustomTabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
     return (
         <div
-            role="tabpanel"
+            role='tabpanel'
             hidden={value !== index}
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
@@ -49,17 +48,20 @@ export function PanelTabs(props: PanelTabsProps): JSX.Element {
         setValue(newValue);
     };
 
-    return <Box>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            { tabs.map((tab, index) => {
-                return (<Tab key={index} label={tab.label} {...tabProps(index)} />)
-            }) }
-        </Tabs>
-        { tabs.map((tab, index) => {
-            return <CustomTabPanel key={index} value={value} index={index}>
-                {tab.content}
-            </CustomTabPanel>
-        })}
-
-    </Box>
+    return (
+        <Box>
+            <Tabs value={value} onChange={handleChange} aria-label='basic tabs example'>
+                {tabs.map((tab, index) => {
+                    return <Tab key={index} label={tab.label} {...tabProps(index)} />;
+                })}
+            </Tabs>
+            {tabs.map((tab, index) => {
+                return (
+                    <CustomTabPanel key={index} value={value} index={index}>
+                        {tab.content}
+                    </CustomTabPanel>
+                );
+            })}
+        </Box>
+    );
 }

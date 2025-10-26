@@ -1,10 +1,5 @@
 import { JSX } from 'react';
-
-import {
-    Box,
-    Card,
-    Paper,
-} from '@mui/material';
+import { Box, Card, Paper } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import { PanelTabs } from '../../components/tabs/PanelTabs.tsx';
@@ -13,7 +8,6 @@ import { LlmModels } from './LlmModels.tsx';
 import { SpeakingModels } from './SpeakingModels.tsx';
 
 export function Settings(): JSX.Element {
-
     return (
         <Box pt={2}>
             <Paper elevation={1}>
@@ -31,7 +25,7 @@ export function Settings(): JSX.Element {
                             {
                                 label: 'Speaking models',
                                 content: <SpeakingModels />,
-                            }
+                            },
                         ]}
                     ></PanelTabs>
                 </Card>

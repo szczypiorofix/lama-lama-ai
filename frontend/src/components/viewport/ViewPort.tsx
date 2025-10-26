@@ -1,5 +1,4 @@
 import { JSX } from 'react';
-
 import { Box, Container, Divider } from '@mui/material';
 
 import { useGlobalAppContext } from '../../context/AppContext.tsx';
@@ -20,9 +19,7 @@ export function ViewPort(): JSX.Element {
         <Box>
             <ToolBar />
             <SideNav />
-            <Container maxWidth='lg'>
-                {resolveView(state.view)}
-            </Container>
+            <Container maxWidth='lg'>{resolveView(state.view)}</Container>
             <Box mt={3}></Box>
             <Divider />
             <Footer>Lama Lama AI</Footer>

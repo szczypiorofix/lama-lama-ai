@@ -170,7 +170,7 @@ export class OllamaService implements OnModuleInit {
                                     const pullingImage: PullingImageModel = JSON.parse(line) as PullingImageModel;
                                     observer.next({ data: pullingImage });
                                 } catch (err) {
-                                    console.error(err);
+                                    this.logger.error(err);
                                     const me: MessageEvent = {
                                         data: `Error: Invalid JSON: ${line}`,
                                         type: 'error',
@@ -197,7 +197,7 @@ export class OllamaService implements OnModuleInit {
                         observer.error({ event: 'error', data: err.message });
                     });
                 })
-                .catch((err) => console.error(err));
+                .catch((err) => this.logger.error(err));
         } catch (err: unknown) {
             const error = err as Error;
             observer.error({ event: 'error', data: error.message });
@@ -215,7 +215,7 @@ export class OllamaService implements OnModuleInit {
             })
             .toPromise();
 
-        console.log('Pull image response data: ', response?.data);
+        this.logger.log('Pull image response data: ', response?.data);
 
         return {
             message: 'Image downloaded successfully.',
@@ -229,7 +229,7 @@ export class OllamaService implements OnModuleInit {
             model: ollamaImage.name,
         };
 
-        console.log(payload);
+        this.logger.log(payload);
 
         const response = await this.httpService
             .delete(requestUrl, {
@@ -238,7 +238,7 @@ export class OllamaService implements OnModuleInit {
             })
             .toPromise();
 
-        console.log('Delete image image response data: ', response?.data);
+        this.logger.log('Delete image image response data: ', response?.data);
 
         return {
             message: 'Image deleted successfully.',

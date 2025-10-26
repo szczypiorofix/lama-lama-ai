@@ -3,5 +3,5 @@ export enum BackgroundTaskStatusEnum {
     RUNNING,
     SUSPENDED,
     ABORTED,
-    FINISHED
+    FINISHED,
 }

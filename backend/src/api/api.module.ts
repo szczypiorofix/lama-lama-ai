@@ -9,6 +9,7 @@ import databaseRegisteredConfig, { DatabaseConfig, defaultDatabaseConfig } from 
 import { ChatHistoryEntity, LlmModelEntity, ProcessedFile } from '../entities';
 import { HeaderMiddleware } from '../middleware/header.middleware';
 import { LoggerMiddleware } from '../middleware/logger.middleware';
+import { ChromaModule } from '../services/chroma/chroma.module';
 import { ScannerModule } from '../services/scanner/scanner.module';
 
 import { ChatModule } from './chat/chat.module';
@@ -55,7 +56,7 @@ import { ApiService } from './api.service';
         TtsModule,
         TtsModelModule,
         RagModule,
-        ScannerModule,
+        ChromaModule,
     ],
     controllers: [ApiController],
     providers: [ApiService],

@@ -9,9 +9,6 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
-        "lint": "eslint .",
-        "lint-fix": "eslint . --fix",
-        "format": "prettier --write .",
         "preview": "vite preview",
         "test": "vitest run",
         "test-watch": "vitest"
@@ -45,7 +42,7 @@
         "globals": "^15.14.0",
         "jsdom": "^26.0.0",
         "prettier": "3.5.0",
-        "typescript": "~5.7.2",
+        "typescript": "^5.7.3",
         "typescript-eslint": "^8.22.0",
         "vite": "^6.1.0",
         "vitest": "^3.0.5"

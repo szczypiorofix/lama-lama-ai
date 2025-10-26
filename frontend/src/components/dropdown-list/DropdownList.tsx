@@ -1,5 +1,4 @@
 import { JSX, useState } from 'react';
-
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -13,12 +12,12 @@ interface DropdownListProps<T> {
     label?: string;
 }
 
-export function DropdownList<T,>(props: DropdownListProps<T>): JSX.Element {
+export function DropdownList<T>(props: DropdownListProps<T>): JSX.Element {
     const { values, getLabel, onSelect, label = 'Select' } = props;
     const [selectedValue, setSelectedValue] = useState<T>(values[0]);
 
     const handleChange = (event: SelectChangeEvent<string>) => {
-        const selectedItem = values.find(item => getLabel(item) === event.target.value);
+        const selectedItem = values.find((item) => getLabel(item) === event.target.value);
         if (selectedItem) {
             setSelectedValue(selectedItem);
             onSelect(selectedItem);
@@ -28,10 +27,10 @@ export function DropdownList<T,>(props: DropdownListProps<T>): JSX.Element {
     return (
         <Box sx={{ maxWidth: 300, mb: 2 }}>
             <FormControl fullWidth>
-                <InputLabel id="dropdown-list-label">{label}</InputLabel>
+                <InputLabel id='dropdown-list-label'>{label}</InputLabel>
                 <Select
-                    labelId="dropdown-list-label"
-                    id="dropdown-list"
+                    labelId='dropdown-list-label'
+                    id='dropdown-list'
                     value={getLabel(selectedValue)}
                     label={label}
                     onChange={handleChange}

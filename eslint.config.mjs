@@ -7,7 +7,15 @@ import eslintSimpleSort from 'eslint-plugin-simple-import-sort';
 
 export default tseslint.config(
     {
-        ignores: ['eslint.config.mjs', 'dist'],
+        ignores: [
+            'eslint.config.mjs',
+            'backend/dist',
+            'frontend/dist',
+            'frontend/vitest.config.js',
+            'backend/node_modules/**',
+            'frontend/node_modules/**',
+            'piper-tts/server.js',
+        ],
     },
     eslint.configs.recommended,
     ...tseslint.configs.recommendedTypeChecked,
@@ -28,16 +36,16 @@ export default tseslint.config(
     },
     {
         plugins: {
-            'simple-import-sort': eslintSimpleSort
+            'simple-import-sort': eslintSimpleSort,
         },
         rules: {
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-floating-promises': 'warn',
             '@typescript-eslint/no-unsafe-argument': 'warn',
-            "@typescript-eslint/return-await": "error",
-            "@typescript-eslint/require-await": "error",
-            "@typescript-eslint/await-thenable": "error",
-            "@typescript-eslint/promise-function-async": "error",
+            '@typescript-eslint/return-await': 'error',
+            '@typescript-eslint/require-await': 'error',
+            '@typescript-eslint/await-thenable': 'error',
+            '@typescript-eslint/promise-function-async': 'error',
             'prettier/prettier': [
                 'error',
                 {
@@ -49,6 +57,7 @@ export default tseslint.config(
                 {
                     groups: [
                         ['^@nestjs', '^\\w', 'fs', 'path'],
+                        ['^react(/.*|$)', '^@mui'],
                         ['^@lib(/.*|$)'],
                         ['^@utils(/.*|$)'],
                         ['^@services(/.*|$)'],
