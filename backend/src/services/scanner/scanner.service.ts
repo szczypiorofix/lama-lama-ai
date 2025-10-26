@@ -84,8 +84,10 @@ export class ScannerService {
         this.logger.log(`Processing file: ${filename} (${fileSize} bytes)`);
         try {
             const content = await fs.readFile(filePath, 'utf-8');
+            const contents: string[] = [content.trim()];
+            const documentIds: string[] = [filename];
 
-            await this.chromaService.addDocuments(content, filename);
+            await this.chromaService.addDocuments(contents, documentIds);
 
             await this.processedFileRepo.save({
                 filename: filename,

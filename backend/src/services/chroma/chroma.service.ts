@@ -54,13 +54,13 @@ export class ChromaService implements OnModuleInit {
         }
     }
 
-    async addDocuments(content: string, documentId: string): Promise<void> {
+    async addDocuments(contents: string[], documentIds: string[]): Promise<void> {
         await this.collection.add({
-            documents: [content],
-            ids: [documentId],
+            documents: contents,
+            ids: documentIds,
         });
 
-        this.logger.log('Added document(s).');
+        this.logger.log(`Added ${contents.length} document(s).`);
     }
 
     async queryDocuments(chatQuestion: ChatQuestionDto): Promise<string[]> {

@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { RagService } from '../../services/rag/rag.service';
+import { ChromaService } from '../../services/chroma/chroma.service';
 
 @Injectable()
 export class DataService {
-    constructor(private ragService: RagService) {}
+    constructor(private chromaService: ChromaService) {}
 
     public async putDataFileIntoDatabase(file: Express.Multer.File, documentId: string) {
         const content: string = file.buffer.toString('utf-8');
-        return this.ragService.addDocument(content, documentId);
+        const contents: string[] = [content.trim()];
+        const documentIds: string[] = [documentId];
+        return this.chromaService.addDocuments(contents, documentIds);
     }
 }

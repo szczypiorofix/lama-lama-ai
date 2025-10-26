@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { RagModule } from '../../services/rag/rag.module';
+import { ChromaModule } from '../../services/chroma/chroma.module';
 
 import { DataController } from './data.controller';
 import { DataService } from './data.service';
 
 @Module({
-    imports: [RagModule],
+    imports: [ChromaModule],
     controllers: [DataController],
     providers: [DataService],
 })
