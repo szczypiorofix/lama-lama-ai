@@ -2,15 +2,28 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChromaClient, Collection, OllamaEmbeddingFunction, QueryResponse } from 'chromadb';
 
+import { ChatQuestionDto } from '../../dto/chatQuestion.dto';
+
+function filterDocumentsWithMaxDistance(query: QueryResponse, maxDistance: number): string[] {
+    const flatDocs: (string | null)[] = query.documents.flat();
+    const flatDistances: (number | null)[] = query.distances ? query.distances.flat() : [];
+    return flatDocs
+        .filter((doc, i) => flatDistances[i] !== null && flatDistances[i] < maxDistance)
+        .map((doc) => doc || '');
+}
+
 @Injectable()
 export class ChromaService implements OnModuleInit {
-    private readonly logger = new Logger(ChromaService.name);
+    private readonly logger: Logger = new Logger(ChromaService.name);
 
     private chromaClient: ChromaClient;
     private collection: Collection;
 
     private readonly OLLAMA_URL: string;
     private readonly EMBEDDING_MODEL: string;
+
+    private readonly DISTANCE_THRESHOLD = 1.0;
+    private readonly DISTANCE_THRESHOLD_STRICT = 0.65;
 
     private readonly CHROMA_URL: string;
     private readonly COLLECTION_NAME = 'my_collection';
@@ -50,18 +63,24 @@ export class ChromaService implements OnModuleInit {
         this.logger.log('Added document(s).');
     }
 
-    async queryDocuments(queryText: string): Promise<QueryResponse> {
+    async queryDocuments(chatQuestion: ChatQuestionDto): Promise<string[]> {
         if (!this.collection) {
-            throw new Error('Chroma collection was not initialized.');
+            this.logger.error('Chroma collection was not initialized.');
+            return [];
         }
 
-        const results: QueryResponse = await this.collection.query({
-            queryTexts: [queryText],
-            nResults: 1,
+        const queryContext: QueryResponse = await this.collection.query({
+            queryTexts: [chatQuestion.question],
+            nResults: 5,
         });
 
-        this.logger.log(results);
+        const context: string[] = filterDocumentsWithMaxDistance(
+            queryContext,
+            chatQuestion.strictAnswer ? this.DISTANCE_THRESHOLD_STRICT : this.DISTANCE_THRESHOLD,
+        );
 
-        return results;
+        this.logger.log(`Found ${context.length} documents in ChromaDB for context.`);
+
+        return context;
     }
 }
