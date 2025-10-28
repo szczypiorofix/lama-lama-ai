@@ -39,6 +39,7 @@ export default tseslint.config(
             'simple-import-sort': eslintSimpleSort,
         },
         rules: {
+            "linebreak-style": ["error", process.env.NODE_ENV === 'prod' ? "unix" : "windows"],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-floating-promises': 'warn',
             '@typescript-eslint/no-unsafe-argument': 'warn',
